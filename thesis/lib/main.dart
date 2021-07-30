@@ -3,11 +3,60 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thesis/screens/route_generator.dart';
 import 'package:thesis/services/auth_service.dart';
 import 'screens/main_drawer.dart';
+import 'package:workmanager/workmanager.dart';
 
- main() {
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  Workmanager().initialize(
+      callbackDispatcherPerodic, // The top level function, aka callbackDispatcher
+      isInDebugMode: true // If enabled it will post a notification whenever the task is running. Handy for debugging tasks
+  );
+  Workmanager().registerOneOffTask(
+    "Workmanager-Refresh_Token_Start",
+    "Refresh_Token",
+    constraints: Constraints(
+        networkType: NetworkType.connected,
+        requiresBatteryNotLow: false,
+        requiresCharging: false,
+        requiresDeviceIdle: false,
+        requiresStorageNotLow: false
+    )
+  );
+  Workmanager().registerPeriodicTask(
+    "Workmanager-Refresh_Token",
+    "Refresh_Token",
+    frequency: const Duration(minutes: 15),
+    constraints: Constraints(
+        networkType: NetworkType.connected,
+        requiresBatteryNotLow: false,
+        requiresCharging: false,
+        requiresDeviceIdle: false,
+        requiresStorageNotLow: false
+    )
+  );
   runApp(MyApp());
 }
 
+void callbackDispatcherPerodic() {
+  Workmanager().executeTask((task, inputData) async{
+    print("PERODIC");
+    var _authInstance = await AuthService.getInstance();
+    if(_authInstance.isTokenValidForRefresh() == false){
+      print("Token need to be refreshed!");
+      var refreshResponse = await _authInstance.refreshTokenRequest();
+      if (refreshResponse.statusCode == 200){
+        print("Token has been refreshed.");
+        return true;
+      }else{
+        print("Token was not refreshed.");
+        return false;
+      }
+    }
+    print("Token is not need to be refreshed.");
+    return true;
+  });
+}
 class MyApp extends StatefulWidget {
   @override
  State<StatefulWidget> createState() => _MyAppState();

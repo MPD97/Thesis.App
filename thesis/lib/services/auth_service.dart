@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:html';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -9,6 +8,7 @@ class AuthService{
   static AuthService? _instance = null;
 
   static SharedPreferences? sharedPreferences = null;
+  static var userIsAuthorized = false;
   static var accessToken = "";
   static var refreshToken = "";
   static var pseudonym = "";
@@ -16,17 +16,18 @@ class AuthService{
   static var email = "";
   static var expires = "";
   static var state = "";
+  static var meId = "";
 
   static AuthService getInstance(){
+    userIsAuthorized = isTokenValid();
     return _instance!;
   }
 
   static Future<AuthService> create() async {
-    print("AUTH SERVICE: CREATING INSTANCE");
-
     if(_instance != null){
       return _instance!;
     }
+    print("AUTH SERVICE: CREATING INSTANCE");
     _instance = AuthService._create();
     sharedPreferences = await SharedPreferences.getInstance();
 
@@ -37,6 +38,7 @@ class AuthService{
     email = sharedPreferences!.get("email").toString();
     expires = sharedPreferences!.get("expires").toString();
     state = sharedPreferences!.get("state").toString();
+    meId = sharedPreferences!.get("meId").toString();
 
     return _instance!;
   }
@@ -93,6 +95,7 @@ class AuthService{
       setEmail(jsonResponse['email']);
       setPseudonym(jsonResponse['pseudonym']);
       setState(jsonResponse['state']);
+      setMeId(jsonResponse['id']);
     }
     return response;
   }
@@ -133,6 +136,51 @@ class AuthService{
     return response;
   }
 
+  void logOut(){
+    setAccessToken("");
+    setRefreshToken("");
+    setMeId("");
+    setEmail("");
+    setState("");
+    setRole("");
+    setExpires("");
+    setPseudonym("");
+    userIsAuthorized = isTokenValid();
+  }
+
+  bool isTokenValidForRefresh(){
+    if(expires != "" && accessToken != ""){
+      var expiresAt = int.parse(expires);
+      var now = DateTime.now().millisecondsSinceEpoch / 1000;
+      var fifteenMinutes = 60 * 15;
+
+      if(expiresAt >= now + fifteenMinutes){
+        return true;
+      }
+    }
+    return false;
+  }
+
+  static bool isTokenValid(){
+    if(expires != "" && accessToken != ""){
+      var expiresAt = int.parse(expires);
+      var now = DateTime.now().millisecondsSinceEpoch / 1000;
+
+      if(expiresAt >= now){
+        print("Token is valid");
+        return true;
+      }
+    }
+    return false;
+  }
+
+  static bool isTokenAvailableToRefresh(){
+    if(refreshToken != ""){
+      return true;
+    }
+    return false;
+  }
+
   setAccessToken(String value){
     accessToken = value;
     sharedPreferences!.setString("accessToken", value);
@@ -166,5 +214,10 @@ class AuthService{
   setState(String value){
     state = value;
     sharedPreferences!.setString("state", value);
+  }
+
+  setMeId(String value){
+    meId = value;
+    sharedPreferences!.setString("meId", value);
   }
 }

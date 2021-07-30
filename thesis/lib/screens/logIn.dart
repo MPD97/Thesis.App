@@ -78,6 +78,7 @@ class _LoginPageState extends State<LogInPage> {
       var state = jsonResponse['state'];
       if(state == 'valid'){
         print("User state is valid");
+        Navigator.of(context).pushNamed('/');
       }
       else if(state == 'incomplete'){
         Navigator.of(context).pushNamed('/complete-registration-process');
@@ -176,10 +177,10 @@ class _LoginPageState extends State<LogInPage> {
   }
 
   Future<void> ensureAuthorized() async{
-    if(await isTokenAvailableToRefresh()){
-      if(await isTokenValid() == false) {
+    if(await AuthService.isTokenAvailableToRefresh()){
+      if(await AuthService.isTokenValid() == false) {
         await _authService.refreshTokenRequest();
-        if(await isTokenValid() == false) {
+        if(await AuthService.isTokenValid() == false) {
           Navigator.of(context).pushNamed('/login');
         }
       }
@@ -190,35 +191,5 @@ class _LoginPageState extends State<LogInPage> {
     else{
       Navigator.of(context).pushNamed('/login');
     }
-  }
-
-  Future<bool> isTokenAvailableToRefresh() async{
-    var sharedPreferences = await SharedPreferences.getInstance();
-
-    var expires = sharedPreferences.get('expires');
-    var refreshToken = sharedPreferences.get('refreshToken').toString();
-
-    if(expires != null && refreshToken != null){
-      return true;
-    }
-    return false;
-  }
-
-  Future<bool> isTokenValid() async{
-    var sharedPreferences = await SharedPreferences.getInstance();
-
-    var expires = sharedPreferences.get('expires');
-    var refreshToken = sharedPreferences.get('refreshToken').toString();
-
-    if(expires != null && refreshToken != null){
-      var expiresAt = int.parse(expires.toString());
-      var now = new DateTime.now().millisecondsSinceEpoch / 1000;
-      var fiveMinutes = 60 * 5;
-
-      if(expiresAt >= now + fiveMinutes){
-        return true;
-      }
-    }
-    return false;
   }
 }

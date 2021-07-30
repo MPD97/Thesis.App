@@ -18,6 +18,8 @@ class RouteGenerator{
         return MaterialPageRoute(builder: (_) => RegisterPage());
       case '/complete-registration-process':
         return MaterialPageRoute(builder: (_) => CompleteRegistrationProcessPage());
+      case '/me':
+        return MaterialPageRoute(builder: (_) => CompleteRegistrationProcessPage());
       
       default:
         return _errorRoute();
