@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:thesis/main.dart';
+import 'package:thesis/screens/Map.dart';
 import 'package:thesis/screens/logIn.dart';
 import 'package:thesis/screens/register.dart';
 
 import 'complete_registration_process.dart';
+import 'home.dart';
 
-class RouteGenerator{
-  static Route<dynamic> generateRoute(RouteSettings settings){
+class RouteGenerator {
+  static Route<dynamic> generateRoute(RouteSettings settings) {
     final args = settings.arguments;
 
-    switch(settings.name){
+    switch (settings.name) {
       case '/':
         return MaterialPageRoute(builder: (_) => HomePage());
       case '/login':
@@ -17,17 +18,20 @@ class RouteGenerator{
       case '/register':
         return MaterialPageRoute(builder: (_) => RegisterPage());
       case '/complete-registration-process':
-        return MaterialPageRoute(builder: (_) => CompleteRegistrationProcessPage());
+        return MaterialPageRoute(
+            builder: (_) => CompleteRegistrationProcessPage());
       case '/me':
-        return MaterialPageRoute(builder: (_) => CompleteRegistrationProcessPage());
-      
+        return MaterialPageRoute(builder: (_) => HomePage());
+      case '/map':
+        return MaterialPageRoute(builder: (_) => MapPage());
+
       default:
         return _errorRoute();
     }
   }
 
-  static Route<dynamic> _errorRoute(){
-    return MaterialPageRoute(builder: (_){
+  static Route<dynamic> _errorRoute() {
+    return MaterialPageRoute(builder: (_) {
       return Scaffold(
         appBar: AppBar(
           title: Text("Błąd"),

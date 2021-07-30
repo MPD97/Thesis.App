@@ -101,17 +101,17 @@ class AuthService{
   }
 
   Future<http.Response> refreshTokenRequest() async {
-    var refreshToken = sharedPreferences!.get('refreshToken').toString();
-
     var singInUrl = Uri.parse('$_baseUrl/identity/refresh-tokens/use');
     var response = await http.post(singInUrl,
         body: jsonEncode({
           'refreshToken': refreshToken,
         })
     );
+    var statusCode = response.statusCode;
+    print("Code: $statusCode. Rtoken: $refreshToken");
     if(response.statusCode == 200){
       var jsonResponse = json.decode(response.body);
-
+      print("Code: $jsonResponse");
       setAccessToken(jsonResponse['accessToken']);
       setRefreshToken(jsonResponse['refreshToken']);
       setRole(jsonResponse['role']);
@@ -148,7 +148,7 @@ class AuthService{
     userIsAuthorized = isTokenValid();
   }
 
-  bool isTokenValidForRefresh(){
+  static bool isTokenShouldBeRefreshed(){
     if(expires != "" && accessToken != ""){
       var expiresAt = int.parse(expires);
       var now = DateTime.now().millisecondsSinceEpoch / 1000;
