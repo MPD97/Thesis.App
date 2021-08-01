@@ -42,6 +42,7 @@ dependencies:
   location: ^4.3.0
   mapbox_gl: ^0.12.0
   multiselect_formfield: ^0.1.6
+  signalr_netcore: ^1.1.1
 
 dev_dependencies:
   flutter_test:

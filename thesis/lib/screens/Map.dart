@@ -12,6 +12,8 @@ import 'main_drawer.dart';
 import 'package:thesis/services/localisation_service.dart';
 import 'package:thesis/helpers/helper.dart';
 import 'dart:convert';
+import 'package:signalr_netcore/signalr_client.dart';
+import 'dart:async';
 
 final LatLngBounds polandBounds = LatLngBounds(
   southwest: const LatLng(53.87076927224154, 14.75693698615063),
@@ -51,6 +53,7 @@ class MapUiBodyState extends State<MapUiBody> {
   );
   LocalisationService _localisationService = LocalisationService.getInstance();
   RouteService _routeService = RouteService.getInstance();
+  AuthService _authService = AuthService.getInstance();
 
   MapboxMapController? mapController;
   CameraPosition? _position = _kInitialPosition;
@@ -91,13 +94,37 @@ class MapUiBodyState extends State<MapUiBody> {
 
   @override
   void initState() {
-    super.initState();
-
     initLocation().whenComplete(() => {});
 
     location.onLocationChanged.listen((LocationData currentLocation) {
       _localisationService.addLocationRequest(currentLocation);
     });
+
+    initSignalR();
+    super.initState();
+  }
+
+  Future initSignalR() async {
+    final _serverUrl = "http://thesisapi.ddns.net/hub";
+    final hubConnection = HubConnectionBuilder().withUrl(_serverUrl).build();
+    hubConnection.on("connected", _handleResponseConnected);
+    hubConnection.on("operation_completed", _handleResponseCompleted);
+    hubConnection.onclose(_handleResponseOnClose);
+
+    await hubConnection.start();
+    final result = await hubConnection.invoke("initializeAsync", args: <Object>[AuthService.accessToken]);
+  }
+
+  void _handleResponseCompleted(List<Object> parameters) {
+    print("HandleResponse: ${parameters}");
+    Helper.toastSuccess("Completed");
+  }
+
+  void _handleResponseConnected(List<Object> parameters) {
+    Helper.toastSuccessShort("Nawiązano połączenie");
+  }
+  void _handleResponseOnClose({Exception? error}) {
+    Helper.toastFailShort("Utracono połączenie");
   }
 
   Future<void> initLocation() async {
@@ -243,7 +270,7 @@ class MapUiBodyState extends State<MapUiBody> {
         color = '#ff0000';
         break;
       case 'black':
-        color = '#ffffff';
+        color = '#000000';
         break;
     }
     await mapController!.addLine(LineOptions(
@@ -377,9 +404,7 @@ class MapUiBodyState extends State<MapUiBody> {
                         Align(
                           alignment: Alignment.bottomRight,
                           child: FloatingActionButton.extended(
-                            onPressed: () {
-
-                            },
+                            onPressed: () {},
                             label: const Text('Rozpocznij'),
                             icon: const Icon(Icons.arrow_forward),
                             backgroundColor: Colors.green,
@@ -391,7 +416,9 @@ class MapUiBodyState extends State<MapUiBody> {
                             alignment: Alignment.bottomLeft,
                             child: FloatingActionButton.extended(
                               onPressed: () {
-                                Navigator.of(context).pushNamed('/route/details', arguments: _selectedRoute);
+                                Navigator.of(context).pushNamed(
+                                    '/route/details',
+                                    arguments: _selectedRoute);
                               },
                               label: const Text('Szczególy trasy'),
                               icon: const Icon(Icons.details),
