@@ -6,6 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thesis/helpers/helper.dart';
 import 'package:thesis/services/auth_service.dart';
 
+import 'main_drawer.dart';
+
 
 class CompleteRegistrationProcessPage extends StatefulWidget {
   @override
@@ -20,6 +22,7 @@ class _CompleteRegistrationProcessPageState extends State<CompleteRegistrationPr
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light.copyWith(statusBarColor: Colors.transparent));
     return Scaffold(
+      drawer: MainDrawer(),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(

@@ -2,11 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:thesis/helpers/helper.dart';
 import 'package:thesis/services/auth_service.dart';
+
+import 'main_drawer.dart';
 
 
 class RegisterPage extends StatefulWidget {
@@ -22,6 +21,7 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light.copyWith(statusBarColor: Colors.transparent));
     return Scaffold(
+      drawer: MainDrawer(),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -51,6 +51,9 @@ class _RegisterPageState extends State<RegisterPage> {
 
     if(response.statusCode == 201) {
       Helper.toastSuccess('Konto utworzone');
+      if (Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
       Navigator.of(context).pushNamed('/login');
     }
     else if(response.statusCode == 400){

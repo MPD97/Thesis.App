@@ -4,10 +4,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService{
   AuthService._create();
-  final String _baseUrl = 'https://thesisapi.ddns.net';
+  static const String _baseUrl = 'https://thesisapi.ddns.net';
+  static final Uri _refreshTokenUri = Uri.parse('$_baseUrl/identity/refresh-tokens/use');
+  static final Uri _singUpUrl = Uri.parse('$_baseUrl/identity/sign-up');
+  static final Uri _userMeUrl = Uri.parse('$_baseUrl/users/me');
+  static final Uri _singInUrl = Uri.parse('$_baseUrl/identity/sign-in');
+  static final Uri _completeRegistrationUrl = Uri.parse('$_baseUrl/users');
+
+
   static AuthService? _instance = null;
 
-  static SharedPreferences? sharedPreferences = null;
+  static SharedPreferences? _sharedPreferences = null;
   static var userIsAuthorized = false;
   static var accessToken = "";
   static var refreshToken = "";
@@ -25,28 +32,26 @@ class AuthService{
 
   static Future<AuthService> create() async {
     if(_instance != null){
-      return _instance!;
+      return getInstance();
     }
     print("AUTH SERVICE: CREATING INSTANCE");
     _instance = AuthService._create();
-    sharedPreferences = await SharedPreferences.getInstance();
+    _sharedPreferences = await SharedPreferences.getInstance();
 
-    accessToken = sharedPreferences!.get("accessToken").toString();
-    refreshToken = sharedPreferences!.get("refreshToken").toString();
-    pseudonym = sharedPreferences!.get("pseudonym").toString();
-    role = sharedPreferences!.get("role").toString();
-    email = sharedPreferences!.get("email").toString();
-    expires = sharedPreferences!.get("expires").toString();
-    state = sharedPreferences!.get("state").toString();
-    meId = sharedPreferences!.get("meId").toString();
+    accessToken = _sharedPreferences!.get("accessToken").toString();
+    refreshToken = _sharedPreferences!.get("refreshToken").toString();
+    pseudonym = _sharedPreferences!.get("pseudonym").toString();
+    role = _sharedPreferences!.get("role").toString();
+    email = _sharedPreferences!.get("email").toString();
+    expires = _sharedPreferences!.get("expires").toString();
+    state = _sharedPreferences!.get("state").toString();
+    meId = _sharedPreferences!.get("meId").toString();
 
-    return _instance!;
+    return getInstance();
   }
 
   Future<http.Response> registerUser(String email, String password) async {
-    var singUpUrl = Uri.parse('$_baseUrl/identity/sign-up');
-
-    var response = await http.post(singUpUrl,
+    var response = await http.post(_singUpUrl,
         body: jsonEncode({
           'email': email,
           'password': password,
@@ -58,9 +63,7 @@ class AuthService{
   }
 
   Future<http.Response> loginRequest(String email, String password) async {
-
-    var singInUrl = Uri.parse('$_baseUrl/identity/sign-in');
-    var response = await http.post(singInUrl,
+    var response = await http.post(_singInUrl,
       body: jsonEncode({
         'email': email,
         'password': password,
@@ -74,17 +77,14 @@ class AuthService{
       setRole(jsonResponse['role']);
       setExpires(jsonResponse['expires'].toString());
       setEmail(email);
+      userIsAuthorized = isTokenValid();
     }
 
     return response;
   }
 
   Future<http.Response> userMeRequest() async {
-    var accessToken = sharedPreferences!.get('accessToken').toString();
-
-    var userMeUrl = Uri.parse('$_baseUrl/users/me');
-
-    var response = await http.get(userMeUrl,
+    var response = await http.get(_userMeUrl,
         headers: {
           'Authorization': 'Bearer $accessToken'
         }
@@ -101,14 +101,13 @@ class AuthService{
   }
 
   Future<http.Response> refreshTokenRequest() async {
-    var singInUrl = Uri.parse('$_baseUrl/identity/refresh-tokens/use');
-    var response = await http.post(singInUrl,
+    var response = await http.post(_refreshTokenUri,
         body: jsonEncode({
           'refreshToken': refreshToken,
         })
     );
     var statusCode = response.statusCode;
-    print("Code: $statusCode. Rtoken: $refreshToken");
+    print("Code: $statusCode");
     if(response.statusCode == 200){
       var jsonResponse = json.decode(response.body);
       print("Code: $jsonResponse");
@@ -116,15 +115,13 @@ class AuthService{
       setRefreshToken(jsonResponse['refreshToken']);
       setRole(jsonResponse['role']);
       setExpires(jsonResponse['expires'].toString());
+      userIsAuthorized = isTokenValid();
     }
     return response;
   }
 
   Future<http.Response> completeRegistration(String pseudonym) async {
-    String accessToken = sharedPreferences!.get('accessToken').toString();
-
-    var singInUrl = Uri.parse('$_baseUrl/users');
-    var response = await http.post(singInUrl,
+    var response = await http.post(_completeRegistrationUrl,
         headers: {"authorization": "Bearer $accessToken"},
         body: jsonEncode({
           'pseudonym': pseudonym,
@@ -155,10 +152,10 @@ class AuthService{
       var fifteenMinutes = 60 * 15;
 
       if(expiresAt >= now + fifteenMinutes){
-        return true;
+        return false;
       }
     }
-    return false;
+    return true;
   }
 
   static bool isTokenValid(){
@@ -169,8 +166,11 @@ class AuthService{
       if(expiresAt >= now){
         print("Token is valid");
         return true;
+      }else{
+        print("Token is outdated");
       }
     }
+    print("Token is not valid");
     return false;
   }
 
@@ -183,41 +183,41 @@ class AuthService{
 
   setAccessToken(String value){
     accessToken = value;
-    sharedPreferences!.setString("accessToken", value);
+    _sharedPreferences!.setString("accessToken", value);
   }
 
   setRefreshToken(String value){
     refreshToken = value;
-    sharedPreferences!.setString("refreshToken", value);
+    _sharedPreferences!.setString("refreshToken", value);
   }
 
   setExpires(String value){
     expires = value;
-    sharedPreferences!.setString("expires", value);
+    _sharedPreferences!.setString("expires", value);
   }
 
   setRole(String value){
     role = value;
-    sharedPreferences!.setString("role", value);
+    _sharedPreferences!.setString("role", value);
   }
 
   setPseudonym(String value){
     pseudonym = value;
-    sharedPreferences!.setString("pseudonym", value);
+    _sharedPreferences!.setString("pseudonym", value);
   }
 
   setEmail(String value){
     email = value;
-    sharedPreferences!.setString("email", value);
+    _sharedPreferences!.setString("email", value);
   }
 
   setState(String value){
     state = value;
-    sharedPreferences!.setString("state", value);
+    _sharedPreferences!.setString("state", value);
   }
 
   setMeId(String value){
     meId = value;
-    sharedPreferences!.setString("meId", value);
+    _sharedPreferences!.setString("meId", value);
   }
 }

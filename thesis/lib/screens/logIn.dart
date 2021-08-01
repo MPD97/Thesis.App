@@ -7,6 +7,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thesis/services/auth_service.dart';
 import 'package:thesis/helpers/helper.dart';
 
+import 'main_drawer.dart';
+
 class LogInPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -20,6 +22,7 @@ class _LoginPageState extends State<LogInPage> {
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light.copyWith(statusBarColor: Colors.transparent));
     return Scaffold(
+      drawer: MainDrawer(),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -78,19 +81,23 @@ class _LoginPageState extends State<LogInPage> {
       var state = jsonResponse['state'];
       if(state == 'valid'){
         print("User state is valid");
+        if (Navigator.canPop(context)) {
+          Navigator.pop(context);
+        }
         Navigator.of(context).pushNamed('/');
       }
       else if(state == 'incomplete'){
+        if (Navigator.canPop(context)) {
+          Navigator.pop(context);
+        }
         Navigator.of(context).pushNamed('/complete-registration-process');
         print("User state is incomplete");
       }
       else if(state == 'locked'){
         Helper.toastFail("Konto zostało zablokowane.");
-        Navigator.of(context).pushNamed('/login');
       }
       else {
         Helper.toastFail("Konto posiada nieznany status.");
-        Navigator.of(context).pushNamed('/login');
       }
     }
     else{
@@ -181,14 +188,23 @@ class _LoginPageState extends State<LogInPage> {
       if(await AuthService.isTokenValid() == false) {
         await _authService.refreshTokenRequest();
         if(await AuthService.isTokenValid() == false) {
+          if (Navigator.canPop(context)) {
+            Navigator.pop(context);
+          }
           Navigator.of(context).pushNamed('/login');
         }
       }
       else{
+        if (Navigator.canPop(context)) {
+          Navigator.pop(context);
+        }
         Navigator.of(context).pushNamed('/login');
       }
     }
     else{
+      if (Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
       Navigator.of(context).pushNamed('/login');
     }
   }

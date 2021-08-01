@@ -34,11 +34,19 @@ class _MainDrawerState extends State<MainDrawer> {
                           fit: BoxFit.fill)),
                 ),
                 Text(
-                    AuthService.pseudonym == ""
-                        ? "użytkownik niezalogowany"
-                        : AuthService.pseudonym,
+                    AuthService.userIsAuthorized == true
+                        ? AuthService.pseudonym == ""
+                            ? "brak pseudonimu"
+                            : AuthService.pseudonym
+                        : "użytkownik niezalogowany",
                     style: TextStyle(fontSize: 20, color: Colors.white)),
-                Text(AuthService.email, style: TextStyle(color: Colors.white))
+                Text(
+                    AuthService.userIsAuthorized == true
+                        ? AuthService.email == ""
+                            ? "brak email"
+                            : AuthService.email
+                        : "",
+                    style: TextStyle(color: Colors.white))
               ],
             ),
           ),
@@ -46,17 +54,17 @@ class _MainDrawerState extends State<MainDrawer> {
         ListTile(
           leading: Icon(Icons.map),
           title: Text('Mapa', style: TextStyle(fontSize: 18)),
-          onTap: null,
-        ),
-        ListTile(
-          leading: Icon(Icons.leaderboard),
-          title: Text('Ranking', style: TextStyle(fontSize: 18)),
           onTap: () {
             if (Navigator.canPop(context)) {
               Navigator.pop(context);
             }
             Navigator.of(context).pushNamed('/map');
           },
+        ),
+        ListTile(
+          leading: Icon(Icons.leaderboard),
+          title: Text('Ranking', style: TextStyle(fontSize: 18)),
+          onTap: null,
         ),
         ListTile(
           leading: AuthService.userIsAuthorized

@@ -3,14 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 import 'package:thesis/screens/route_generator.dart';
 import 'package:thesis/services/auth_service.dart';
+import 'package:thesis/services/localisation_service.dart';
+import 'package:thesis/services/route_service.dart';
 import 'package:workmanager/workmanager.dart';
 
-void main() {
+void main() async{
   WidgetsFlutterBinding.ensureInitialized();
+
+  var authInstance = await AuthService.create();
+  var _localisationService = await LocalisationService.create();
+  var _routeService = await RouteService.create();
 
   Workmanager().initialize(
       taskRefreshToken, // The top level function, aka callbackDispatcher
-      isInDebugMode: true // If enabled it will post a notification whenever the task is running. Handy for debugging tasks
+      isInDebugMode: false
   );
   Workmanager().registerPeriodicTask(
     "Workmanager-Refresh_Token",
@@ -24,9 +30,9 @@ void main() {
         requiresStorageNotLow: false
     )
   );
-  TryRefreshToken();
-  checkPermissions();
-  runApp(MyApp());
+  await TryRefreshToken();
+  await checkPermissions();
+  runApp(Application());
 }
 Future<void> checkPermissions() async{
   if (!kIsWeb) {
@@ -45,7 +51,8 @@ void taskRefreshToken() {
 }
 Future<bool> TryRefreshToken() async{
   var _authInstance = await AuthService.create();
-  if(AuthService.isTokenShouldBeRefreshed() == false){
+
+  if(AuthService.isTokenShouldBeRefreshed()){
     print("Token should be refreshed!");
     if(AuthService.isTokenAvailableToRefresh() == false){
       print("Token cannot be refreshed!");
@@ -65,13 +72,14 @@ Future<bool> TryRefreshToken() async{
   return true;
 }
 
-class MyApp extends StatefulWidget {
+class Application extends StatefulWidget {
+  static const String ACCESS_TOKEN = "pk.eyJ1IjoibXBkOTciLCJhIjoiY2twNzdheDNiMTM5bTJvczFvb3FvMDZjciJ9.SsZFQE9EsGcgE5l8_etrlw";
   @override
- State<StatefulWidget> createState() => _MyAppState();
+ State<StatefulWidget> createState() => _ApplicationState();
 }
 
-class _MyAppState extends State<MyApp>{
-  var authInstance = AuthService.create();
+class _ApplicationState extends State<Application>{
+  var authInstance = AuthService.getInstance();
 
   @override
   Widget build(BuildContext context){

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:thesis/services/auth_service.dart';
 import 'main_drawer.dart';
 
 
@@ -19,9 +20,11 @@ class HomePage extends StatelessWidget{
               style: TextStyle(fontSize: 50),
             ),
             ElevatedButton(
-              child: Text('Go to login'),
+              child: AuthService.userIsAuthorized ? Text('Mapa') : Text('Zaloguj się'),
               onPressed: (){
-                Navigator.of(context).pushNamed('/login');
+                AuthService.userIsAuthorized ?
+                  Navigator.of(context).pushNamed('/map')
+                  : Navigator.of(context).pushNamed('/login');
               },
             )
           ],
