@@ -107,7 +107,6 @@ class AuthService{
           'refreshToken': refreshToken,
         })
     );
-    var statusCode = response.statusCode;
     if(response.statusCode == 200){
       var jsonResponse = json.decode(response.body);
       setAccessToken(jsonResponse['accessToken']);

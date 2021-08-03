@@ -22,6 +22,7 @@ class _RouteAcceptState extends State<RouteAccept> {
   _RouteAcceptState();
 
   Future getRoutes() async {
+    _items.clear();
     var _totalPages = 1;
     var _currentPage = 0;
 
@@ -42,7 +43,8 @@ class _RouteAcceptState extends State<RouteAccept> {
   }
 
   Future RejectRoute(int index, RouteModel route) async {
-    var _response = await _routeService.changeRouteStatusRequest(route.id, RouteStatusModel.Rejected);
+    var _response = await _routeService.changeRouteStatusRequest(
+        route.id, RouteStatusModel.Rejected);
     print(_response!.body);
     print("Code: ${_response.statusCode}");
     if (_response.statusCode == 204) {
@@ -60,11 +62,12 @@ class _RouteAcceptState extends State<RouteAccept> {
     Navigator.pop(context, 'Odrzuć');
   }
 
-  void onItemTap(RouteModel route){
+  void onItemTap(RouteModel route) {
     print("Tapped at route ${route.name}");
-    Navigator.of(context).pushNamed('/route/show/new/details',
-        arguments: route);
+    Navigator.of(context)
+        .pushNamed('/route/show/new/details', arguments: route);
   }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -82,43 +85,50 @@ class _RouteAcceptState extends State<RouteAccept> {
 
   Widget ListOfRoutes() {
     return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text("Zarządzanie nowymi trasami"),
-        ),
-        body: ListView.builder(
-          itemCount: _items.length,
-          itemBuilder: (context, index) {
-            final item = _items[index];
-            return ListTile(
-              title: item.buildTitle(context),
-              subtitle: item.buildSubtitle(context),
-              tileColor: item.buildTileColor(),
-              onTap: () => {
-                onItemTap(_items[index].getModel())
-              },
-              onLongPress: () => showDialog<String>(
-                  context: context,
-                  builder: (BuildContext context) => AlertDialog(
-                        title: const Text('Odrzuć trasę'),
-                        content: Text(
-                            'Czy na pewno chcesz odrzucić trasę: "${_items[index].getModel().name}"?'),
-                        actions: <Widget>[
-                          TextButton(
-                            onPressed: () => Navigator.pop(context, 'anuluj'),
-                            child: const Text('anuluj'),
-                          ),
-                          TextButton(
-                            onPressed: () =>
-                                {RejectRoute(index, _items[index].getModel())},
-                            child: const Text('Odrzuć'),
-                          ),
-                        ],
-                      )),
-            );
-          },
-        ),
-      ),
+        home: Scaffold(
+            appBar: AppBar(
+              title: const Text("Zarządzanie nowymi trasami"),
+            ),
+            body: _items.isNotEmpty
+                ? RefreshIndicator(
+                    child: ListView.builder(
+                      physics: const BouncingScrollPhysics(
+                          parent: AlwaysScrollableScrollPhysics()),
+                      itemCount: _items.length,
+                      itemBuilder: (context, index) {
+                        final item = _items[index];
+                        return ListTile(
+                          title: item.buildTitle(context),
+                          subtitle: item.buildSubtitle(context),
+                          tileColor: item.buildTileColor(),
+                          onTap: () => {onItemTap(_items[index].getModel())},
+                          onLongPress: () => showDialog<String>(
+                              context: context,
+                              builder: (BuildContext context) => AlertDialog(
+                                    title: const Text('Odrzuć trasę'),
+                                    content: Text(
+                                        'Czy na pewno chcesz odrzucić trasę: "${_items[index].getModel().name}"?'),
+                                    actions: <Widget>[
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.pop(context, 'anuluj'),
+                                        child: const Text('anuluj'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () => {
+                                          RejectRoute(
+                                              index, _items[index].getModel())
+                                        },
+                                        child: const Text('Odrzuć'),
+                                      ),
+                                    ],
+                                  )),
+                        );
+                      },
+                    ),
+                    onRefresh: getRoutes)
+                : Center(child:Text("Brak nowych tras"))
+        )
     );
   }
 }

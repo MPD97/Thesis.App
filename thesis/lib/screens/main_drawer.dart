@@ -60,7 +60,7 @@ class _MainDrawerState extends State<MainDrawer> {
             Navigator.of(context).pushNamed('/map');
           },
         ),
-        AuthService.isUserAdmin()
+        AuthService.userIsAuthorized && AuthService.isUserAdmin()
             ? ListTile(
                 leading: const Icon(Icons.admin_panel_settings),
                 title: const Text('Zarządzaj nowymi trasami', style: TextStyle(fontSize: 18)),
