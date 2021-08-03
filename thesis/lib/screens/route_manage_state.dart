@@ -84,51 +84,50 @@ class _RouteAcceptState extends State<RouteAccept> {
   }
 
   Widget ListOfRoutes() {
-    return MaterialApp(
-        home: Scaffold(
-            appBar: AppBar(
-              title: const Text("Zarządzanie nowymi trasami"),
-            ),
-            body: _items.isNotEmpty
-                ? RefreshIndicator(
-                    child: ListView.builder(
-                      physics: const BouncingScrollPhysics(
-                          parent: AlwaysScrollableScrollPhysics()),
-                      itemCount: _items.length,
-                      itemBuilder: (context, index) {
-                        final item = _items[index];
-                        return ListTile(
-                          title: item.buildTitle(context),
-                          subtitle: item.buildSubtitle(context),
-                          tileColor: item.buildTileColor(),
-                          onTap: () => {onItemTap(_items[index].getModel())},
-                          onLongPress: () => showDialog<String>(
-                              context: context,
-                              builder: (BuildContext context) => AlertDialog(
-                                    title: const Text('Odrzuć trasę'),
-                                    content: Text(
-                                        'Czy na pewno chcesz odrzucić trasę: "${_items[index].getModel().name}"?'),
-                                    actions: <Widget>[
-                                      TextButton(
-                                        onPressed: () =>
-                                            Navigator.pop(context, 'anuluj'),
-                                        child: const Text('anuluj'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () => {
-                                          RejectRoute(
-                                              index, _items[index].getModel())
-                                        },
-                                        child: const Text('Odrzuć'),
-                                      ),
-                                    ],
-                                  )),
-                        );
-                      },
-                    ),
-                    onRefresh: getRoutes)
-                : Center(child:Text("Brak nowych tras"))
-        )
+    return Scaffold(
+        appBar: AppBar(
+          title: const Text("Zarządzanie nowymi trasami"),
+        ),
+        body: _items.isNotEmpty
+            ? RefreshIndicator(
+                child: ListView.builder(
+                  physics: const BouncingScrollPhysics(
+                      parent: AlwaysScrollableScrollPhysics()),
+                  itemCount: _items.length,
+                  itemBuilder: (context, index) {
+                    final item = _items[index];
+                    return ListTile(
+                      title: item.buildTitle(context),
+                      subtitle: item.buildSubtitle(context),
+                      tileColor: item.buildTileColor(),
+                      onTap: () => {onItemTap(_items[index].getModel())},
+                      onLongPress: () => showDialog<String>(
+                          context: context,
+                          builder: (BuildContext context) => AlertDialog(
+                                title: const Text('Odrzuć trasę'),
+                                content: Text(
+                                    'Czy na pewno chcesz odrzucić trasę: "${_items[index].getModel().name}"?'),
+                                actions: <Widget>[
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.pop(context, 'anuluj'),
+                                    child: const Text('anuluj'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () => {
+                                      RejectRoute(
+                                          index, _items[index].getModel())
+                                    },
+                                    child: const Text('Odrzuć'),
+                                  ),
+                                ],
+                              )),
+                    );
+                  },
+                ),
+                onRefresh: getRoutes)
+            :
+        Center(child: Text("Brak nowych tras"))
     );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:background_fetch/background_fetch.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
@@ -6,7 +7,6 @@ import 'package:thesis/services/auth_service.dart';
 import 'package:thesis/services/localisation_service.dart';
 import 'package:thesis/services/route_service.dart';
 import 'package:thesis/services/run_service.dart';
-import 'package:workmanager/workmanager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,16 +16,6 @@ void main() async {
   var _routeService = await RouteService.create();
   var _runService = await RunService.create();
 
-  Workmanager().initialize(taskRefreshToken, isInDebugMode: false);
-  Workmanager().registerPeriodicTask(
-      "Workmanager-Refresh_Token", "Refresh_Token",
-      frequency: const Duration(minutes: 15),
-      constraints: Constraints(
-          networkType: NetworkType.connected,
-          requiresBatteryNotLow: false,
-          requiresCharging: false,
-          requiresDeviceIdle: false,
-          requiresStorageNotLow: false));
   await TryRefreshToken();
   await checkPermissions();
   runApp(Application());
@@ -39,12 +29,6 @@ Future<void> checkPermissions() async {
       await location.requestPermission();
     }
   }
-}
-
-void taskRefreshToken() {
-  Workmanager().executeTask((task, inputData) async {
-    return await TryRefreshToken();
-  });
 }
 
 Future<bool> TryRefreshToken() async {
@@ -80,6 +64,37 @@ class Application extends StatefulWidget {
 
 class _ApplicationState extends State<Application> {
   var authInstance = AuthService.getInstance();
+
+  @override
+  void initState() {
+    super.initState();
+    initPlatformState();
+  }
+
+  Future<void> initPlatformState() async {
+    int status = await BackgroundFetch.configure(
+        BackgroundFetchConfig(
+            minimumFetchInterval: 15,
+            stopOnTerminate: true,
+            enableHeadless: false,
+            requiresBatteryNotLow: false,
+            requiresCharging: false,
+            requiresStorageNotLow: false,
+            requiresDeviceIdle: false,
+            requiredNetworkType: NetworkType.ANY), (String taskId) async {
+      print("[BackgroundFetch] Event received $taskId");
+
+      await TryRefreshToken();
+
+      BackgroundFetch.finish(taskId);
+    }, (String taskId) async {
+      print("[BackgroundFetch] TASK TIMEOUT taskId: $taskId");
+      BackgroundFetch.finish(taskId);
+    });
+    print('[BackgroundFetch] configure success: $status');
+
+    if (!mounted) return;
+  }
 
   @override
   Widget build(BuildContext context) {
