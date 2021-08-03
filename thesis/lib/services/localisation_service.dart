@@ -1,11 +1,8 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:location/location.dart';
-import 'package:mapbox_gl/mapbox_gl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thesis/helpers/helper.dart';
 import 'package:thesis/services/auth_service.dart';
-import 'package:thesis/services/localisation_service.dart';
 
 
 class LocalisationService {
@@ -14,11 +11,10 @@ class LocalisationService {
   static const String _baseUrl = 'https://thesisapi.ddns.net';
   static final Uri _addLocationUrl = Uri.parse('$_baseUrl/locations');
 
-  static LocalisationService? _instance = null;
-  static SharedPreferences? _sharedPreferences = null;
+  static LocalisationService? _instance;
 
   static bool locationEnabled = false;
-
+  static int _lastLocationSendDate = 0;
   static LocalisationService getInstance() {
     return _instance!;
   }
@@ -29,7 +25,6 @@ class LocalisationService {
     }
     print("LOCALISATION SERVICE: CREATING INSTANCE");
     _instance = LocalisationService._create();
-    _sharedPreferences = await SharedPreferences.getInstance();
     return _instance!;
   }
 
@@ -49,12 +44,19 @@ class LocalisationService {
       return;
     }
 
+    var now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    if(_lastLocationSendDate >= now + 1){
+      print("Wait 1 sec");
+      return;
+    }
+    _lastLocationSendDate = now;
+
     double latitude = location.latitude!;
     double longitude = location.longitude!;
     int accuracy = location.accuracy!.toInt();
     String accessToken = AuthService.accessToken;
 
-    print("POST Lat: ${latitude} Lon: ${longitude} Acc: ${accuracy}");
+    print("POST Lat: $latitude Lon: $longitude Acc: $accuracy");
     var response = http.post(_addLocationUrl,
         headers: {"authorization": "Bearer $accessToken"},
         body: jsonEncode({

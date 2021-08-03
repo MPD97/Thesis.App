@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thesis/services/auth_service.dart';
 
 class MainDrawer extends StatefulWidget {
@@ -9,15 +8,15 @@ class MainDrawer extends StatefulWidget {
 
 class _MainDrawerState extends State<MainDrawer> {
   final AuthService _authService = AuthService.getInstance();
-  bool _isLoading = false;
 
+  @override
   Widget build(BuildContext context) {
     return Drawer(
         child: Column(
       children: <Widget>[
         Container(
           width: double.infinity,
-          padding: EdgeInsets.all(20),
+          padding: const EdgeInsets.all(20),
           color: Theme.of(context).primaryColor,
           child: Center(
             child: Column(
@@ -25,8 +24,8 @@ class _MainDrawerState extends State<MainDrawer> {
                 Container(
                   width: 100,
                   height: 100,
-                  margin: EdgeInsets.only(top: 30),
-                  decoration: BoxDecoration(
+                  margin: const EdgeInsets.only(top: 30),
+                  decoration: const BoxDecoration(
                       shape: BoxShape.circle,
                       image: DecorationImage(
                           image: NetworkImage(
@@ -39,21 +38,21 @@ class _MainDrawerState extends State<MainDrawer> {
                             ? "brak pseudonimu"
                             : AuthService.pseudonym
                         : "użytkownik niezalogowany",
-                    style: TextStyle(fontSize: 20, color: Colors.white)),
+                    style: const TextStyle(fontSize: 20, color: Colors.white)),
                 Text(
                     AuthService.userIsAuthorized == true
                         ? AuthService.email == ""
                             ? "brak email"
                             : AuthService.email
                         : "",
-                    style: TextStyle(color: Colors.white))
+                    style: const TextStyle(color: Colors.white))
               ],
             ),
           ),
         ),
         ListTile(
-          leading: Icon(Icons.map),
-          title: Text('Mapa', style: TextStyle(fontSize: 18)),
+          leading: const Icon(Icons.map),
+          title: const Text('Mapa', style: TextStyle(fontSize: 18)),
           onTap: () {
             if (Navigator.canPop(context)) {
               Navigator.pop(context);
@@ -61,17 +60,29 @@ class _MainDrawerState extends State<MainDrawer> {
             Navigator.of(context).pushNamed('/map');
           },
         ),
-        ListTile(
+        AuthService.isUserAdmin()
+            ? ListTile(
+                leading: const Icon(Icons.admin_panel_settings),
+                title: const Text('Zarządzaj nowymi trasami', style: TextStyle(fontSize: 18)),
+                onTap: () {
+                  if (Navigator.canPop(context)) {
+                    Navigator.pop(context);
+                  }
+                  Navigator.of(context).pushNamed('/route/show/new');
+                },
+              )
+            : const SizedBox.shrink(),
+        const ListTile(
           leading: Icon(Icons.leaderboard),
           title: Text('Ranking', style: TextStyle(fontSize: 18)),
           onTap: null,
         ),
         ListTile(
           leading: AuthService.userIsAuthorized
-              ? Icon(Icons.perm_identity)
-              : Icon(Icons.login),
+              ? const Icon(Icons.perm_identity)
+              : const Icon(Icons.login),
           title: Text(AuthService.userIsAuthorized ? "Moje konto" : "Logowanie",
-              style: TextStyle(fontSize: 18)),
+              style: const TextStyle(fontSize: 18)),
           onTap: () {
             if (Navigator.canPop(context)) {
               Navigator.pop(context);
@@ -85,10 +96,10 @@ class _MainDrawerState extends State<MainDrawer> {
         ),
         ListTile(
           leading: AuthService.userIsAuthorized
-              ? Icon(Icons.logout)
-              : Icon(Icons.add),
+              ? const Icon(Icons.logout)
+              : const Icon(Icons.add),
           title: Text(AuthService.userIsAuthorized ? "Wyloguj" : "Rejestracja",
-              style: TextStyle(fontSize: 18)),
+              style: const TextStyle(fontSize: 18)),
           onTap: () {
             if (AuthService.userIsAuthorized) {
               _authService.logOut();

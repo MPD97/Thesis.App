@@ -32,7 +32,7 @@ class RouteModel {
     difficulty = json['difficulty'];
     length = json['length'];
     status = json['status'];
-    activityKind = json['activityKind'];
+    activityKind = json['activityKind'].toString();
     if (json['points'] != null) {
       points = <PointModel>[];
       json['points'].forEach((v) {

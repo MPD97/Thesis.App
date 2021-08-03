@@ -24,7 +24,7 @@ class _CompleteRegistrationProcessPageState extends State<CompleteRegistrationPr
     return Scaffold(
       drawer: MainDrawer(),
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
               colors: [
                 Color(0xFF4170B3),
@@ -34,7 +34,7 @@ class _CompleteRegistrationProcessPageState extends State<CompleteRegistrationPr
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter),
         ),
-        child: _isLoading ? Center(child: CircularProgressIndicator()) : ListView(
+        child: _isLoading ? const Center(child: CircularProgressIndicator()) : ListView(
           children: <Widget>[
             headerSection(),
             textSection(),
@@ -80,13 +80,13 @@ class _CompleteRegistrationProcessPageState extends State<CompleteRegistrationPr
     return Container(
       width: MediaQuery.of(context).size.width,
       height: 40.0,
-      padding: EdgeInsets.symmetric(horizontal: 15.0),
-      margin: EdgeInsets.only(top: 15.0),
+      padding: const EdgeInsets.symmetric(horizontal: 15.0),
+      margin: const EdgeInsets.only(top: 15.0),
       child: ElevatedButton(
         onPressed: pseudonymController.text == "" ? null : () {
           completeRegistration(pseudonymController.text);
         },
-        child: Text("Zapisz", style: TextStyle(color: Colors.white70)),
+        child: Text("Zapisz", style: const TextStyle(color: Colors.white70)),
         style: ElevatedButton.styleFrom(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
         ),
@@ -94,18 +94,18 @@ class _CompleteRegistrationProcessPageState extends State<CompleteRegistrationPr
     );
   }
 
-  final TextEditingController pseudonymController = new TextEditingController();
+  final TextEditingController pseudonymController = TextEditingController();
 
   Container textSection() {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 20.0),
+      padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 20.0),
       child: Column(
         children: <Widget>[
           TextFormField(
             controller: pseudonymController,
             cursorColor: Colors.white,
-            style: TextStyle(color: Colors.white70),
-            decoration: InputDecoration(
+            style: const TextStyle(color: Colors.white70),
+            decoration: const InputDecoration(
               icon: Icon(Icons.tag_faces, color: Colors.white70),
               hintText: "Pseudonim",
               border: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white70)),
@@ -119,9 +119,9 @@ class _CompleteRegistrationProcessPageState extends State<CompleteRegistrationPr
 
   Container headerSection() {
     return Container(
-      margin: EdgeInsets.only(top: 50.0),
-      padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
-      child: Text("Wybierz pseudonim",
+      margin: const EdgeInsets.only(top: 50.0),
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
+      child: const Text("Wybierz pseudonim",
           style: TextStyle(
               color: Colors.white70,
               fontSize: 40.0,

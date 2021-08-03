@@ -12,10 +12,11 @@ class AuthService{
   static final Uri _completeRegistrationUrl = Uri.parse('$_baseUrl/users');
 
 
-  static AuthService? _instance = null;
+  static AuthService? _instance;
 
-  static SharedPreferences? _sharedPreferences = null;
+  static SharedPreferences? _sharedPreferences;
   static var userIsAuthorized = false;
+  static var _userIsInAdminRole = false;
   static var accessToken = "";
   static var refreshToken = "";
   static var pseudonym = "";
@@ -107,10 +108,8 @@ class AuthService{
         })
     );
     var statusCode = response.statusCode;
-    print("Code: $statusCode");
     if(response.statusCode == 200){
       var jsonResponse = json.decode(response.body);
-      print("Code: $jsonResponse");
       setAccessToken(jsonResponse['accessToken']);
       setRefreshToken(jsonResponse['refreshToken']);
       setRole(jsonResponse['role']);
@@ -158,13 +157,21 @@ class AuthService{
     return true;
   }
 
+  static bool isUserAdmin(){
+    if(role == 'admin'){
+      _userIsInAdminRole = true;
+    }else{
+      _userIsInAdminRole = false;
+    }
+    return _userIsInAdminRole;
+  }
+
   static bool isTokenValid(){
     if(expires != "" && accessToken != ""){
       var expiresAt = int.parse(expires);
       var now = DateTime.now().millisecondsSinceEpoch / 1000;
 
       if(expiresAt >= now){
-        print("Token is valid");
         return true;
       }else{
         print("Token is outdated");
@@ -199,6 +206,11 @@ class AuthService{
   setRole(String value){
     role = value;
     _sharedPreferences!.setString("role", value);
+    if(role == 'admin'){
+      _userIsInAdminRole = true;
+    }else{
+      _userIsInAdminRole = false;
+    }
   }
 
   setPseudonym(String value){

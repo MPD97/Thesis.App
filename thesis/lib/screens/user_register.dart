@@ -23,7 +23,7 @@ class _RegisterPageState extends State<RegisterPage> {
     return Scaffold(
       drawer: MainDrawer(),
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
               colors: [
                 Color(0xFF5D92CB),
@@ -33,7 +33,7 @@ class _RegisterPageState extends State<RegisterPage> {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter),
         ),
-        child: _isLoading ? Center(child: CircularProgressIndicator()) : ListView(
+        child: _isLoading ? const Center(child: CircularProgressIndicator()) : ListView(
           children: <Widget>[
             headerSection(),
             textSection(),
@@ -79,13 +79,13 @@ class _RegisterPageState extends State<RegisterPage> {
     return Container(
       width: MediaQuery.of(context).size.width,
       height: 40.0,
-      padding: EdgeInsets.symmetric(horizontal: 15.0),
-      margin: EdgeInsets.only(top: 15.0),
+      padding: const EdgeInsets.symmetric(horizontal: 15.0),
+      margin: const EdgeInsets.only(top: 15.0),
       child: ElevatedButton(
         onPressed: emailController.text == "" ? null : () {
           signUp(emailController.text, passwordController.text);
         },
-        child: Text("Zarejestruj się", style: TextStyle(color: Colors.white70)),
+        child: const Text("Zarejestruj się", style: TextStyle(color: Colors.white70)),
         style: ElevatedButton.styleFrom(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
         ),
@@ -93,33 +93,33 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  final TextEditingController emailController = new TextEditingController();
-  final TextEditingController passwordController = new TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   Container textSection() {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 20.0),
+      padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 20.0),
       child: Column(
         children: <Widget>[
           TextFormField(
             controller: emailController,
             cursorColor: Colors.white,
 
-            style: TextStyle(color: Colors.white70),
-            decoration: InputDecoration(
+            style: const TextStyle(color: Colors.white70),
+            decoration: const InputDecoration(
               icon: Icon(Icons.email, color: Colors.white70),
               hintText: "Email",
               border: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white70)),
               hintStyle: TextStyle(color: Colors.white70),
             ),
           ),
-          SizedBox(height: 30.0),
+          const SizedBox(height: 30.0),
           TextFormField(
             controller: passwordController,
             cursorColor: Colors.white,
             obscureText: true,
-            style: TextStyle(color: Colors.white70),
-            decoration: InputDecoration(
+            style: const TextStyle(color: Colors.white70),
+            decoration: const InputDecoration(
               icon: Icon(Icons.lock, color: Colors.white70),
               hintText: "Hasło",
               border: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white70)),
@@ -133,9 +133,9 @@ class _RegisterPageState extends State<RegisterPage> {
 
   Container headerSection() {
     return Container(
-      margin: EdgeInsets.only(top: 50.0),
-      padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
-      child: Text("Rejestracja",
+      margin: const EdgeInsets.only(top: 50.0),
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
+      child: const Text("Rejestracja",
           style: TextStyle(
               color: Colors.white70,
               fontSize: 40.0,

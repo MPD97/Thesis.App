@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:thesis/helpers/helper.dart';
@@ -8,12 +7,10 @@ import 'package:thesis/services/auth_service.dart';
 import 'package:multiselect_formfield/multiselect_formfield.dart';
 import 'package:thesis/services/route_service.dart';
 
-import 'main_drawer.dart';
-
 class RouteAdd extends StatefulWidget {
   late List<LocationModel> locations;
 
-  RouteAdd(this.locations);
+  RouteAdd(this.locations, {Key? key}) : super(key: key);
 
   @override
   _RouteAddState createState() => _RouteAddState(locations);
@@ -23,7 +20,7 @@ class _RouteAddState extends State<RouteAdd> {
   late List<LocationModel> _locations;
 
   _RouteAddState(List<LocationModel> locations) {
-    this._locations = locations;
+    _locations = locations;
   }
 
   final AuthService _authService = AuthService.getInstance();
@@ -37,17 +34,17 @@ class _RouteAddState extends State<RouteAdd> {
         .copyWith(statusBarColor: Colors.transparent));
     return Scaffold(
       appBar: AppBar(
-        title: Text("Dodawanie trasy"),
+        title: const Text("Dodawanie trasy"),
       ),
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
               colors: [Color(0xFF629DDC), Color(0xFF4876B4), Color(0xFF6097BB)],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter),
         ),
         child: _isLoading
-            ? Center(child: CircularProgressIndicator())
+            ? const Center(child: CircularProgressIndicator())
             : ListView(
                 children: <Widget>[
                   headerSection(),
@@ -63,13 +60,13 @@ class _RouteAddState extends State<RouteAdd> {
     return Container(
       width: MediaQuery.of(context).size.width,
       height: 40.0,
-      padding: EdgeInsets.symmetric(horizontal: 15.0),
-      margin: EdgeInsets.only(top: 15.0),
+      padding: const EdgeInsets.symmetric(horizontal: 15.0),
+      margin: const EdgeInsets.only(top: 15.0),
       child: ElevatedButton(
         onPressed: () {
           addRoute();
         },
-        child: Text("Dodaj trasę", style: TextStyle(color: Colors.white70)),
+        child: const Text("Dodaj trasę", style: TextStyle(color: Colors.white70)),
         style: ElevatedButton.styleFrom(
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
@@ -99,7 +96,7 @@ class _RouteAddState extends State<RouteAdd> {
         difficulty = 'black';
         break;
       default:
-        throw new Exception();
+        throw Exception();
     }
     int activityType = 0;
 
@@ -126,6 +123,8 @@ class _RouteAddState extends State<RouteAdd> {
         Helper.toastFail("Trasa z tą nazwą już istnieje");
       }else if(jsonResponse['code'] == 'route_name_too_short'){
         Helper.toastFail("Nazwa trasy jest za krótka.");
+      }else{
+        Helper.toastFail("Wystąpił błąd: ${jsonResponse['code']}");
       }
     }
     else{
@@ -135,36 +134,37 @@ class _RouteAddState extends State<RouteAdd> {
     }
   }
 
-  final TextEditingController routeNameController = new TextEditingController();
-  final TextEditingController routeDescriptionController =  new TextEditingController();
+  final TextEditingController routeNameController = TextEditingController();
+  final TextEditingController routeDescriptionController =  TextEditingController();
   String dropdownValue = 'Wybierz poziom trudności';
   List<dynamic> activityTypesValue =
-      new List<dynamic>.filled(0, null, growable: true);
+      List<dynamic>.filled(0, null, growable: true);
 
   Container textSection() {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 20.0),
+      padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 20.0),
       child: Column(
         children: <Widget>[
           TextFormField(
             controller: routeNameController,
             cursorColor: Colors.white,
-            style: TextStyle(color: Colors.white70),
-            decoration: InputDecoration(
-              icon: Icon(Icons.email, color: Colors.white70),
+            style: const TextStyle(color: Colors.white70),
+            decoration: const InputDecoration(
+              icon: Icon(Icons.drive_file_rename_outline, color: Colors.white70),
               hintText: "Nazwa trasy",
               border: UnderlineInputBorder(
                   borderSide: BorderSide(color: Colors.white70)),
               hintStyle: TextStyle(color: Colors.white70),
             ),
           ),
-          SizedBox(height: 30.0),
+          const SizedBox(height: 30.0),
           TextFormField(
             controller: routeDescriptionController,
             cursorColor: Colors.white,
-            obscureText: true,
-            style: TextStyle(color: Colors.white70),
-            decoration: InputDecoration(
+            keyboardType: TextInputType.multiline,
+            minLines: null,
+            style: const TextStyle(color: Colors.white70),
+            decoration: const InputDecoration(
               icon: Icon(Icons.lock, color: Colors.white70),
               hintText: "Opis trasy",
               border: UnderlineInputBorder(
@@ -172,14 +172,14 @@ class _RouteAddState extends State<RouteAdd> {
               hintStyle: TextStyle(color: Colors.white70),
             ),
           ),
-          SizedBox(height: 30.0),
+          const SizedBox(height: 30.0),
           DropdownButton<String>(
             isExpanded: true,
             dropdownColor: Colors.black87,
             value: dropdownValue,
             icon: const Icon(Icons.arrow_downward, color: Colors.white70),
             iconSize: 24,
-            hint: Text("Poziom trudności"),
+            hint: const Text("Poziom trudności"),
             elevation: 16,
             style: const TextStyle(color: Colors.white70),
             underline: Container(
@@ -197,26 +197,26 @@ class _RouteAddState extends State<RouteAdd> {
                 value: value,
                 child: Text(
                   value,
-                  style: TextStyle(fontSize: 24),
+                  style: const TextStyle(fontSize: 24),
                 ),
               );
             }).toList(),
           ),
-          SizedBox(height: 30.0),
+          const SizedBox(height: 30.0),
           MultiSelectFormField(
             autovalidate: false,
             chipBackGroundColor: Colors.blue,
-            chipLabelStyle: TextStyle(fontWeight: FontWeight.bold),
-            dialogTextStyle: TextStyle(fontWeight: FontWeight.bold),
+            chipLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
+            dialogTextStyle: const TextStyle(fontWeight: FontWeight.bold),
             checkBoxActiveColor: Colors.blue,
             checkBoxCheckColor: Colors.green,
-            dialogShapeBorder: RoundedRectangleBorder(
+            dialogShapeBorder: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(Radius.circular(12.0))),
-            title: Text(
+            title: const Text(
               "Rodzaj aktywności",
               style: TextStyle(fontSize: 16),
             ),
-            dataSource: [
+            dataSource: const [
               {
                 "display": "Spacer",
                 "value": "1",
@@ -238,7 +238,7 @@ class _RouteAddState extends State<RouteAdd> {
             valueField: 'value',
             okButtonLabel: 'ok',
             cancelButtonLabel: 'anuluj',
-            hintWidget: Text('Wybierz jedno, lub więcej'),
+            hintWidget: const Text('Wybierz jedno, lub więcej'),
             initialValue: activityTypesValue,
             onSaved: (value) {
               if (value == null) return;
@@ -254,9 +254,9 @@ class _RouteAddState extends State<RouteAdd> {
 
   Container headerSection() {
     return Container(
-      margin: EdgeInsets.only(top: 15.0),
-      padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
-      child: Text("Trasa",
+      margin: const EdgeInsets.only(top: 15.0),
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
+      child: const Text("Trasa",
           style: TextStyle(
               color: Colors.white70,
               fontSize: 40.0,

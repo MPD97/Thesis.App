@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:thesis/models/LocationModel.dart';
 import 'package:thesis/models/RouteModel.dart';
-import 'package:thesis/screens/Map.dart';
-import 'package:thesis/screens/logIn.dart';
-import 'package:thesis/screens/register.dart';
+import 'package:thesis/screens/map.dart';
+import 'package:thesis/screens/route_manage_state.dart';
+import 'package:thesis/screens/route_manage_state_details.dart';
+import 'package:thesis/screens/user_login.dart';
+import 'package:thesis/screens/user_register.dart';
 import 'package:thesis/screens/route_add.dart';
 import 'package:thesis/screens/route_details.dart';
+import 'package:thesis/screens/user_complete.dart';
 
-import 'complete_registration_process.dart';
 import 'home.dart';
 
 class RouteGenerator {
@@ -36,6 +38,13 @@ class RouteGenerator {
       case '/route/details':
         if(args is RouteModel){
           return MaterialPageRoute(builder: (_) => RouteDetails(args));
+        }
+        return _errorRoute();
+      case '/route/show/new':
+        return MaterialPageRoute(builder: (_) => RouteAccept());
+      case '/route/show/new/details':
+        if(args is RouteModel) {
+          return MaterialPageRoute(builder: (_) => RouteAcceptDetails(args));
         }
         return _errorRoute();
       default:
