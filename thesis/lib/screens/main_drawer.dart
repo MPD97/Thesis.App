@@ -29,21 +29,22 @@ class _MainDrawerState extends State<MainDrawer> {
                       shape: BoxShape.circle,
                       image: DecorationImage(
                           image: NetworkImage(
-                              'https://www.codeproject.com/KB/GDI-plus/ImageProcessing2/img.jpg'),
-                          fit: BoxFit.fill)),
+                              'https://www.marinasmediterraneo.com/marinaseste/wp-content/uploads/sites/4/2018/09/generic-user-purple-4.png'),
+                          fit: BoxFit.fill)
+                  ),
                 ),
                 Text(
                     AuthService.userIsAuthorized == true
-                        ? AuthService.pseudonym == ""
+                        ? AuthService.pseudonym! == ""
                             ? "brak pseudonimu"
-                            : AuthService.pseudonym
+                            : AuthService.pseudonym!
                         : "użytkownik niezalogowany",
                     style: const TextStyle(fontSize: 20, color: Colors.white)),
                 Text(
                     AuthService.userIsAuthorized == true
-                        ? AuthService.email == ""
+                        ? AuthService.email! == ""
                             ? "brak email"
-                            : AuthService.email
+                            : AuthService.email!
                         : "",
                     style: const TextStyle(color: Colors.white))
               ],

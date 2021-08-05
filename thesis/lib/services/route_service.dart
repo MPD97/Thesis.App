@@ -36,7 +36,7 @@ class RouteService {
       Helper.toastFail("Nie jesteś zalogowany!");
       return;
     }
-    String accessToken = AuthService.accessToken;
+    String accessToken = AuthService.accessToken!;
     var bodyString = jsonEncode({
       'name': routeName,
       'description': routeDescription,
@@ -94,7 +94,7 @@ class RouteService {
       return null;
     }
 
-    String accessToken = AuthService.accessToken;
+    String accessToken = AuthService.accessToken!;
 
     final Uri _rejectRouteUrl = Uri.parse('$_baseUrl/routes/$routeId/status/${status.toString().split('.').last}');
     print(_rejectRouteUrl);

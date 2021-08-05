@@ -9,23 +9,23 @@ import 'package:thesis/models/RouteModel.dart';
 import 'package:thesis/models/RouteStatusModel.dart';
 import 'package:thesis/services/route_service.dart';
 
-class RouteAcceptDetails extends StatefulWidget {
+class RouteAcceptDetailsPage extends StatefulWidget {
   late RouteModel _model;
 
-  RouteAcceptDetails(this._model, {Key? key}) : super(key: key) {}
+  RouteAcceptDetailsPage(this._model, {Key? key}) : super(key: key) {}
 
   @override
-  _RouteAcceptDetailsState createState() => _RouteAcceptDetailsState(_model);
+  _RouteAcceptDetailsPageState createState() => _RouteAcceptDetailsPageState(_model);
 }
 
-class _RouteAcceptDetailsState extends State<RouteAcceptDetails> {
+class _RouteAcceptDetailsPageState extends State<RouteAcceptDetailsPage> {
   final _routeService = RouteService.getInstance();
   late final RouteModel _model;
   late LatLngBounds _routeBounds;
   CameraTargetBounds _cameraTargetBounds = CameraTargetBounds.unbounded;
   MapboxMapController? mapController;
 
-  _RouteAcceptDetailsState(this._model) {
+  _RouteAcceptDetailsPageState(this._model) {
     List<LatLng> _pointLocations = [];
     for (var point in _model.points) {
       _pointLocations.add(LatLng(point.latitude, point.longitude));

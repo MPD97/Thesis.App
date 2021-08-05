@@ -4,7 +4,9 @@ import 'package:thesis/models/RouteModel.dart';
 import 'package:thesis/screens/map.dart';
 import 'package:thesis/screens/route_manage_state.dart';
 import 'package:thesis/screens/route_manage_state_details.dart';
+import 'package:thesis/screens/route_ranking.dart';
 import 'package:thesis/screens/user_login.dart';
+import 'package:thesis/screens/user_me.dart';
 import 'package:thesis/screens/user_register.dart';
 import 'package:thesis/screens/route_add.dart';
 import 'package:thesis/screens/route_details.dart';
@@ -27,24 +29,29 @@ class RouteGenerator {
         return MaterialPageRoute(
             builder: (_) => CompleteRegistrationProcessPage());
       case '/me':
-        return MaterialPageRoute(builder: (_) => HomePage());
+        return MaterialPageRoute(builder: (_) => UserMePage());
       case '/map':
         return MaterialPageRoute(builder: (_) => MapUiPage());
       case '/route/add' :
         if(args is List<LocationModel>){
-          return MaterialPageRoute(builder: (_) => RouteAdd(args));
+          return MaterialPageRoute(builder: (_) => RouteAddPage(args));
         }
         return _errorRoute();
       case '/route/details':
         if(args is RouteModel){
-          return MaterialPageRoute(builder: (_) => RouteDetails(args));
+          return MaterialPageRoute(builder: (_) => RouteDetailsPage(args));
         }
         return _errorRoute();
       case '/route/show/new':
-        return MaterialPageRoute(builder: (_) => RouteAccept());
+        return MaterialPageRoute(builder: (_) => RouteAcceptPage());
       case '/route/show/new/details':
         if(args is RouteModel) {
-          return MaterialPageRoute(builder: (_) => RouteAcceptDetails(args));
+          return MaterialPageRoute(builder: (_) => RouteAcceptDetailsPage(args));
+        }
+        return _errorRoute();
+      case '/route/ranking':
+        if(args is RouteModel) {
+          return MaterialPageRoute(builder: (_) => RouteRankingPage(args));
         }
         return _errorRoute();
       default:

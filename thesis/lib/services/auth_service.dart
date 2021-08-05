@@ -17,14 +17,14 @@ class AuthService{
   static SharedPreferences? _sharedPreferences;
   static var userIsAuthorized = false;
   static var _userIsInAdminRole = false;
-  static var accessToken = "";
-  static var refreshToken = "";
-  static var pseudonym = "";
-  static var role = "";
-  static var email = "";
-  static var expires = "";
-  static var state = "";
-  static var meId = "";
+  static String? accessToken = "";
+  static String? refreshToken = "";
+  static String? pseudonym = "";
+  static String? role = "";
+  static String? email = "";
+  static String? expires = "";
+  static String? state = "";
+  static String? meId = "";
 
   static AuthService getInstance(){
     userIsAuthorized = isTokenValid();
@@ -144,8 +144,8 @@ class AuthService{
   }
 
   static bool isTokenShouldBeRefreshed(){
-    if(expires != "" && accessToken != ""){
-      var expiresAt = int.parse(expires);
+    if(expires != "null" && expires != "" && accessToken != "null" && accessToken != ""){
+      var expiresAt = int.parse(expires!);
       var now = DateTime.now().millisecondsSinceEpoch / 1000;
       var fifteenMinutes = 60 * 15;
 
@@ -166,8 +166,9 @@ class AuthService{
   }
 
   static bool isTokenValid(){
-    if(expires != "" && accessToken != ""){
-      var expiresAt = int.parse(expires);
+    if(expires != "null" && expires != null && expires != "" && accessToken != null && accessToken != ""){
+      print("Expiries: $expires");
+      var expiresAt = int.parse(expires!);
       var now = DateTime.now().millisecondsSinceEpoch / 1000;
 
       if(expiresAt >= now){
@@ -181,7 +182,7 @@ class AuthService{
   }
 
   static bool isTokenAvailableToRefresh(){
-    if(refreshToken != ""){
+    if(refreshToken != "null" && refreshToken != ""){
       return true;
     }
     return false;

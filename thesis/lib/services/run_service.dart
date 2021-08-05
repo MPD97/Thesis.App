@@ -37,7 +37,7 @@ class RunService {
     double latitude = location.latitude!;
     double longitude = location.longitude!;
     int accuracy = location.accuracy!.toInt();
-    String accessToken = AuthService.accessToken;
+    String accessToken = AuthService.accessToken!;
 
     var response = await http.post(_addRunUrl,
         headers: {"authorization": "Bearer $accessToken"},
@@ -49,6 +49,17 @@ class RunService {
         })
     );
 
+    return response;
+  }
+
+  Future<http.Response> getRunRankingRequest(String routeId, String date, int page) async{
+
+    final _routeId = '?routeId=$routeId';
+    final _date = '&date=$date';
+    final _pagination = '&page=${page.toString()}';
+    final Uri _searchRunsUrl = Uri.parse('$_baseUrl/runs$_routeId$_date$_pagination');
+
+    var response = await http.get(_searchRunsUrl);
     return response;
   }
 }

@@ -7,19 +7,19 @@ import 'package:thesis/services/auth_service.dart';
 import 'package:multiselect_formfield/multiselect_formfield.dart';
 import 'package:thesis/services/route_service.dart';
 
-class RouteAdd extends StatefulWidget {
+class RouteAddPage extends StatefulWidget {
   late List<LocationModel> locations;
 
-  RouteAdd(this.locations, {Key? key}) : super(key: key);
+  RouteAddPage(this.locations, {Key? key}) : super(key: key);
 
   @override
-  _RouteAddState createState() => _RouteAddState(locations);
+  _RouteAddPageState createState() => _RouteAddPageState(locations);
 }
 
-class _RouteAddState extends State<RouteAdd> {
+class _RouteAddPageState extends State<RouteAddPage> {
   late List<LocationModel> _locations;
 
-  _RouteAddState(List<LocationModel> locations) {
+  _RouteAddPageState(List<LocationModel> locations) {
     _locations = locations;
   }
 

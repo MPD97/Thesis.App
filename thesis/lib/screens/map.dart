@@ -111,7 +111,7 @@ class MapUiBodyState extends State<MapUiBody> {
     await hubConnection!.start();
     print("AccessToken: ${AuthService.accessToken}");
     await hubConnection!
-        .invoke("initializeAsync", args: <Object>[AuthService.accessToken]);
+        .invoke("initializeAsync", args: <Object>[AuthService.accessToken!]);
   }
 
   Future _handleResponseCompleted(List<Object> parameters) async {
@@ -228,8 +228,8 @@ class MapUiBodyState extends State<MapUiBody> {
         var _response = await getRoutes(visibleRegion, _currentPage++);
         print("Current page: $_currentPage Total pages: $_totalPages");
         if (_response.statusCode == 200) {
-          PagedResult _pagedResult =
-          PagedResult.fromJson(json.decode(_response.body));
+          PagedRouteModel _pagedResult =
+          PagedRouteModel.fromJson(json.decode(_response.body));
           if (_pagedResult.isNotEmpty) {
             for (var route in _pagedResult.items) {
               addRoute(route);

@@ -8,18 +8,18 @@ import 'package:thesis/models/RouteStatusModel.dart';
 import 'package:thesis/services/route_service.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
-class RouteAccept extends StatefulWidget {
-  RouteAccept();
+class RouteAcceptPage extends StatefulWidget {
+  RouteAcceptPage();
 
   @override
-  _RouteAcceptState createState() => _RouteAcceptState();
+  _RouteAcceptPageState createState() => _RouteAcceptPageState();
 }
 
-class _RouteAcceptState extends State<RouteAccept> {
+class _RouteAcceptPageState extends State<RouteAcceptPage> {
   late final List<ListItem> _items = <ListItem>[];
   final _routeService = RouteService.getInstance();
 
-  _RouteAcceptState();
+  _RouteAcceptPageState();
 
   Future getRoutes() async {
     _items.clear();
@@ -30,8 +30,8 @@ class _RouteAcceptState extends State<RouteAccept> {
       var _response = await _routeService.getNewRoutesRequest(_currentPage++);
       print("Current page: ${_currentPage} Total pages: ${_totalPages}");
       if (_response.statusCode == 200) {
-        PagedResult _pagedResult =
-            PagedResult.fromJson(json.decode(_response.body));
+        PagedRouteModel _pagedResult =
+            PagedRouteModel.fromJson(json.decode(_response.body));
         if (_pagedResult.isNotEmpty) {
           for (var route in _pagedResult.items) {
             _items.add(RouteModelItem(route));
@@ -127,7 +127,7 @@ class _RouteAcceptState extends State<RouteAccept> {
                 ),
                 onRefresh: getRoutes)
             :
-        Center(child: Text("Brak nowych tras"))
+        const Center(child: Text("Brak nowych tras"))
     );
   }
 }

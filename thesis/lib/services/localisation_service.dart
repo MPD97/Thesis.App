@@ -54,7 +54,7 @@ class LocalisationService {
     double latitude = location.latitude!;
     double longitude = location.longitude!;
     int accuracy = location.accuracy!.toInt();
-    String accessToken = AuthService.accessToken;
+    String accessToken = AuthService.accessToken!;
 
     print("POST Lat: $latitude Lon: $longitude Acc: $accuracy");
     var response = http.post(_addLocationUrl,

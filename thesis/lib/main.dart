@@ -3,21 +3,25 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 import 'package:thesis/screens/page_route_generator.dart';
+import 'package:thesis/services/achievement_service.dart';
 import 'package:thesis/services/auth_service.dart';
 import 'package:thesis/services/localisation_service.dart';
 import 'package:thesis/services/route_service.dart';
 import 'package:thesis/services/run_service.dart';
+import 'package:thesis/services/score_service.dart';
 
-void main() async {
+Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await checkPermissions();
 
-  var _authService = await AuthService.create();
-  var _localisationService = await LocalisationService.create();
-  var _routeService = await RouteService.create();
-  var _runService = await RunService.create();
+  final _authService = await AuthService.create();
+  final _localisationService = await LocalisationService.create();
+  final _routeService = await RouteService.create();
+  final _runService = await RunService.create();
+  final _scoreService = await ScoreService.create();
+  final _achievementService = await AchievementService.create();
 
   await TryRefreshToken();
-  await checkPermissions();
   runApp(Application());
 }
 
