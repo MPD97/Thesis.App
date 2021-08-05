@@ -9,17 +9,19 @@ import 'package:thesis/services/localisation_service.dart';
 import 'package:thesis/services/route_service.dart';
 import 'package:thesis/services/run_service.dart';
 import 'package:thesis/services/score_service.dart';
+import 'package:thesis/services/user_service.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await checkPermissions();
+  checkPermissions();
 
-  final _authService = await AuthService.create();
-  final _localisationService = await LocalisationService.create();
-  final _routeService = await RouteService.create();
-  final _runService = await RunService.create();
-  final _scoreService = await ScoreService.create();
-  final _achievementService = await AchievementService.create();
+  await AuthService.create();
+  await LocalisationService.create();
+  await RouteService.create();
+  await RunService.create();
+  await ScoreService.create();
+  await AchievementService.create();
+  await UserService.create();
 
   await TryRefreshToken();
   runApp(Application());
@@ -50,6 +52,7 @@ Future<bool> TryRefreshToken() async {
       print("Token has been refreshed.");
       return true;
     } else {
+      AuthService.refreshToken = "";
       print("Token was not refreshed. Status code: $statusCode ");
       return false;
     }

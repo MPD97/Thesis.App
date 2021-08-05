@@ -20,9 +20,7 @@ class UserScoreModel {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['id'] = this.id;
     data['score'] = this.score;
-    if (this.scoreEvents != null) {
-      data['scoreEvents'] = this.scoreEvents.map((v) => v.toJson()).toList();
-    }
+    data['scoreEvents'] = this.scoreEvents.map((v) => v.toJson()).toList();
     return data;
   }
 }

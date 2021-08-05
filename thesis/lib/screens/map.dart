@@ -12,7 +12,6 @@ import 'package:thesis/models/RouteModel.dart';
 import 'package:thesis/services/auth_service.dart';
 import 'package:thesis/services/route_service.dart';
 import 'package:thesis/services/run_service.dart';
-import 'package:thesis/screens/main_drawer.dart';
 import 'package:thesis/services/localisation_service.dart';
 import 'package:thesis/helpers/helper.dart';
 import 'dart:convert';
@@ -25,6 +24,7 @@ final LatLngBounds polandBounds = LatLngBounds(
 );
 
 class MapUiPage extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     return const MapUiBody();
@@ -61,7 +61,9 @@ class MapUiBodyState extends State<MapUiBody> {
     target: LatLng(52.23172889914352, 21.019465047569224),
     zoom: 12.0,
   );
-  final LocalisationService _localisationService = LocalisationService.getInstance();
+
+  final LocalisationService _localisationService =
+      LocalisationService.getInstance();
   final RouteService _routeService = RouteService.getInstance();
   final AuthService _authService = AuthService.getInstance();
   final RunService _runService = RunService.getInstance();
@@ -70,7 +72,8 @@ class MapUiBodyState extends State<MapUiBody> {
   bool _isMoving = false;
   final bool _compassEnabled = true;
   final CameraTargetBounds _cameraTargetBounds = CameraTargetBounds.unbounded;
-  final MinMaxZoomPreference _minMaxZoomPreference = MinMaxZoomPreference.unbounded;
+  final MinMaxZoomPreference _minMaxZoomPreference =
+      MinMaxZoomPreference.unbounded;
 
   bool _isInCreatorMode = false;
   bool _isRouteSelected = false;
@@ -81,10 +84,9 @@ class MapUiBodyState extends State<MapUiBody> {
   final bool _tiltGesturesEnabled = false;
   final bool _zoomGesturesEnabled = true;
   final bool _myLocationEnabled = true;
-  final bool _telemetryEnabled = true;
-  final MyLocationTrackingMode _myLocationTrackingMode = MyLocationTrackingMode.None;
-  List<Object>? _featureQueryFilter;
-  Fill? _selectedFill;
+
+  final MyLocationTrackingMode _myLocationTrackingMode =
+      MyLocationTrackingMode.None;
   HubConnection? hubConnection;
 
   final Location _location = Location();
@@ -95,9 +97,6 @@ class MapUiBodyState extends State<MapUiBody> {
     _location.onLocationChanged.listen((LocationData currentLocation) {
       _localisationService.addLocationRequest(currentLocation);
     });
-
-    initSignalR();
-
     super.initState();
   }
 
@@ -114,7 +113,11 @@ class MapUiBodyState extends State<MapUiBody> {
         .invoke("initializeAsync", args: <Object>[AuthService.accessToken!]);
   }
 
-  Future _handleResponseCompleted(List<Object> parameters) async {
+  Future _handleResponseCompleted(List<dynamic>? parameters) async {
+    if (parameters == null) {
+      Helper.toastFail("Coś poszło nie tak");
+      return;
+    }
     print("HandleResponse: $parameters");
     var _json = json.decode(json.encode(parameters[0]));
     if (_json['name'] == 'POST /locations') {
@@ -139,18 +142,26 @@ class MapUiBodyState extends State<MapUiBody> {
     }
   }
 
-  void _handleResponseConnected(List<Object> parameters) {
+  void _handleResponseConnected(List<dynamic>? parameters) {
+    if (parameters == null) {
+      Helper.toastFail("Coś poszło nie tak");
+      return;
+    }
     Helper.toastSuccessShort("Nawiązano połączenie");
   }
 
-  void _handleResponseOnClose({Exception? error}) {
+  void _handleResponseOnClose(Exception? error) {
+    if (error == null) {
+      Helper.toastFail("Coś poszło nie tak");
+      return;
+    }
     Helper.toastFailShort("Utracono połączenie");
   }
 
   Future<void> initLocation() async {
     bool _serviceEnabled;
     PermissionStatus _permissionGranted;
-    LocationData _locationData;
+
 
     _serviceEnabled = await _location.serviceEnabled();
     if (!_serviceEnabled) {
@@ -168,7 +179,7 @@ class MapUiBodyState extends State<MapUiBody> {
       }
     }
 
-    _locationData = await _location.getLocation();
+    await _location.getLocation();
   }
 
   void _onMapChanged() async {
@@ -222,14 +233,14 @@ class MapUiBodyState extends State<MapUiBody> {
 
     if (update) {
       var _totalPages = 1;
-      var _currentPage =0;
+      var _currentPage = 0;
 
-      while(_currentPage < _totalPages) {
+      while (_currentPage < _totalPages) {
         var _response = await getRoutes(visibleRegion, _currentPage++);
         print("Current page: $_currentPage Total pages: $_totalPages");
         if (_response.statusCode == 200) {
           PagedRouteModel _pagedResult =
-          PagedRouteModel.fromJson(json.decode(_response.body));
+              PagedRouteModel.fromJson(json.decode(_response.body));
           if (_pagedResult.isNotEmpty) {
             for (var route in _pagedResult.items) {
               addRoute(route);
@@ -403,7 +414,7 @@ class MapUiBodyState extends State<MapUiBody> {
     var geometry = _selectedSymbol!.options.geometry;
     var result = _routeModels
         .where((route) =>
-            route.points[0].latitude == geometry.latitude &&
+            route.points[0].latitude == geometry!.latitude &&
             route.points[0].longitude == geometry.longitude)
         .single;
     if (result == null) {
@@ -422,7 +433,6 @@ class MapUiBodyState extends State<MapUiBody> {
   @override
   void dispose() {
     mapController?.removeListener(_onMapChanged);
-    hubConnection!.invoke("initializeAsync");
     super.dispose();
   }
 
@@ -466,11 +476,10 @@ class MapUiBodyState extends State<MapUiBody> {
               return;
             }
             addLocation(location, latLng);
-            mapController!.addLine(LineOptions(
-                geometry: [LatLng(prevoius.Latitude, prevoius.Longitude), latLng],
-                lineColor: "#ff0000",
-                lineWidth: 10.0,
-                lineOpacity: 0.5));
+            mapController!.addLine(LineOptions(geometry: [
+              LatLng(prevoius.Latitude, prevoius.Longitude),
+              latLng
+            ], lineColor: "#ff0000", lineWidth: 10.0, lineOpacity: 0.5));
           } else {
             addLocation(location, latLng);
           }
@@ -501,12 +510,17 @@ class MapUiBodyState extends State<MapUiBody> {
       setState(() => {_isPreparingRunGettingLocation = true});
 
       bool isUserInGoodDistance = await validateUserDistance();
+
       setState(() => {_isPreparingRunGettingLocation = false});
 
       if (isUserInGoodDistance) {
         setState(() => {_isPreparingRun = true});
         await removeSymbolsLinesCircles();
         await drawRouteRun(_selectedRoute!);
+
+        if (hubConnection == null) {
+          initSignalR();
+        }
       } else {
         Helper.toastFailShort("Jesteś za daleko");
         setState(() => {_isPreparingRun = false});
@@ -787,6 +801,7 @@ class MapUiBodyState extends State<MapUiBody> {
   onRunCompleted() {
     setState(() {
       _isInRun = false;
+      _selectedRoute = null;
     });
     LocalisationService.setLocation(false);
     disableMapTracking();
@@ -875,7 +890,7 @@ class MapUiBodyState extends State<MapUiBody> {
 
     var _myLocation = await _location.getLocation();
     mapController!.animateCamera(CameraUpdate.newLatLngZoom(
-        LatLng(_myLocation.latitude, _myLocation.longitude), 13));
+        LatLng(_myLocation.latitude!, _myLocation.longitude!), 13));
     controller.onSymbolTapped.add(_onSymbolTapped);
   }
 

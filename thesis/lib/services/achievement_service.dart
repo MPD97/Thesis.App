@@ -1,6 +1,4 @@
 import 'package:http/http.dart' as http;
-import 'package:thesis/helpers/helper.dart';
-import 'package:thesis/services/auth_service.dart';
 
 
 class AchievementService {

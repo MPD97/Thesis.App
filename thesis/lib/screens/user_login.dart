@@ -24,7 +24,7 @@ class _LoginPageState extends State<LogInPage> {
     return Scaffold(
       drawer: MainDrawer(),
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
               colors: [
                 Color(0xFF629DDC),
@@ -68,13 +68,14 @@ class _LoginPageState extends State<LogInPage> {
   }
 
   Future<void> GetMeAsUser() async {
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-
     setState(() {_isLoading = true; });
     var response = await _authService.userMeRequest();
     setState(() {_isLoading = false; });
 
-    await checkResponseAuthorization(response);
+    if(response == null){
+      Helper.toastFail("Coś poszło nie tak");
+      return;
+    }
 
     if(response.statusCode == 200) {
       var jsonResponse = json.decode(response.body);
@@ -94,10 +95,10 @@ class _LoginPageState extends State<LogInPage> {
         print("User state is incomplete");
       }
       else if(state == 'locked'){
-        Helper.toastFail("Konto zostało zablokowane.");
+        Helper.toastFail("Konto zostało zablokowane");
       }
       else {
-        Helper.toastFail("Konto posiada nieznany status.");
+        Helper.toastFail("Konto posiada nieznany status");
       }
     }
     else{

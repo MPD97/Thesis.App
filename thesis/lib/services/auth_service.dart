@@ -84,7 +84,12 @@ class AuthService{
     return response;
   }
 
-  Future<http.Response> userMeRequest() async {
+  Future<http.Response?> userMeRequest() async {
+    if(AuthService.userIsAuthorized == false){
+      print("User not authentitacted!");
+      return null;
+    }
+
     var response = await http.get(_userMeUrl,
         headers: {
           'Authorization': 'Bearer $accessToken'
@@ -93,7 +98,6 @@ class AuthService{
     if(response.statusCode == 200){
       var jsonResponse = json.decode(response.body);
 
-      setEmail(jsonResponse['email']);
       setPseudonym(jsonResponse['pseudonym']);
       setState(jsonResponse['state']);
       setMeId(jsonResponse['id']);
@@ -118,7 +122,11 @@ class AuthService{
     return response;
   }
 
-  Future<http.Response> completeRegistration(String pseudonym) async {
+  Future<http.Response?> completeRegistration(String pseudonym) async {
+    if(AuthService.userIsAuthorized == false){
+      print("User not authentitacted!");
+      return null;
+    }
     var response = await http.post(_completeRegistrationUrl,
         headers: {"authorization": "Bearer $accessToken"},
         body: jsonEncode({

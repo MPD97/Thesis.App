@@ -35,14 +35,14 @@ class _MainDrawerState extends State<MainDrawer> {
                 ),
                 Text(
                     AuthService.userIsAuthorized == true
-                        ? AuthService.pseudonym! == ""
+                        ? AuthService.pseudonym == ""
                             ? "brak pseudonimu"
                             : AuthService.pseudonym!
                         : "użytkownik niezalogowany",
                     style: const TextStyle(fontSize: 20, color: Colors.white)),
                 Text(
                     AuthService.userIsAuthorized == true
-                        ? AuthService.email! == ""
+                        ? AuthService.email == ""
                             ? "brak email"
                             : AuthService.email!
                         : "",

@@ -50,6 +50,11 @@ class _CompleteRegistrationProcessPageState extends State<CompleteRegistrationPr
     var response = await _authService.completeRegistration(pseudonym);
     setState(() {_isLoading = false;});
 
+    if(response == null){
+      Helper.toastFail("Coś poszło nie tak");
+      return;
+    }
+
     if(response.statusCode == 201) {
       Helper.toastSuccess("Pseudonim zapisany");
       Navigator.of(context).pushNamed('/');

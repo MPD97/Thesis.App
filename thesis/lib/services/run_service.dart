@@ -56,8 +56,9 @@ class RunService {
 
     final _routeId = '?routeId=$routeId';
     final _date = '&date=$date';
+    final _orderSort = '&orderBy=time&sortOrder=asc';
     final _pagination = '&page=${page.toString()}';
-    final Uri _searchRunsUrl = Uri.parse('$_baseUrl/runs$_routeId$_date$_pagination');
+    final Uri _searchRunsUrl = Uri.parse('$_baseUrl/runs$_routeId$_date$_orderSort$_pagination');
 
     var response = await http.get(_searchRunsUrl);
     return response;

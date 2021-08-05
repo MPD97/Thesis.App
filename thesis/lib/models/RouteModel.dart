@@ -52,9 +52,7 @@ class RouteModel {
     data['length'] = this.length;
     data['status'] = this.status;
     data['activityKind'] = this.activityKind;
-    if (this.points != null) {
-      data['points'] = this.points.map((v) => v.toJson()).toList();
-    }
+    data['points'] = this.points.map((v) => v.toJson()).toList();
     return data;
   }
 }

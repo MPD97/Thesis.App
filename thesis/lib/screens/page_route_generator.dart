@@ -5,6 +5,7 @@ import 'package:thesis/screens/map.dart';
 import 'package:thesis/screens/route_manage_state.dart';
 import 'package:thesis/screens/route_manage_state_details.dart';
 import 'package:thesis/screens/route_ranking.dart';
+import 'package:thesis/screens/user_details.dart';
 import 'package:thesis/screens/user_login.dart';
 import 'package:thesis/screens/user_me.dart';
 import 'package:thesis/screens/user_register.dart';
@@ -52,6 +53,11 @@ class RouteGenerator {
       case '/route/ranking':
         if(args is RouteModel) {
           return MaterialPageRoute(builder: (_) => RouteRankingPage(args));
+        }
+        return _errorRoute();
+      case '/user':
+        if(args is String) {
+          return MaterialPageRoute(builder: (_) => UserDetailsPage(args));
         }
         return _errorRoute();
       default:

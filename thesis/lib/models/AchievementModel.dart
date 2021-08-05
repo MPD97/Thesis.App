@@ -17,9 +17,7 @@ class AchievementModel {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['id'] = this.id;
-    if (this.achievements != null) {
-      data['achievements'] = this.achievements.map((v) => v.toJson()).toList();
-    }
+    data['achievements'] = this.achievements.map((v) => v.toJson()).toList();
     return data;
   }
 }

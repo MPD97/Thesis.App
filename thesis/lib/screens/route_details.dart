@@ -23,7 +23,7 @@ class _RouteDetailsPageState extends State<RouteDetailsPage> {
 
   _RouteDetailsPageState(this._model) {
     List<LatLng> _pointLocations = [];
-    for (var point in _model!.points) {
+    for (var point in _model.points) {
       _pointLocations.add(LatLng(point.latitude, point.longitude));
     }
     _routeBounds = boundsFromLatLngList(_pointLocations);
@@ -144,17 +144,20 @@ class _RouteDetailsPageState extends State<RouteDetailsPage> {
           children: columnChildren,
         ),
         floatingActionButton: Stack(children: <Widget>[
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: FloatingActionButton.extended(
-              onPressed: () {
-                Navigator.of(context).pushNamed("/route/ranking", arguments: _model);
-              },
-              label: const Text('Ranking'),
-              icon: const Icon(Icons.leaderboard_outlined),
-              backgroundColor: Colors.green,
-            ),
-          )
+          Padding(
+              padding: const EdgeInsets.only(left: 30.0),
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: FloatingActionButton.extended(
+                  onPressed: () {
+                    Navigator.of(context)
+                        .pushNamed("/route/ranking", arguments: _model);
+                  },
+                  label: const Text('Ranking'),
+                  icon: const Icon(Icons.leaderboard_outlined),
+                  backgroundColor: Colors.orange,
+                ),
+              ))
         ]));
   }
 
@@ -239,7 +242,7 @@ LatLngBounds boundsFromLatLngList(List<LatLng> list) {
       y0 = y1 = latLng.longitude;
     } else {
       if (latLng.latitude > x1!) x1 = latLng.latitude;
-      if (latLng.latitude < x0!) x0 = latLng.latitude;
+      if (latLng.latitude < x0) x0 = latLng.latitude;
       if (latLng.longitude > y1!) y1 = latLng.longitude;
       if (latLng.longitude < y0!) y0 = latLng.longitude;
     }
