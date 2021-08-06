@@ -1,12 +1,12 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:thesis/helpers/helper.dart';
 import 'package:thesis/models/PagedResultModel.dart';
 import 'package:thesis/models/RouteModel.dart';
 import 'package:thesis/models/RouteStatusModel.dart';
 import 'package:thesis/services/route_service.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class RouteAcceptPage extends StatefulWidget {
   RouteAcceptPage();
@@ -126,9 +126,7 @@ class _RouteAcceptPageState extends State<RouteAcceptPage> {
                   },
                 ),
                 onRefresh: getRoutes)
-            :
-        const Center(child: Text("Brak nowych tras"))
-    );
+            : const Center(child: Text("Brak nowych tras")));
   }
 }
 

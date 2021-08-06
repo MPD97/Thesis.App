@@ -1,9 +1,9 @@
 import 'dart:convert';
+
 import 'package:http/http.dart' as http;
 import 'package:location/location.dart';
 import 'package:thesis/helpers/helper.dart';
 import 'package:thesis/services/auth_service.dart';
-
 
 class RunService {
   RunService._create();
@@ -26,9 +26,9 @@ class RunService {
     return _instance!;
   }
 
-
-  Future<http.Response?> addRunRequest(LocationData location, String routeId) async{
-    if(AuthService.userIsAuthorized == false){
+  Future<http.Response?> addRunRequest(
+      LocationData location, String routeId) async {
+    if (AuthService.userIsAuthorized == false) {
       print("User not authentitacted!");
       Helper.toastFail("Nie jesteś zalogowany!");
       return null;
@@ -46,19 +46,19 @@ class RunService {
           'latitude': latitude,
           'longitude': longitude,
           'accuracy': accuracy
-        })
-    );
+        }));
 
     return response;
   }
 
-  Future<http.Response> getRunRankingRequest(String routeId, String date, int page) async{
-
+  Future<http.Response> getRunRankingRequest(
+      String routeId, String date, int page) async {
     final _routeId = '?routeId=$routeId';
     final _date = '&date=$date';
     final _orderSort = '&orderBy=time&sortOrder=asc';
     final _pagination = '&page=${page.toString()}';
-    final Uri _searchRunsUrl = Uri.parse('$_baseUrl/runs$_routeId$_date$_orderSort$_pagination');
+    final Uri _searchRunsUrl =
+        Uri.parse('$_baseUrl/runs$_routeId$_date$_orderSort$_pagination');
 
     var response = await http.get(_searchRunsUrl);
     return response;

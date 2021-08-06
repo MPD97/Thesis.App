@@ -30,8 +30,7 @@ class _MainDrawerState extends State<MainDrawer> {
                       image: DecorationImage(
                           image: NetworkImage(
                               'https://www.marinasmediterraneo.com/marinaseste/wp-content/uploads/sites/4/2018/09/generic-user-purple-4.png'),
-                          fit: BoxFit.fill)
-                  ),
+                          fit: BoxFit.fill)),
                 ),
                 Text(
                     AuthService.userIsAuthorized == true
@@ -64,7 +63,8 @@ class _MainDrawerState extends State<MainDrawer> {
         AuthService.userIsAuthorized && AuthService.isUserAdmin()
             ? ListTile(
                 leading: const Icon(Icons.admin_panel_settings),
-                title: const Text('Zarządzaj nowymi trasami', style: TextStyle(fontSize: 18)),
+                title: const Text('Zarządzaj nowymi trasami',
+                    style: TextStyle(fontSize: 18)),
                 onTap: () {
                   if (Navigator.canPop(context)) {
                     Navigator.pop(context);

@@ -7,7 +7,6 @@ import 'package:thesis/services/auth_service.dart';
 
 import 'main_drawer.dart';
 
-
 class RegisterPage extends StatefulWidget {
   @override
   _RegisterPageState createState() => _RegisterPageState();
@@ -19,56 +18,57 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light.copyWith(statusBarColor: Colors.transparent));
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light
+        .copyWith(statusBarColor: Colors.transparent));
     return Scaffold(
       drawer: MainDrawer(),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-              colors: [
-                Color(0xFF5D92CB),
-                Color(0xFF3F71B4),
-                Color(0xFF8096BF)
-              ],
+              colors: [Color(0xFF5D92CB), Color(0xFF3F71B4), Color(0xFF8096BF)],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter),
         ),
-        child: _isLoading ? const Center(child: CircularProgressIndicator()) : ListView(
-          children: <Widget>[
-            headerSection(),
-            textSection(),
-            buttonSection(),
-          ],
-        ),
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : ListView(
+                children: <Widget>[
+                  headerSection(),
+                  textSection(),
+                  buttonSection(),
+                ],
+              ),
       ),
     );
   }
 
   signUp(String email, password) async {
-    setState(() {_isLoading = true;});
+    setState(() {
+      _isLoading = true;
+    });
     var response = await _authService.registerUser(email, password);
-    setState(() {_isLoading = false;});
+    setState(() {
+      _isLoading = false;
+    });
 
-    if(response.statusCode == 201) {
+    if (response.statusCode == 201) {
       Helper.toastSuccess('Konto utworzone');
       if (Navigator.canPop(context)) {
         Navigator.pop(context);
       }
       Navigator.of(context).pushNamed('/login');
-    }
-    else if(response.statusCode == 400){
+    } else if (response.statusCode == 400) {
       var jsonResponse = json.decode(response.body);
-      switch(jsonResponse['code']){
+      switch (jsonResponse['code']) {
         case 'email_in_use':
           Helper.toastFail('Adres email jest zajęty');
           break;
-        default :
+        default:
           Helper.toastFail('Wystąpił nieznany błąd');
           print(jsonResponse);
           break;
       }
-    }
-    else{
+    } else {
       var jsonResponse = json.decode(response.body);
       Helper.toastFail(jsonResponse['message']);
       print(jsonResponse);
@@ -82,12 +82,16 @@ class _RegisterPageState extends State<RegisterPage> {
       padding: const EdgeInsets.symmetric(horizontal: 15.0),
       margin: const EdgeInsets.only(top: 15.0),
       child: ElevatedButton(
-        onPressed: emailController.text == "" ? null : () {
-          signUp(emailController.text, passwordController.text);
-        },
-        child: const Text("Zarejestruj się", style: TextStyle(color: Colors.white70)),
+        onPressed: emailController.text == ""
+            ? null
+            : () {
+                signUp(emailController.text, passwordController.text);
+              },
+        child: const Text("Zarejestruj się",
+            style: TextStyle(color: Colors.white70)),
         style: ElevatedButton.styleFrom(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
         ),
       ),
     );
@@ -104,12 +108,12 @@ class _RegisterPageState extends State<RegisterPage> {
           TextFormField(
             controller: emailController,
             cursorColor: Colors.white,
-
             style: const TextStyle(color: Colors.white70),
             decoration: const InputDecoration(
               icon: Icon(Icons.email, color: Colors.white70),
               hintText: "Email",
-              border: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white70)),
+              border: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white70)),
               hintStyle: TextStyle(color: Colors.white70),
             ),
           ),
@@ -122,7 +126,8 @@ class _RegisterPageState extends State<RegisterPage> {
             decoration: const InputDecoration(
               icon: Icon(Icons.lock, color: Colors.white70),
               hintText: "Hasło",
-              border: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white70)),
+              border: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white70)),
               hintStyle: TextStyle(color: Colors.white70),
             ),
           ),

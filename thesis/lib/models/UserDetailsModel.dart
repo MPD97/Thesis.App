@@ -6,11 +6,7 @@ class UserDetails {
   late String createdAt;
 
   UserDetails(
-      this.pseudonym,
-        this.completedRuns,
-        this.id,
-        this.state,
-        this.createdAt);
+      this.pseudonym, this.completedRuns, this.id, this.state, this.createdAt);
 
   UserDetails.fromJson(Map<String, dynamic> json) {
     pseudonym = json['pseudonym'];

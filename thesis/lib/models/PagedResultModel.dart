@@ -9,13 +9,8 @@ class PagedRouteModel {
   late int totalPages;
   late int totalResults;
 
-  PagedRouteModel(this.items,
-      this.isEmpty,
-      this.isNotEmpty,
-      this.currentPage,
-      this.resultsPerPage,
-      this.totalPages,
-      this.totalResults);
+  PagedRouteModel(this.items, this.isEmpty, this.isNotEmpty, this.currentPage,
+      this.resultsPerPage, this.totalPages, this.totalResults);
 
   PagedRouteModel.fromJson(Map<String, dynamic> json) {
     if (json['items'] != null) {

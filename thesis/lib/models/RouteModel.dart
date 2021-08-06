@@ -12,16 +12,17 @@ class RouteModel {
   late String activityKind;
   late List<PointModel> points;
 
-  RouteModel(this.id,
-        this.userId,
-        this.acceptedBy,
-        this.name,
-        this.description,
-        this.difficulty,
-        this.length,
-        this.status,
-        this.activityKind,
-        this.points);
+  RouteModel(
+      this.id,
+      this.userId,
+      this.acceptedBy,
+      this.name,
+      this.description,
+      this.difficulty,
+      this.length,
+      this.status,
+      this.activityKind,
+      this.points);
 
   RouteModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];

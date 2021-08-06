@@ -1,13 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:intl/intl.dart';
 import 'package:thesis/helpers/helper.dart';
 import 'package:thesis/models/AchievementModel.dart';
 import 'package:thesis/models/UserScoreModel.dart';
 import 'package:thesis/services/achievement_service.dart';
 import 'package:thesis/services/auth_service.dart';
 import 'package:thesis/services/score_service.dart';
-import 'dart:convert';
-import 'package:intl/intl.dart';
 
 class UserMePage extends StatefulWidget {
   const UserMePage({Key? key}) : super(key: key);
@@ -59,11 +60,9 @@ class _UserMePageState extends State<UserMePage> {
     final _response =
         await _scoreService.getUserScoreRequest(AuthService.meId!);
     if (_response!.statusCode == 200) {
-      setState(() {
         _userScoreModel = UserScoreModel.fromJson(json.decode(_response.body));
         getAchievementProgress();
         matchScoreEvents();
-      });
     } else if (_response.statusCode == 400) {
       Helper.toastFailShort("Nie znaleziono użytkownika");
     } else {
@@ -75,10 +74,8 @@ class _UserMePageState extends State<UserMePage> {
     final _response =
         await _achievementService.getAchievementsRequest(AuthService.meId!);
     if (_response!.statusCode == 200) {
-      setState(() {
         _achievementModel =
             AchievementModel.fromJson(json.decode(_response.body));
-      });
     } else if (_response.statusCode == 404) {
     } else {
       Helper.toastFail("Nieznany błąd: ${json.decode(_response.body)['code']}");
@@ -275,32 +272,44 @@ class _UserMePageState extends State<UserMePage> {
                                                 width: MediaQuery.of(context)
                                                     .size
                                                     .width,
-                                                padding: const EdgeInsets.symmetric(
-                                                   horizontal: 8,vertical: 4),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 8,
+                                                        vertical: 4),
                                                 color: Colors.white,
                                                 child: Column(
                                                   children: [
                                                     Container(
                                                       height: 60,
                                                       child: Row(
-                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                        mainAxisSize: MainAxisSize.max,
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceBetween,
+                                                        mainAxisSize:
+                                                            MainAxisSize.max,
                                                         children: <Widget>[
                                                           ProfileInfoCard(
-                                                              firstText: _userScoreModel!.score.toString(),
-                                                              secondText: "punktów energii"),
+                                                              firstText:
+                                                                  _userScoreModel!
+                                                                      .score
+                                                                      .toString(),
+                                                              secondText:
+                                                                  "punktów energii"),
                                                           const SizedBox(
                                                             width: 10,
                                                           ),
                                                           ProfileInfoCard(
                                                               firstText:
-                                                              "${_nextAchievementProgress.toInt()}%",
-                                                              secondText: "do osiągnięcia"),
+                                                                  "${_nextAchievementProgress.toInt()}%",
+                                                              secondText:
+                                                                  "do osiągnięcia"),
                                                           const SizedBox(
                                                             width: 10,
                                                           ),
                                                           ProfileInfoCard(
-                                                              firstText: "-", secondText: "Top graczy"),
+                                                              firstText: "-",
+                                                              secondText:
+                                                                  "Top graczy"),
                                                         ],
                                                       ),
                                                     ),

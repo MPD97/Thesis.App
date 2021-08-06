@@ -1,13 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:intl/intl.dart';
 import 'package:thesis/helpers/helper.dart';
 import 'package:thesis/models/AchievementModel.dart';
 import 'package:thesis/models/UserDetailsModel.dart';
 import 'package:thesis/models/UserScoreModel.dart';
 import 'package:thesis/services/achievement_service.dart';
 import 'package:thesis/services/score_service.dart';
-import 'dart:convert';
-import 'package:intl/intl.dart';
 import 'package:thesis/services/user_service.dart';
 
 class UserDetailsPage extends StatefulWidget {
@@ -74,8 +75,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
   }
 
   Future _getUserScore() async {
-    final _response =
-    await _scoreService.getUserScoreRequest(_userId);
+    final _response = await _scoreService.getUserScoreRequest(_userId);
     if (_response!.statusCode == 200) {
       setState(() {
         _userScoreModel = UserScoreModel.fromJson(json.decode(_response.body));
@@ -90,14 +90,14 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
   }
 
   Future _getUserAchievements() async {
-    final _response =
-    await _achievementService.getAchievementsRequest(_userId);
+    final _response = await _achievementService.getAchievementsRequest(_userId);
     if (_response!.statusCode == 200) {
       setState(() {
         _achievementModel =
             AchievementModel.fromJson(json.decode(_response.body));
       });
-    } else if (_response.statusCode == 404) {} else {
+    } else if (_response.statusCode == 404) {
+    } else {
       Helper.toastFail("Nieznany błąd: ${json.decode(_response.body)['code']}");
     }
   }
@@ -239,164 +239,164 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: _isLoading ? Text("Wczytywanie") : Text("Użytkownik: ${_userDetails!.pseudonym}")),
+        appBar: AppBar(
+            title: _isLoading
+                ? Text("Wczytywanie")
+                : Text("Użytkownik: ${_userDetails!.pseudonym}")),
         body: _isLoading
             ? Center(child: CircularProgressIndicator())
             : SingleChildScrollView(
-          child: Stack(
-            children: <Widget>[
-              Container(
-                child: Column(
+                child: Stack(
                   children: <Widget>[
-                    Row(
-                      children: [
-                        Stack(
-                          children: <Widget>[
-                            Row(children: [
-                              Container(
-                                width: MediaQuery
-                                    .of(context)
-                                    .size
-                                    .width,
-                                padding: const EdgeInsets.only(top: 0),
-                                color: Colors.white,
-                                child: Column(
-                                  children: [
+                    Container(
+                      child: Column(
+                        children: <Widget>[
+                          Row(
+                            children: [
+                              Stack(
+                                children: <Widget>[
+                                  Row(children: [
                                     Container(
-                                      width: 100,
-                                      alignment: Alignment.center,
-                                      height: 100,
-                                      margin: const EdgeInsets.only(
-                                          top: 15, bottom: 15),
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        border: Border.all(),
-                                        image: DecorationImage(
-                                            image: NetworkImage(
-                                                'https://www.marinasmediterraneo.com/marinaseste/wp-content/uploads/sites/4/2018/09/generic-user-purple-4.png'),
-                                            fit: BoxFit.fill),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: _bestAchievementColor
-                                                .withOpacity(1.0),
-                                            spreadRadius: 5,
-                                            blurRadius: 14,
-                                            offset: Offset(0,
-                                                0), // changes position of shadow
+                                      width: MediaQuery.of(context).size.width,
+                                      padding: const EdgeInsets.only(top: 0),
+                                      color: Colors.white,
+                                      child: Column(
+                                        children: [
+                                          Container(
+                                            width: 100,
+                                            alignment: Alignment.center,
+                                            height: 100,
+                                            margin: const EdgeInsets.only(
+                                                top: 15, bottom: 15),
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              border: Border.all(),
+                                              image: DecorationImage(
+                                                  image: NetworkImage(
+                                                      'https://www.marinasmediterraneo.com/marinaseste/wp-content/uploads/sites/4/2018/09/generic-user-purple-4.png'),
+                                                  fit: BoxFit.fill),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: _bestAchievementColor
+                                                      .withOpacity(1.0),
+                                                  spreadRadius: 5,
+                                                  blurRadius: 14,
+                                                  offset: Offset(0,
+                                                      0), // changes position of shadow
+                                                ),
+                                              ],
+                                            ),
                                           ),
+                                          MyInfo(_userDetails!.pseudonym),
+                                          Row(children: [
+                                            Container(
+                                                width: MediaQuery.of(context)
+                                                    .size
+                                                    .width,
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 8,
+                                                        vertical: 4),
+                                                color: Colors.white,
+                                                child: Column(
+                                                  children: [
+                                                    Container(
+                                                      height: 60,
+                                                      child: Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceBetween,
+                                                        mainAxisSize:
+                                                            MainAxisSize.max,
+                                                        children: <Widget>[
+                                                          ProfileInfoCard(
+                                                              firstText:
+                                                                  _userScoreModel!
+                                                                      .score
+                                                                      .toString(),
+                                                              secondText:
+                                                                  "punktów energii"),
+                                                          const SizedBox(
+                                                            width: 10,
+                                                          ),
+                                                          ProfileInfoCard(
+                                                              firstText:
+                                                                  "${_nextAchievementProgress.toInt()}%",
+                                                              secondText:
+                                                                  "do osiągnięcia"),
+                                                          const SizedBox(
+                                                            width: 10,
+                                                          ),
+                                                          ProfileInfoCard(
+                                                              firstText: "-",
+                                                              secondText:
+                                                                  "Top graczy"),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ))
+                                          ]),
                                         ],
                                       ),
-                                    ),
-                                    MyInfo(_userDetails!.pseudonym),
-                                    Row(children: [
-                                      Container(
-                                          width: MediaQuery
-                                              .of(context)
-                                              .size
-                                              .width,
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 8, vertical: 4),
-                                          color: Colors.white,
-                                          child: Column(
-                                            children: [
-                                              Container(
-                                                height: 60,
-                                                child: Row(
-                                                  mainAxisAlignment: MainAxisAlignment
-                                                      .spaceBetween,
-                                                  mainAxisSize: MainAxisSize
-                                                      .max,
-                                                  children: <Widget>[
-                                                    ProfileInfoCard(
-                                                        firstText: _userScoreModel!
-                                                            .score.toString(),
-                                                        secondText: "punktów energii"),
-                                                    const SizedBox(
-                                                      width: 10,
-                                                    ),
-                                                    ProfileInfoCard(
-                                                        firstText:
-                                                        "${_nextAchievementProgress
-                                                            .toInt()}%",
-                                                        secondText: "do osiągnięcia"),
-                                                    const SizedBox(
-                                                      width: 10,
-                                                    ),
-                                                    ProfileInfoCard(
-                                                        firstText: "-",
-                                                        secondText: "Top graczy"),
-                                                  ],
-                                                ),
-                                              ),
-                                            ],
-                                          ))
-                                    ]),
-                                  ],
-                                ),
+                                    )
+                                  ]),
+                                ],
                               )
-                            ]),
-                          ],
-                        )
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Container(
-                          width: MediaQuery
-                              .of(context)
-                              .size
-                              .width,
-                          padding: const EdgeInsets.only(top: 10),
-                          color: Colors.white,
-                          child: Table(
-                              children: _achievementModel!.achievements
-                                  .map((ac) =>
-                                  TableRow(
-                                    children: [
-                                      ProfileAchievementBigCard(
-                                        firstText: case2(ac.type, {
-                                          "bronze":
-                                          "Brązowy medal energii",
-                                          "silver":
-                                          "Srebrny medal energii",
-                                          "gold":
-                                          "Złoty medal enrgii",
-                                          "master": "Mistrz energii",
-                                        }),
-                                        secondText: _formatter.format(
-                                            DateTime.parse(
-                                                ac.createdAt)
-                                                .toLocal()),
-                                        achievementType: ac.type,
-                                      ),
-                                    ],
-                                  ))
-                                  .toList()),
-                        )
-                      ],
-                    ),
-                    Row(children: [
-                      Container(
-                        width: MediaQuery
-                            .of(context)
-                            .size
-                            .width,
-                        padding: const EdgeInsets.only(top: 10),
-                        color: Colors.white,
-                        child: Table(children: buildRows()),
-                      )
-                    ]),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Container(
+                                width: MediaQuery.of(context).size.width,
+                                padding: const EdgeInsets.only(top: 10),
+                                color: Colors.white,
+                                child: Table(
+                                    children: _achievementModel!.achievements
+                                        .map((ac) => TableRow(
+                                              children: [
+                                                ProfileAchievementBigCard(
+                                                  firstText: case2(ac.type, {
+                                                    "bronze":
+                                                        "Brązowy medal energii",
+                                                    "silver":
+                                                        "Srebrny medal energii",
+                                                    "gold":
+                                                        "Złoty medal enrgii",
+                                                    "master": "Mistrz energii",
+                                                  }),
+                                                  secondText: _formatter.format(
+                                                      DateTime.parse(
+                                                              ac.createdAt)
+                                                          .toLocal()),
+                                                  achievementType: ac.type,
+                                                ),
+                                              ],
+                                            ))
+                                        .toList()),
+                              )
+                            ],
+                          ),
+                          Row(children: [
+                            Container(
+                              width: MediaQuery.of(context).size.width,
+                              padding: const EdgeInsets.only(top: 10),
+                              color: Colors.white,
+                              child: Table(children: buildRows()),
+                            )
+                          ]),
+                        ],
+                      ),
+                    )
                   ],
                 ),
-              )
-            ],
-          ),
-        ));
+              ));
   }
 }
 
 class MyInfo extends StatelessWidget {
   late String pseudonym;
+
   MyInfo(this.pseudonym);
 
   @override
@@ -404,10 +404,7 @@ class MyInfo extends StatelessWidget {
     return Row(
       children: [
         Container(
-            width: MediaQuery
-                .of(context)
-                .size
-                .width,
+            width: MediaQuery.of(context).size.width,
             padding: const EdgeInsets.only(top: 0),
             color: Colors.white,
             child: Column(
@@ -417,9 +414,7 @@ class MyInfo extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    Text(
-                        pseudonym,
-                        style: TextStyle(fontSize: 24)),
+                    Text(pseudonym, style: TextStyle(fontSize: 24)),
                   ],
                 ),
               ],
@@ -433,9 +428,10 @@ class ProfileInfoBigCard extends StatelessWidget {
   final String firstText, secondText;
   final Widget icon;
 
-  ProfileInfoBigCard({required this.firstText,
-    required this.secondText,
-    required this.icon}) {}
+  ProfileInfoBigCard(
+      {required this.firstText,
+      required this.secondText,
+      required this.icon}) {}
 
   @override
   Widget build(BuildContext context) {
@@ -471,10 +467,11 @@ class ProfileInfoBigCard extends StatelessWidget {
   }
 }
 
-TValue case2<TOptionType, TValue>(TOptionType selectedOption,
-    Map<TOptionType, TValue> branches, [
-      TValue? defaultValue = null,
-    ]) {
+TValue case2<TOptionType, TValue>(
+  TOptionType selectedOption,
+  Map<TOptionType, TValue> branches, [
+  TValue? defaultValue = null,
+]) {
   if (!branches.containsKey(selectedOption)) {
     return defaultValue!;
   }
@@ -485,9 +482,10 @@ TValue case2<TOptionType, TValue>(TOptionType selectedOption,
 class ProfileAchievementBigCard extends StatelessWidget {
   final String firstText, secondText, achievementType;
 
-  ProfileAchievementBigCard({required this.firstText,
-    required this.secondText,
-    required this.achievementType}) {}
+  ProfileAchievementBigCard(
+      {required this.firstText,
+      required this.secondText,
+      required this.achievementType}) {}
 
   @override
   Widget build(BuildContext context) {
@@ -544,17 +542,17 @@ class ProfileInfoCard extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: hasImage
             ? Center(
-          child: Image.asset(
-            imagePath,
-            color: Colors.white,
-            width: 25,
-            height: 25,
-          ),
-        )
+                child: Image.asset(
+                  imagePath,
+                  color: Colors.white,
+                  width: 25,
+                  height: 25,
+                ),
+              )
             : TwoLineItem(
-          firstText: firstText,
-          secondText: secondText,
-        ),
+                firstText: firstText,
+                secondText: secondText,
+              ),
       ),
     );
   }

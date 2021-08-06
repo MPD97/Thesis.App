@@ -1,5 +1,1 @@
-enum RouteStatusModel{
-  Accepted,
-  Rejected,
-  Removed
-}
+enum RouteStatusModel { Accepted, Rejected, Removed }

@@ -9,12 +9,12 @@ class PagedRouteRankingModel {
 
   PagedRouteRankingModel(
       this.items,
-        this.isEmpty,
-        this.isNotEmpty,
-        this.currentPage,
-        this.resultsPerPage,
-        this.totalPages,
-        this.totalResults);
+      this.isEmpty,
+      this.isNotEmpty,
+      this.currentPage,
+      this.resultsPerPage,
+      this.totalPages,
+      this.totalResults);
 
   PagedRouteRankingModel.fromJson(Map<String, dynamic> json) {
     if (json['items'] != null) {

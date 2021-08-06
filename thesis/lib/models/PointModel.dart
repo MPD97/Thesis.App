@@ -1,4 +1,3 @@
-
 class PointModel {
   late String id;
   late int order;

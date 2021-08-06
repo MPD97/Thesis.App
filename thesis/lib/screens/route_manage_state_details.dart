@@ -15,7 +15,8 @@ class RouteAcceptDetailsPage extends StatefulWidget {
   RouteAcceptDetailsPage(this._model, {Key? key}) : super(key: key) {}
 
   @override
-  _RouteAcceptDetailsPageState createState() => _RouteAcceptDetailsPageState(_model);
+  _RouteAcceptDetailsPageState createState() =>
+      _RouteAcceptDetailsPageState(_model);
 }
 
 class _RouteAcceptDetailsPageState extends State<RouteAcceptDetailsPage> {
@@ -75,66 +76,66 @@ class _RouteAcceptDetailsPageState extends State<RouteAcceptDetailsPage> {
         Expanded(
           child: ListView(
             children: <Widget>[
-              const Padding(padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
+              const Padding(
+                  padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
                   child: Text(
                     "Nazwa:",
                     style: TextStyle(fontSize: 16, color: Colors.black45),
-                  )
-              ),
-              Padding(padding: const EdgeInsets.fromLTRB(15, 0, 10, 10),
+                  )),
+              Padding(
+                  padding: const EdgeInsets.fromLTRB(15, 0, 10, 10),
                   child: Text(
                     _model.name,
                     style: const TextStyle(fontSize: 20),
-                  )
-              ),
-              const Padding(padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
+                  )),
+              const Padding(
+                  padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
                   child: Text(
                     "Opis:",
                     style: TextStyle(fontSize: 16, color: Colors.black45),
-                  )
-              ),
-              Padding(padding: const EdgeInsets.fromLTRB(15, 0, 10, 10),
+                  )),
+              Padding(
+                  padding: const EdgeInsets.fromLTRB(15, 0, 10, 10),
                   child: Text(
                     _model.description,
                     style: const TextStyle(fontSize: 20),
-                  )
-              ),
-              const Padding(padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
+                  )),
+              const Padding(
+                  padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
                   child: Text(
                     "Poziom trudności:",
                     style: TextStyle(fontSize: 16, color: Colors.black45),
-                  )
-              ),
-              Padding(padding: const EdgeInsets.fromLTRB(15, 0, 10, 10),
+                  )),
+              Padding(
+                  padding: const EdgeInsets.fromLTRB(15, 0, 10, 10),
                   child: Text(
                     getDifficulty(),
                     style: const TextStyle(fontSize: 20),
-                  )
-              ),
-              const Padding(padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
+                  )),
+              const Padding(
+                  padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
                   child: Text(
                     "Ilośc punktów:",
                     style: TextStyle(fontSize: 16, color: Colors.black45),
-                  )
-              ),
-              Padding(padding: const EdgeInsets.fromLTRB(15, 0, 10, 10),
+                  )),
+              Padding(
+                  padding: const EdgeInsets.fromLTRB(15, 0, 10, 10),
                   child: Text(
                     _model.points.length.toString(),
                     style: const TextStyle(fontSize: 20),
-                  )
-              ),
-              const Padding(padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
+                  )),
+              const Padding(
+                  padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
                   child: Text(
                     "Długość trasy:",
                     style: TextStyle(fontSize: 16, color: Colors.black45),
-                  )
-              ),
-              Padding(padding: const EdgeInsets.fromLTRB(15, 0, 10, 10),
+                  )),
+              Padding(
+                  padding: const EdgeInsets.fromLTRB(15, 0, 10, 10),
                   child: Text(
                     "${_model.length} m",
                     style: const TextStyle(fontSize: 20),
-                  )
-              )
+                  ))
             ],
           ),
         ),
@@ -147,54 +148,47 @@ class _RouteAcceptDetailsPageState extends State<RouteAcceptDetailsPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: columnChildren,
         ),
-        floatingActionButton:Stack(
-            children: <Widget>[
-              Align(
-                alignment: Alignment.bottomRight,
-                child: FloatingActionButton.extended(
-                  onPressed: () {
-                    AcceptRoute();
-                  },
-                  label: const Text('Zaakceptuj'),
-                  icon: const Icon(Icons.check),
-                  backgroundColor: Colors.green,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 30.0),
-                child: Align(
-                  alignment: Alignment.bottomLeft,
-                  child: rejectRouteFloatingButton(),
-                ),
-              )
-            ]
-        )
-    );
+        floatingActionButton: Stack(children: <Widget>[
+          Align(
+            alignment: Alignment.bottomRight,
+            child: FloatingActionButton.extended(
+              onPressed: () {
+                AcceptRoute();
+              },
+              label: const Text('Zaakceptuj'),
+              icon: const Icon(Icons.check),
+              backgroundColor: Colors.green,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 30.0),
+            child: Align(
+              alignment: Alignment.bottomLeft,
+              child: rejectRouteFloatingButton(),
+            ),
+          )
+        ]));
   }
 
   FloatingActionButton rejectRouteFloatingButton() {
     return FloatingActionButton.extended(
-      onPressed: () =>
-          showDialog<String>(
-              context: context,
-              builder: (BuildContext context) =>
-                  AlertDialog(
-                    title: const Text('Odrzuć trasę'),
-                    content: Text(
-                        'Czy na pewno chcesz odrzucić trasę: "${_model
-                            .name}"?'),
-                    actions: <Widget>[
-                      TextButton(
-                        onPressed: () => Navigator.pop(context, 'anuluj'),
-                        child: const Text('anuluj'),
-                      ),
-                      TextButton(
-                        onPressed: () =>
-                        {RejectRoute()},
-                        child: const Text('Odrzuć'),
-                      ),
-                    ],
-                  )),
+      onPressed: () => showDialog<String>(
+          context: context,
+          builder: (BuildContext context) => AlertDialog(
+                title: const Text('Odrzuć trasę'),
+                content: Text(
+                    'Czy na pewno chcesz odrzucić trasę: "${_model.name}"?'),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, 'anuluj'),
+                    child: const Text('anuluj'),
+                  ),
+                  TextButton(
+                    onPressed: () => {RejectRoute()},
+                    child: const Text('Odrzuć'),
+                  ),
+                ],
+              )),
       label: const Text('Odrzuć'),
       icon: const Icon(Icons.clear),
       backgroundColor: Colors.red,
@@ -202,7 +196,8 @@ class _RouteAcceptDetailsPageState extends State<RouteAcceptDetailsPage> {
   }
 
   Future RejectRoute() async {
-    var _response = await _routeService.changeRouteStatusRequest(_model.id, RouteStatusModel.Rejected);
+    var _response = await _routeService.changeRouteStatusRequest(
+        _model.id, RouteStatusModel.Rejected);
     print(_response!.body);
     print("Code: ${_response.statusCode}");
     if (_response.statusCode == 204) {
@@ -210,10 +205,9 @@ class _RouteAcceptDetailsPageState extends State<RouteAcceptDetailsPage> {
     } else if (_response.statusCode == 400) {
       var _json = json.decode(_response.body);
       Helper.toastFail("Niepowodzenie: ${_json['code']}");
-    } else if(_response.statusCode == 401){
+    } else if (_response.statusCode == 401) {
       Helper.toastFailShort("Brak autoryzacji");
-    }
-    else {
+    } else {
       var _json = json.decode(_response.body);
       Helper.toastFail("Wystąpił nieznany błąd: ${_json['code']}");
     }
@@ -222,7 +216,8 @@ class _RouteAcceptDetailsPageState extends State<RouteAcceptDetailsPage> {
   }
 
   Future AcceptRoute() async {
-    var _response = await _routeService.changeRouteStatusRequest(_model.id, RouteStatusModel.Accepted);
+    var _response = await _routeService.changeRouteStatusRequest(
+        _model.id, RouteStatusModel.Accepted);
     print(_response!.body);
     print("Code: ${_response.statusCode}");
     if (_response.statusCode == 204) {
@@ -230,10 +225,9 @@ class _RouteAcceptDetailsPageState extends State<RouteAcceptDetailsPage> {
     } else if (_response.statusCode == 400) {
       var _json = json.decode(_response.body);
       Helper.toastFail("Niepowodzenie: ${_json['code']}");
-    } else if(_response.statusCode == 401){
+    } else if (_response.statusCode == 401) {
       Helper.toastFailShort("Brak autoryzacji");
-    }
-    else {
+    } else {
       var _json = json.decode(_response.body);
       Helper.toastFail("Wystąpił nieznany błąd: ${_json['code']}");
     }
@@ -268,10 +262,10 @@ class _RouteAcceptDetailsPageState extends State<RouteAcceptDetailsPage> {
         iconSize: 1.4));
   }
 
-  Future drawLine(PointModel previousPoint, PointModel point,
-      String _difficulty) async {
+  Future drawLine(
+      PointModel previousPoint, PointModel point, String _difficulty) async {
     var _previousGeometry =
-    LatLng(previousPoint.latitude, previousPoint.longitude);
+        LatLng(previousPoint.latitude, previousPoint.longitude);
     var _geometry = LatLng(point.latitude, point.longitude);
 
     var color = "#ff0000";

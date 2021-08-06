@@ -11,7 +11,7 @@ class LocationModel {
     this.Radius = radius;
   }
 
-  Map<String, dynamic> toJson(){
+  Map<String, dynamic> toJson() {
     return {
       "order": this.Order,
       "latitude": this.Latitude,

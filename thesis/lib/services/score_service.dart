@@ -1,6 +1,5 @@
 import 'package:http/http.dart' as http;
 
-
 class ScoreService {
   ScoreService._create();
 
@@ -21,7 +20,7 @@ class ScoreService {
     return _instance!;
   }
 
-  Future<http.Response?> getUserScoreRequest(String userId) async{
+  Future<http.Response?> getUserScoreRequest(String userId) async {
     final Uri _getScore = Uri.parse('$_baseUrl/scores/$userId');
     var response = await http.get(_getScore);
     return response;

@@ -1,12 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:intl/intl.dart';
 import 'package:thesis/models/PagedRouteRankingModel.dart';
 import 'package:thesis/models/RouteModel.dart';
 import 'package:thesis/models/UserDetailsModel.dart';
 import 'package:thesis/services/auth_service.dart';
 import 'package:thesis/services/run_service.dart';
-import 'dart:convert';
-import 'package:intl/intl.dart';
 import 'package:thesis/services/user_service.dart';
 
 class RouteRankingPage extends StatefulWidget {
@@ -108,11 +109,12 @@ class _RouteRankingPageState extends State<RouteRankingPage> {
     _fetchData();
   }
 
-  Future nextPage() async{
+  Future nextPage() async {
     _currentPage += 1;
     await _fetchData();
   }
-  Future previousPage() async{
+
+  Future previousPage() async {
     _currentPage -= 1;
     await _fetchData();
   }
@@ -219,23 +221,31 @@ class _RouteRankingPageState extends State<RouteRankingPage> {
                                           Card(
                                             elevation: 6,
                                             shape: RoundedRectangleBorder(
-                                            side: BorderSide(
-                                            color: entry.userId == AuthService.meId ? Color(0xFFF6E9A5) : Color(0xFFFFFFFF),
-                                              width: 4.0
-                                            ),
+                                                side: BorderSide(
+                                                    color: entry.userId ==
+                                                            AuthService.meId
+                                                        ? Color(0xFFF6E9A5)
+                                                        : Color(0xFFFFFFFF),
+                                                    width: 4.0),
                                                 borderRadius:
                                                     BorderRadius.circular(12)),
                                             child: Padding(
                                                 padding: EdgeInsets.all(20),
                                                 child: SizedBox(
                                                     width:
-                                                        MediaQuery.of(context).size.width - 52,
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width -
+                                                            52,
                                                     child: Row(
                                                       children: [
                                                         Text(
                                                           (_rankingModel.indexOf(
-                                                                      entry) + 1 +
-                                                                  10 * (_currentPage -1) )
+                                                                      entry) +
+                                                                  1 +
+                                                                  10 *
+                                                                      (_currentPage -
+                                                                          1))
                                                               .toString(),
                                                           style: TextStyle(
                                                               fontSize: 20),
@@ -281,76 +291,94 @@ class _RouteRankingPageState extends State<RouteRankingPage> {
                                     )),
                               ],
                             ),
-                          _totalPages > 1 ? Row(
-                            children: [
-                              _currentPage > 1 ?
-                              GestureDetector(
-                                  onTap: () {
-                                    previousPage();
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 2, vertical: 2),
-                                    color: Colors.white,
-                                    height: 100,
-                                    child: Row(
-                                      mainAxisAlignment:
-                                      MainAxisAlignment.center,
-                                      children: <Widget>[
-                                        Card(
-                                          elevation: 6,
-                                          shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                              BorderRadius.circular(12)),
-                                          child: Padding(
-                                              padding: EdgeInsets.all(20),
-                                              child: SizedBox(
-                                                  width:
-                                                  MediaQuery.of(context)
-                                                      .size
-                                                      .width / 2 -
-                                                      52,
-                                                  child: Text("Poprzednia strona")
-                                              )),
-                                        ),
-                                      ],
-                                    ),
-                                  )) : SizedBox.shrink(),
-
-                              _currentPage < _totalPages ? GestureDetector(
-                                  onTap: () {
-                                    nextPage();
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 2, vertical: 2),
-                                    color: Colors.white,
-                                    height: 100,
-                                    child: Row(
-                                      mainAxisAlignment:
-                                      MainAxisAlignment.center,
-                                      children: <Widget>[
-                                        Card(
-                                          elevation: 6,
-                                          shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                              BorderRadius.circular(12)),
-                                          child: Padding(
-                                              padding: EdgeInsets.all(20),
-                                              child: SizedBox(
-                                                  width:
-                                                  MediaQuery.of(context)
-                                                      .size
-                                                      .width / 2 -
-                                                      52,
-                                                  child: Text("Następna strona")
-                                              )),
-                                        ),
-                                      ],
-                                    ),
-                                  )) : SizedBox.shrink()
-                            ],
-                          ): SizedBox.shrink()
+                          _totalPages > 1
+                              ? Row(
+                                  children: [
+                                    _currentPage > 1
+                                        ? GestureDetector(
+                                            onTap: () {
+                                              previousPage();
+                                            },
+                                            child: Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 2,
+                                                      vertical: 2),
+                                              color: Colors.white,
+                                              height: 100,
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: <Widget>[
+                                                  Card(
+                                                    elevation: 6,
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        12)),
+                                                    child: Padding(
+                                                        padding:
+                                                            EdgeInsets.all(20),
+                                                        child: SizedBox(
+                                                            width: MediaQuery.of(
+                                                                            context)
+                                                                        .size
+                                                                        .width /
+                                                                    2 -
+                                                                52,
+                                                            child: Text(
+                                                                "Poprzednia strona"))),
+                                                  ),
+                                                ],
+                                              ),
+                                            ))
+                                        : SizedBox.shrink(),
+                                    _currentPage < _totalPages
+                                        ? GestureDetector(
+                                            onTap: () {
+                                              nextPage();
+                                            },
+                                            child: Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 2,
+                                                      vertical: 2),
+                                              color: Colors.white,
+                                              height: 100,
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: <Widget>[
+                                                  Card(
+                                                    elevation: 6,
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        12)),
+                                                    child: Padding(
+                                                        padding:
+                                                            EdgeInsets.all(20),
+                                                        child: SizedBox(
+                                                            width: MediaQuery.of(
+                                                                            context)
+                                                                        .size
+                                                                        .width /
+                                                                    2 -
+                                                                52,
+                                                            child: Text(
+                                                                "Następna strona"))),
+                                                  ),
+                                                ],
+                                              ),
+                                            ))
+                                        : SizedBox.shrink()
+                                  ],
+                                )
+                              : SizedBox.shrink()
                         ],
                       ),
                     ),

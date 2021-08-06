@@ -3,7 +3,8 @@ class UserScoreModel {
   late int score;
   late List<ScoreEventModel> scoreEvents;
 
-  UserScoreModel({required this.id, required this.score, required this.scoreEvents});
+  UserScoreModel(
+      {required this.id, required this.score, required this.scoreEvents});
 
   UserScoreModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -36,12 +37,12 @@ class ScoreEventModel {
 
   ScoreEventModel(
       {required this.id,
-        required this.message,
-        required this.createsAt,
-        required this.amount,
-        required this.type,
-        required this.routeId,
-        this.date});
+      required this.message,
+      required this.createsAt,
+      required this.amount,
+      required this.type,
+      required this.routeId,
+      this.date});
 
   ScoreEventModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];

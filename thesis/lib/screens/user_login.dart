@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:thesis/services/auth_service.dart';
 import 'package:thesis/helpers/helper.dart';
+import 'package:thesis/services/auth_service.dart';
 
 import 'main_drawer.dart';
 
@@ -20,47 +20,48 @@ class _LoginPageState extends State<LogInPage> {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light.copyWith(statusBarColor: Colors.transparent));
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light
+        .copyWith(statusBarColor: Colors.transparent));
     return Scaffold(
       drawer: MainDrawer(),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-              colors: [
-                Color(0xFF629DDC),
-                Color(0xFF4876B4),
-                Color(0xFF6097BB)
-              ],
+              colors: [Color(0xFF629DDC), Color(0xFF4876B4), Color(0xFF6097BB)],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter),
         ),
-        child: _isLoading ? Center(child: CircularProgressIndicator()) : ListView(
-          children: <Widget>[
-            headerSection(),
-            textSection(),
-            buttonSection(),
-          ],
-        ),
+        child: _isLoading
+            ? Center(child: CircularProgressIndicator())
+            : ListView(
+                children: <Widget>[
+                  headerSection(),
+                  textSection(),
+                  buttonSection(),
+                ],
+              ),
       ),
     );
   }
 
   Future<void> signIn(String email, password) async {
-    setState(() {_isLoading = true;});
+    setState(() {
+      _isLoading = true;
+    });
     var response = await _authService.loginRequest(email, password);
-    setState(() {_isLoading = false;});
+    setState(() {
+      _isLoading = false;
+    });
 
-    if(response.statusCode == 200) {
+    if (response.statusCode == 200) {
       var jsonResponse = json.decode(response.body);
-      if(jsonResponse != null) {
+      if (jsonResponse != null) {
         Helper.toastSuccess("Zalogowano");
         await GetMeAsUser();
       }
-    }
-    else if(response.statusCode == 400){
+    } else if (response.statusCode == 400) {
       Helper.toastFail("Niepoprawne dane logowania");
-    }
-    else{
+    } else {
       var jsonResponse = json.decode(response.body);
       Helper.toastFail(jsonResponse['message']);
       print(jsonResponse);
@@ -68,40 +69,40 @@ class _LoginPageState extends State<LogInPage> {
   }
 
   Future<void> GetMeAsUser() async {
-    setState(() {_isLoading = true; });
+    setState(() {
+      _isLoading = true;
+    });
     var response = await _authService.userMeRequest();
-    setState(() {_isLoading = false; });
+    setState(() {
+      _isLoading = false;
+    });
 
-    if(response == null){
+    if (response == null) {
       Helper.toastFail("Coś poszło nie tak");
       return;
     }
 
-    if(response.statusCode == 200) {
+    if (response.statusCode == 200) {
       var jsonResponse = json.decode(response.body);
       var state = jsonResponse['state'];
-      if(state == 'valid'){
+      if (state == 'valid') {
         print("User state is valid");
         if (Navigator.canPop(context)) {
           Navigator.pop(context);
         }
         Navigator.of(context).pushNamed('/');
-      }
-      else if(state == 'incomplete'){
+      } else if (state == 'incomplete') {
         if (Navigator.canPop(context)) {
           Navigator.pop(context);
         }
         Navigator.of(context).pushNamed('/complete-registration-process');
         print("User state is incomplete");
-      }
-      else if(state == 'locked'){
+      } else if (state == 'locked') {
         Helper.toastFail("Konto zostało zablokowane");
-      }
-      else {
+      } else {
         Helper.toastFail("Konto posiada nieznany status");
       }
-    }
-    else{
+    } else {
       print(response.body);
       var jsonResponse = json.decode(response.body);
       Helper.toastFail(jsonResponse['message']);
@@ -115,12 +116,15 @@ class _LoginPageState extends State<LogInPage> {
       padding: EdgeInsets.symmetric(horizontal: 15.0),
       margin: EdgeInsets.only(top: 15.0),
       child: ElevatedButton(
-        onPressed: emailController.text == "" ? null : () {
-          signIn(emailController.text, passwordController.text);
-        },
+        onPressed: emailController.text == ""
+            ? null
+            : () {
+                signIn(emailController.text, passwordController.text);
+              },
         child: Text("Zaloguj się", style: TextStyle(color: Colors.white70)),
         style: ElevatedButton.styleFrom(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
         ),
       ),
     );
@@ -141,7 +145,8 @@ class _LoginPageState extends State<LogInPage> {
             decoration: InputDecoration(
               icon: Icon(Icons.email, color: Colors.white70),
               hintText: "Email",
-              border: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white70)),
+              border: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white70)),
               hintStyle: TextStyle(color: Colors.white70),
             ),
           ),
@@ -154,7 +159,8 @@ class _LoginPageState extends State<LogInPage> {
             decoration: InputDecoration(
               icon: Icon(Icons.lock, color: Colors.white70),
               hintText: "Hasło",
-              border: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white70)),
+              border: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white70)),
               hintStyle: TextStyle(color: Colors.white70),
             ),
           ),
@@ -175,34 +181,33 @@ class _LoginPageState extends State<LogInPage> {
     );
   }
 
-  Future<http.Response> checkResponseAuthorization(http.Response response) async{
+  Future<http.Response> checkResponseAuthorization(
+      http.Response response) async {
     var sharedPreferences = await SharedPreferences.getInstance();
 
-    if(response.statusCode == 401){
+    if (response.statusCode == 401) {
       await ensureAuthorized();
     }
     return response;
   }
 
-  Future<void> ensureAuthorized() async{
-    if(await AuthService.isTokenAvailableToRefresh()){
-      if(await AuthService.isTokenValid() == false) {
+  Future<void> ensureAuthorized() async {
+    if (await AuthService.isTokenAvailableToRefresh()) {
+      if (await AuthService.isTokenValid() == false) {
         await _authService.refreshTokenRequest();
-        if(await AuthService.isTokenValid() == false) {
+        if (await AuthService.isTokenValid() == false) {
           if (Navigator.canPop(context)) {
             Navigator.pop(context);
           }
           Navigator.of(context).pushNamed('/login');
         }
-      }
-      else{
+      } else {
         if (Navigator.canPop(context)) {
           Navigator.pop(context);
         }
         Navigator.of(context).pushNamed('/login');
       }
-    }
-    else{
+    } else {
       if (Navigator.canPop(context)) {
         Navigator.pop(context);
       }

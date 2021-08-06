@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'main_drawer.dart';
 
+import 'main_drawer.dart';
 
 class HomePage extends StatelessWidget {
   @override
@@ -13,7 +13,6 @@ class HomePage extends StatelessWidget {
         body: Image.asset('assets/images/home.png',
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height,
-            fit: BoxFit.fill)
-    );
+            fit: BoxFit.fill));
   }
 }

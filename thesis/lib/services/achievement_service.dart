@@ -1,6 +1,5 @@
 import 'package:http/http.dart' as http;
 
-
 class AchievementService {
   AchievementService._create();
 
@@ -21,7 +20,7 @@ class AchievementService {
     return _instance!;
   }
 
-  Future<http.Response?> getAchievementsRequest(String userId) async{
+  Future<http.Response?> getAchievementsRequest(String userId) async {
     final Uri _getScore = Uri.parse('$_baseUrl/achievements/$userId');
     var response = await http.get(_getScore);
     return response;

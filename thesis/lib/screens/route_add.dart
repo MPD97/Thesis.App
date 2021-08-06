@@ -1,10 +1,11 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:multiselect_formfield/multiselect_formfield.dart';
 import 'package:thesis/helpers/helper.dart';
 import 'package:thesis/models/LocationModel.dart';
 import 'package:thesis/services/auth_service.dart';
-import 'package:multiselect_formfield/multiselect_formfield.dart';
 import 'package:thesis/services/route_service.dart';
 
 class RouteAddPage extends StatefulWidget {
@@ -66,7 +67,8 @@ class _RouteAddPageState extends State<RouteAddPage> {
         onPressed: () {
           addRoute();
         },
-        child: const Text("Dodaj trasę", style: TextStyle(color: Colors.white70)),
+        child:
+            const Text("Dodaj trasę", style: TextStyle(color: Colors.white70)),
         style: ElevatedButton.styleFrom(
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
@@ -74,12 +76,13 @@ class _RouteAddPageState extends State<RouteAddPage> {
       ),
     );
   }
+
   Future<void> addRoute() async {
     final String routeName = routeNameController.text;
     final String routeDescription = routeDescriptionController.text;
     String difficulty = dropdownValue;
 
-    switch (dropdownValue){
+    switch (dropdownValue) {
       case 'Wybierz poziom trudności':
         Helper.toastFail("Wybierz poziom trudności");
         return;
@@ -104,30 +107,33 @@ class _RouteAddPageState extends State<RouteAddPage> {
       activityType |= int.parse(element.toString());
     }
 
-    setState(() {_isLoading = true;});
-    var response = await _routeService.addRouteRequest(routeName, routeDescription, difficulty, activityType, _locations);
-    setState(() {_isLoading = false;});
+    setState(() {
+      _isLoading = true;
+    });
+    var response = await _routeService.addRouteRequest(
+        routeName, routeDescription, difficulty, activityType, _locations);
+    setState(() {
+      _isLoading = false;
+    });
 
-    if(response.statusCode == 201) {
+    if (response.statusCode == 201) {
       Helper.toastSuccess("Trasa została dodana i czeka na akceptację");
       Future.delayed(const Duration(milliseconds: 1500), () {
         Navigator.of(context).popUntil((route) => route.isFirst);
         Navigator.of(context).pushNamed('/map');
       });
-    }
-    else if(response.statusCode == 400){
+    } else if (response.statusCode == 400) {
       var jsonResponse = json.decode(response.body);
       print(jsonResponse);
 
-      if(jsonResponse['code'] == 'route_already_exists'){
+      if (jsonResponse['code'] == 'route_already_exists') {
         Helper.toastFail("Trasa z tą nazwą już istnieje");
-      }else if(jsonResponse['code'] == 'route_name_too_short'){
+      } else if (jsonResponse['code'] == 'route_name_too_short') {
         Helper.toastFail("Nazwa trasy jest za krótka.");
-      }else{
+      } else {
         Helper.toastFail("Wystąpił błąd: ${jsonResponse['code']}");
       }
-    }
-    else{
+    } else {
       Helper.toastFail("Wystąpił nieznany błąd");
       var jsonResponse = json.decode(response.body);
       print(jsonResponse);
@@ -135,7 +141,8 @@ class _RouteAddPageState extends State<RouteAddPage> {
   }
 
   final TextEditingController routeNameController = TextEditingController();
-  final TextEditingController routeDescriptionController =  TextEditingController();
+  final TextEditingController routeDescriptionController =
+      TextEditingController();
   String dropdownValue = 'Wybierz poziom trudności';
   List<dynamic> activityTypesValue =
       List<dynamic>.filled(0, null, growable: true);
@@ -150,7 +157,8 @@ class _RouteAddPageState extends State<RouteAddPage> {
             cursorColor: Colors.white,
             style: const TextStyle(color: Colors.white70),
             decoration: const InputDecoration(
-              icon: Icon(Icons.drive_file_rename_outline, color: Colors.white70),
+              icon:
+                  Icon(Icons.drive_file_rename_outline, color: Colors.white70),
               hintText: "Nazwa trasy",
               border: UnderlineInputBorder(
                   borderSide: BorderSide(color: Colors.white70)),
@@ -191,8 +199,13 @@ class _RouteAddPageState extends State<RouteAddPage> {
                 dropdownValue = newValue!;
               });
             },
-            items: <String>['Wybierz poziom trudności','Zielony', 'Niebieski', 'Czerwony', 'Czarny']
-                .map<DropdownMenuItem<String>>((String value) {
+            items: <String>[
+              'Wybierz poziom trudności',
+              'Zielony',
+              'Niebieski',
+              'Czerwony',
+              'Czarny'
+            ].map<DropdownMenuItem<String>>((String value) {
               return DropdownMenuItem<String>(
                 value: value,
                 child: Text(

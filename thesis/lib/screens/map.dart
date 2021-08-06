@@ -1,22 +1,23 @@
+import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:location/location.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:signalr_netcore/signalr_client.dart';
+import 'package:thesis/helpers/helper.dart';
 import 'package:thesis/main.dart';
 import 'package:thesis/models/LocationModel.dart';
 import 'package:thesis/models/PagedResultModel.dart';
 import 'package:thesis/models/PointModel.dart';
 import 'package:thesis/models/RouteModel.dart';
 import 'package:thesis/services/auth_service.dart';
+import 'package:thesis/services/localisation_service.dart';
 import 'package:thesis/services/route_service.dart';
 import 'package:thesis/services/run_service.dart';
-import 'package:thesis/services/localisation_service.dart';
-import 'package:thesis/helpers/helper.dart';
-import 'dart:convert';
-import 'package:signalr_netcore/signalr_client.dart';
-import 'dart:async';
 
 final LatLngBounds polandBounds = LatLngBounds(
   southwest: const LatLng(53.87076927224154, 14.75693698615063),
@@ -63,7 +64,7 @@ class MapUiBodyState extends State<MapUiBody> {
   );
 
   final LocalisationService _localisationService =
-      LocalisationService.getInstance();
+  LocalisationService.getInstance();
   final RouteService _routeService = RouteService.getInstance();
   final AuthService _authService = AuthService.getInstance();
   final RunService _runService = RunService.getInstance();
@@ -162,7 +163,6 @@ class MapUiBodyState extends State<MapUiBody> {
     bool _serviceEnabled;
     PermissionStatus _permissionGranted;
 
-
     _serviceEnabled = await _location.serviceEnabled();
     if (!_serviceEnabled) {
       _serviceEnabled = await _location.requestService();
@@ -178,7 +178,6 @@ class MapUiBodyState extends State<MapUiBody> {
         return;
       }
     }
-
     await _location.getLocation();
   }
 
@@ -240,7 +239,7 @@ class MapUiBodyState extends State<MapUiBody> {
         print("Current page: $_currentPage Total pages: $_totalPages");
         if (_response.statusCode == 200) {
           PagedRouteModel _pagedResult =
-              PagedRouteModel.fromJson(json.decode(_response.body));
+          PagedRouteModel.fromJson(json.decode(_response.body));
           if (_pagedResult.isNotEmpty) {
             for (var route in _pagedResult.items) {
               addRoute(route);
@@ -324,7 +323,7 @@ class MapUiBodyState extends State<MapUiBody> {
   Future drawLineRun(
       PointModel previousPoint, PointModel point, String difficulty) async {
     var _previousGeometry =
-        LatLng(previousPoint.latitude, previousPoint.longitude);
+    LatLng(previousPoint.latitude, previousPoint.longitude);
     var _geometry = LatLng(point.latitude, point.longitude);
 
     var color = "#ff0000";
@@ -363,7 +362,7 @@ class MapUiBodyState extends State<MapUiBody> {
   Future drawLine(
       PointModel previousPoint, PointModel point, String _difficulty) async {
     var _previousGeometry =
-        LatLng(previousPoint.latitude, previousPoint.longitude);
+    LatLng(previousPoint.latitude, previousPoint.longitude);
     var _geometry = LatLng(point.latitude, point.longitude);
 
     var color = "#ff0000";
@@ -414,8 +413,8 @@ class MapUiBodyState extends State<MapUiBody> {
     var geometry = _selectedSymbol!.options.geometry;
     var result = _routeModels
         .where((route) =>
-            route.points[0].latitude == geometry!.latitude &&
-            route.points[0].longitude == geometry.longitude)
+    route.points[0].latitude == geometry!.latitude &&
+        route.points[0].longitude == geometry.longitude)
         .single;
     if (result == null) {
       Helper.toastFailShort("Nie znaleziono trasy.");
@@ -438,7 +437,7 @@ class MapUiBodyState extends State<MapUiBody> {
 
   @override
   Widget build(BuildContext context) {
-    final MapboxMap mapboxMap = MapboxMap(
+    MapboxMap mapboxMap = MapboxMap(
       accessToken: Application.ACCESS_TOKEN,
       onMapCreated: onMapCreated,
       initialCameraPosition: _kInitialPosition,
@@ -463,16 +462,16 @@ class MapUiBodyState extends State<MapUiBody> {
           if (_locations.isNotEmpty) {
             var prevoius = _locations[locationCount - 1];
             var distance = calculateDistance(prevoius.Latitude,
-                    prevoius.Longitude, latLng.latitude, latLng.longitude)
+                prevoius.Longitude, latLng.latitude, latLng.longitude)
                 .toInt();
             print("Distance: $distance");
             if (distance > 500) {
-              Helper.toastFailShort("Zbyt duży dystans między puntami.");
+              Helper.toastFailShort("Zbyt duży dystans między puntami");
               return;
             }
 
             if (distance < 100) {
-              Helper.toastFailShort("Zbyt mały dystans między puntami.");
+              Helper.toastFailShort("Zbyt mały dystans między puntami");
               return;
             }
             addLocation(location, latLng);
@@ -491,42 +490,6 @@ class MapUiBodyState extends State<MapUiBody> {
         });
       },
     );
-
-    Future<bool> validateUserDistance() async {
-      _currentLocation = await _location.getLocation();
-      var distance = calculateDistance(
-          _selectedRoute?.points[0].latitude,
-          _selectedRoute?.points[0].longitude,
-          _currentLocation!.latitude,
-          _currentLocation!.longitude);
-
-      if (distance > 250) {
-        return false;
-      }
-      return true;
-    }
-
-    Future prepareRun() async {
-      setState(() => {_isPreparingRunGettingLocation = true});
-
-      bool isUserInGoodDistance = await validateUserDistance();
-
-      setState(() => {_isPreparingRunGettingLocation = false});
-
-      if (isUserInGoodDistance) {
-        setState(() => {_isPreparingRun = true});
-        await removeSymbolsLinesCircles();
-        await drawRouteRun(_selectedRoute!);
-
-        if (hubConnection == null) {
-          initSignalR();
-        }
-      } else {
-        Helper.toastFailShort("Jesteś za daleko");
-        setState(() => {_isPreparingRun = false});
-        return;
-      }
-    }
 
     Stack onRouteMarkerClickSection() {
       return Stack(
@@ -619,20 +582,20 @@ class MapUiBodyState extends State<MapUiBody> {
         onPressed: () => showDialog<String>(
             context: context,
             builder: (BuildContext context) => AlertDialog(
-                  title: const Text('Dodawanie nowej trasy'),
-                  content: const Text(
-                      'Wybierz kolejno kilka punktów na mapie przytrzymując dłużej palec, a następnie naciśnij zapisz.'),
-                  actions: <Widget>[
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, 'anuluj'),
-                      child: const Text('anuluj'),
-                    ),
-                    TextButton(
-                      onPressed: () => {onCreateRoute()},
-                      child: const Text('OK'),
-                    ),
-                  ],
-                )),
+              title: const Text('Dodawanie nowej trasy'),
+              content: const Text(
+                  'Wybierz kolejno kilka punktów na mapie przytrzymując dłużej palec, a następnie naciśnij zapisz'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.pop(context, 'anuluj'),
+                  child: const Text('anuluj'),
+                ),
+                TextButton(
+                  onPressed: () => {onCreateRoute()},
+                  child: const Text('OK'),
+                ),
+              ],
+            )),
         label: const Text('Dodaj'),
         icon: const Icon(Icons.add),
         backgroundColor: Colors.green,
@@ -686,16 +649,16 @@ class MapUiBodyState extends State<MapUiBody> {
         children: <Widget>[
           _cameraTracking == false
               ? Align(
-                  alignment: Alignment.bottomRight,
-                  child: FloatingActionButton.extended(
-                    onPressed: () {
-                      enableMapTracking();
-                    },
-                    label: const Text('Wznów'),
-                    icon: const Icon(Icons.assistant_navigation),
-                    backgroundColor: Colors.blue,
-                  ),
-                )
+            alignment: Alignment.bottomRight,
+            child: FloatingActionButton.extended(
+              onPressed: () {
+                enableMapTracking();
+              },
+              label: const Text('Wznów'),
+              icon: const Icon(Icons.assistant_navigation),
+              backgroundColor: Colors.blue,
+            ),
+          )
               : const SizedBox.shrink(),
           Padding(
             padding: const EdgeInsets.only(left: 30.0),
@@ -736,17 +699,52 @@ class MapUiBodyState extends State<MapUiBody> {
         body: mapboxMap,
         floatingActionButton: AuthService.userIsAuthorized == true
             ? _isInCreatorMode == true
-                ? onRouteAddNewSaveSection()
-                : _isRouteSelected == true
-                    ? _isPreparingRunGettingLocation == true
-                        ? onRouteRunPreparingGettingLocationSection()
-                        : _isPreparingRun == true
-                            ? _isInRun == true
-                                ? onInRun()
-                                : onRouteRunPreparingSection()
-                            : onRouteMarkerClickSection()
-                    : onRouteAddNewSection()
+            ? onRouteAddNewSaveSection()
+            : _isRouteSelected == true
+            ? _isPreparingRunGettingLocation == true
+            ? onRouteRunPreparingGettingLocationSection()
+            : _isPreparingRun == true
+            ? _isInRun == true
+            ? onInRun()
+            : onRouteRunPreparingSection()
+            : onRouteMarkerClickSection()
+            : onRouteAddNewSection()
             : onNotLoggedIn());
+  }
+  Future<bool> validateUserDistance() async {
+    _currentLocation = await _location.getLocation();
+    var distance = calculateDistance(
+        _selectedRoute?.points[0].latitude,
+        _selectedRoute?.points[0].longitude,
+        _currentLocation!.latitude,
+        _currentLocation!.longitude);
+
+    if (distance > 250) {
+      return false;
+    }
+    return true;
+  }
+
+  Future prepareRun() async {
+    setState(() => {_isPreparingRunGettingLocation = true});
+
+    bool isUserInGoodDistance = await validateUserDistance();
+
+    setState(() => {_isPreparingRunGettingLocation = false});
+
+    if (isUserInGoodDistance) {
+      setState(() => {_isPreparingRun = true});
+      await removeSymbolsLinesCircles();
+      await drawRouteRun(_selectedRoute!);
+
+      if (hubConnection == null) {
+        initSignalR();
+      }
+    } else {
+      Helper.toastFailShort("Jesteś za daleko");
+      setState(() => {_isPreparingRun = false});
+      return;
+    }
   }
 
   Future onRunStart() async {
@@ -760,7 +758,7 @@ class MapUiBodyState extends State<MapUiBody> {
     }
 
     final _response =
-        await _runService.addRunRequest(_currentLocation!, _selectedRoute!.id);
+    await _runService.addRunRequest(_currentLocation!, _selectedRoute!.id);
     if (_response == null) {
       print("_response: NULL");
       return;
@@ -884,14 +882,16 @@ class MapUiBodyState extends State<MapUiBody> {
   }
 
   Future onMapCreated(MapboxMapController controller) async {
-    mapController = controller;
-    mapController!.addListener(_onMapChanged);
-    _extractVisibleRegion();
+    Future.delayed(const Duration(milliseconds: 500), () async{
+      mapController = controller;
+      mapController!.addListener(_onMapChanged);
+      _extractVisibleRegion();
 
-    var _myLocation = await _location.getLocation();
-    mapController!.animateCamera(CameraUpdate.newLatLngZoom(
-        LatLng(_myLocation.latitude!, _myLocation.longitude!), 13));
-    controller.onSymbolTapped.add(_onSymbolTapped);
+      var _myLocation = await _location.getLocation();
+      mapController!.animateCamera(CameraUpdate.newLatLngZoom(
+          LatLng(_myLocation.latitude!, _myLocation.longitude!), 13));
+      controller.onSymbolTapped.add(_onSymbolTapped);
+    });
   }
 
   double calculateDistance(lat1, lon1, lat2, lon2) {

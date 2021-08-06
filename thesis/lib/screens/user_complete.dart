@@ -2,79 +2,80 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thesis/helpers/helper.dart';
 import 'package:thesis/services/auth_service.dart';
 
 import 'main_drawer.dart';
 
-
 class CompleteRegistrationProcessPage extends StatefulWidget {
   @override
-  _CompleteRegistrationProcessPageState createState() => _CompleteRegistrationProcessPageState();
+  _CompleteRegistrationProcessPageState createState() =>
+      _CompleteRegistrationProcessPageState();
 }
 
-class _CompleteRegistrationProcessPageState extends State<CompleteRegistrationProcessPage> {
+class _CompleteRegistrationProcessPageState
+    extends State<CompleteRegistrationProcessPage> {
   final AuthService _authService = AuthService.getInstance();
   bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light.copyWith(statusBarColor: Colors.transparent));
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light
+        .copyWith(statusBarColor: Colors.transparent));
     return Scaffold(
       drawer: MainDrawer(),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-              colors: [
-                Color(0xFF4170B3),
-                Color(0xFF6D9CEC),
-                Color(0xFF85F1F5)
-              ],
+              colors: [Color(0xFF4170B3), Color(0xFF6D9CEC), Color(0xFF85F1F5)],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter),
         ),
-        child: _isLoading ? const Center(child: CircularProgressIndicator()) : ListView(
-          children: <Widget>[
-            headerSection(),
-            textSection(),
-            buttonSection(),
-          ],
-        ),
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : ListView(
+                children: <Widget>[
+                  headerSection(),
+                  textSection(),
+                  buttonSection(),
+                ],
+              ),
       ),
     );
   }
 
   completeRegistration(String pseudonym) async {
-    setState(() {_isLoading = true;});
+    setState(() {
+      _isLoading = true;
+    });
     var response = await _authService.completeRegistration(pseudonym);
-    setState(() {_isLoading = false;});
+    setState(() {
+      _isLoading = false;
+    });
 
-    if(response == null){
+    if (response == null) {
       Helper.toastFail("Coś poszło nie tak");
       return;
     }
 
-    if(response.statusCode == 201) {
+    if (response.statusCode == 201) {
       Helper.toastSuccess("Pseudonim zapisany");
       Navigator.of(context).pushNamed('/');
-    }
-    else if(response.statusCode == 400){
+    } else if (response.statusCode == 400) {
       var jsonResponse = json.decode(response.body);
-      switch(jsonResponse['code']){
+      switch (jsonResponse['code']) {
         case 'user_already_registered':
           Helper.toastFail('Pseudonim jest zajęty');
           break;
         case 'invalid_user_pseudonym_length':
           Helper.toastFail('Pseudonim jest za krótki, lub za długi');
           break;
-        default :
+        default:
           Helper.toastFail('Wystąpił nieznany błąd');
           print(jsonResponse);
           break;
       }
-    }
-    else{
+    } else {
       var jsonResponse = json.decode(response.body);
       Helper.toastFail(jsonResponse['message']);
       print(jsonResponse);
@@ -88,12 +89,15 @@ class _CompleteRegistrationProcessPageState extends State<CompleteRegistrationPr
       padding: const EdgeInsets.symmetric(horizontal: 15.0),
       margin: const EdgeInsets.only(top: 15.0),
       child: ElevatedButton(
-        onPressed: pseudonymController.text == "" ? null : () {
-          completeRegistration(pseudonymController.text);
-        },
+        onPressed: pseudonymController.text == ""
+            ? null
+            : () {
+                completeRegistration(pseudonymController.text);
+              },
         child: Text("Zapisz", style: const TextStyle(color: Colors.white70)),
         style: ElevatedButton.styleFrom(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
         ),
       ),
     );
@@ -113,7 +117,8 @@ class _CompleteRegistrationProcessPageState extends State<CompleteRegistrationPr
             decoration: const InputDecoration(
               icon: Icon(Icons.tag_faces, color: Colors.white70),
               hintText: "Pseudonim",
-              border: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white70)),
+              border: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white70)),
               hintStyle: TextStyle(color: Colors.white70),
             ),
           ),
