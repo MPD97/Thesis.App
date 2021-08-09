@@ -1,9 +1,11 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:thesis/helpers/helper.dart';
-import 'package:thesis/models/PagedResultModel.dart';
+import 'package:thesis/models/PagedRouteModel.dart';
 import 'package:thesis/models/RouteModel.dart';
 import 'package:thesis/models/RouteStatusModel.dart';
 import 'package:thesis/services/route_service.dart';
@@ -16,33 +18,56 @@ class RouteAcceptPage extends StatefulWidget {
 }
 
 class _RouteAcceptPageState extends State<RouteAcceptPage> {
-  late final List<ListItem> _items = <ListItem>[];
-  final _routeService = RouteService.getInstance();
-
   _RouteAcceptPageState();
 
-  Future getRoutes() async {
-    _items.clear();
-    var _totalPages = 1;
-    var _currentPage = 0;
+  final List<RouteModel> _routes = [];
+  final _routeService = RouteService.getInstance();
 
-    while (_currentPage < _totalPages) {
-      var _response = await _routeService.getNewRoutesRequest(_currentPage++);
-      print("Current page: ${_currentPage} Total pages: ${_totalPages}");
-      if (_response.statusCode == 200) {
-        PagedRouteModel _pagedResult =
-            PagedRouteModel.fromJson(json.decode(_response.body));
-        if (_pagedResult.isNotEmpty) {
-          for (var route in _pagedResult.items) {
-            _items.add(RouteModelItem(route));
-          }
-        }
-        _totalPages = _pagedResult.totalPages;
+  int _currentPage = 0;
+  int _totalPages = 1;
+
+  final RefreshController refreshController = RefreshController(initialRefresh: true);
+
+  Future<void> _onRefresh() async {
+    _currentPage = 0;
+    _routes.clear();
+    refreshController.resetNoData();
+
+    await _fetchData();
+
+    refreshController.refreshCompleted();
+  }
+
+  Future<void> _onLoading() async {
+    await _fetchData();
+  }
+
+  Future _fetchData() async {
+    final response =
+    await _routeService.getNewRoutesRequest(++_currentPage);
+    if (response.statusCode == 200) {
+      var pagedModel = PagedRouteModel.fromJson(json.decode(utf8.decode(response.bodyBytes)));
+      setState(() {
+        _routes.addAll(pagedModel.items);
+
+        _currentPage = pagedModel.currentPage;
+        _totalPages = pagedModel.totalPages;
+
+        refreshController.loadComplete();
+      });
+
+      if (_currentPage >= _totalPages) {
+        refreshController.loadNoData();
+        return;
+      } else {
+        refreshController.loadComplete();
       }
+    } else {
+      refreshController.loadFailed();
     }
   }
 
-  Future RejectRoute(int index, RouteModel route) async {
+  Future _rejectRoute(int index, RouteModel route) async {
     var _response = await _routeService.changeRouteStatusRequest(
         route.id, RouteStatusModel.Rejected);
     print(_response!.body);
@@ -50,7 +75,7 @@ class _RouteAcceptPageState extends State<RouteAcceptPage> {
     if (_response.statusCode == 204) {
       Helper.toastSuccessShort("Trasa zostałą odrzucona");
       setState(() {
-        _items.removeAt(index);
+        _routes.removeAt(index);
       });
     } else if (_response.statusCode == 400) {
       var _json = json.decode(_response.body);
@@ -62,7 +87,7 @@ class _RouteAcceptPageState extends State<RouteAcceptPage> {
     Navigator.pop(context, 'Odrzuć');
   }
 
-  void onItemTap(RouteModel route) {
+  void _onRouteTap(RouteModel route) {
     print("Tapped at route ${route.name}");
     Navigator.of(context)
         .pushNamed('/route/show/new/details', arguments: route);
@@ -70,110 +95,72 @@ class _RouteAcceptPageState extends State<RouteAcceptPage> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: getRoutes(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState != ConnectionState.done) {
-            return const SpinKitSpinningCircle(
-              color: Colors.white,
-              size: 50.0,
-            );
-          }
-          return ListOfRoutes();
-        });
-  }
-
-  Widget ListOfRoutes() {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text("Zarządzanie nowymi trasami"),
+      appBar: AppBar(
+        title: Text("Zarządzanie nowymi trasami",
+        style: TextStyle(),),
+      ),
+      body: SmartRefresher(
+        controller: refreshController,
+        enablePullUp: true,
+        footer: CustomFooter(
+          builder: (BuildContext context, LoadStatus? mode) {
+            Widget body;
+            if (mode == LoadStatus.idle) {
+              body = Text("pociągnij aby odświerzyć");
+            } else if (mode == LoadStatus.loading) {
+              body = CupertinoActivityIndicator();
+            } else if (mode == LoadStatus.failed) {
+              body = Text("Wczytywanie nie powiodło się");
+            } else if (mode == LoadStatus.canLoading) {
+              body = Text("puść aby wczytać więcej");
+            } else {
+              body = Text("Brak dalszych wyników");
+            }
+            return Container(
+              height: 55.h,
+              child: Center(child: body),
+            );
+          },
         ),
-        body: _items.isNotEmpty
-            ? RefreshIndicator(
-                child: ListView.builder(
-                  physics: const BouncingScrollPhysics(
-                      parent: AlwaysScrollableScrollPhysics()),
-                  itemCount: _items.length,
-                  itemBuilder: (context, index) {
-                    final item = _items[index];
-                    return ListTile(
-                      title: item.buildTitle(context),
-                      subtitle: item.buildSubtitle(context),
-                      tileColor: item.buildTileColor(),
-                      onTap: () => {onItemTap(_items[index].getModel())},
-                      onLongPress: () => showDialog<String>(
-                          context: context,
-                          builder: (BuildContext context) => AlertDialog(
-                                title: const Text('Odrzuć trasę'),
-                                content: Text(
-                                    'Czy na pewno chcesz odrzucić trasę: "${_items[index].getModel().name}"?'),
-                                actions: <Widget>[
-                                  TextButton(
-                                    onPressed: () =>
-                                        Navigator.pop(context, 'anuluj'),
-                                    child: const Text('anuluj'),
-                                  ),
-                                  TextButton(
-                                    onPressed: () => {
-                                      RejectRoute(
-                                          index, _items[index].getModel())
-                                    },
-                                    child: const Text('Odrzuć'),
-                                  ),
-                                ],
-                              )),
-                    );
-                  },
-                ),
-                onRefresh: getRoutes)
-            : const Center(child: Text("Brak nowych tras")));
+        onRefresh: _onRefresh,
+        onLoading: _onLoading,
+        child: ListView.separated(
+          itemBuilder: (context, index) {
+            final route = _routes[index];
+            return ListTile(
+              onTap: () => {_onRouteTap(route)},
+              onLongPress: () => showDialog<String>(
+                  context: context,
+                  builder: (BuildContext context) => AlertDialog(
+                    title: const Text('Odrzuć trasę'),
+                    content: Text(
+                        'Czy na pewno chcesz odrzucić trasę: "${route.name}"?'),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () =>
+                            Navigator.pop(context, 'anuluj'),
+                        child: const Text('anuluj'),
+                      ),
+                      TextButton(
+                        onPressed: () => {
+                          _rejectRoute(
+                              index, route)
+                        },
+                        child: const Text('Odrzuć'),
+                      ),
+                    ],
+                  )),
+              title: Text(route.name),
+              subtitle: Text('długość: ${route.length} metrów'),
+              trailing: Text(route.difficulty),
+            );
+          },
+          separatorBuilder: (context, index) => Divider(),
+          itemCount: _routes.length,
+        ),
+      ),
+    );
   }
 }
 
-abstract class ListItem {
-  RouteModel getModel();
-
-  Widget buildTitle(BuildContext context);
-
-  Widget buildSubtitle(BuildContext context);
-
-  Color buildTileColor();
-}
-
-class RouteModelItem implements ListItem {
-  final RouteModel model;
-
-  RouteModelItem(this.model);
-
-  @override
-  RouteModel getModel() {
-    return model;
-  }
-
-  @override
-  Widget buildTitle(BuildContext context) => Text(model.name);
-
-  @override
-  Widget buildSubtitle(BuildContext context) =>
-      Text("Długość: ${model.length} metrów");
-
-  @override
-  Color buildTileColor() {
-    int _color = 0xFFFFFFFF;
-    switch (model.difficulty.toLowerCase()) {
-      case 'green':
-        _color = 0x6400FF00;
-        break;
-      case 'blue':
-        _color = 0x640000FF;
-        break;
-      case 'red':
-        _color = 0x64FF0000;
-        break;
-      case 'black':
-        _color = 0x64000000;
-        break;
-    }
-    return Color(_color);
-  }
-}

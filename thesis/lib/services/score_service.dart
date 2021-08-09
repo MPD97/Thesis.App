@@ -25,4 +25,14 @@ class ScoreService {
     var response = await http.get(_getScore);
     return response;
   }
+
+  Future<http.Response> getOverallRankingRequest(int page) async {
+    final _orderSort = '?orderBy=score&sortOrder=desc';
+    final _pagination = '&page=${page.toString()}';
+    final Uri _searchRunsUrl =
+    Uri.parse('$_baseUrl/scores$_orderSort$_pagination');
+
+    var response = await http.get(_searchRunsUrl);
+    return response;
+  }
 }

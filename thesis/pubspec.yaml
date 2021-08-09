@@ -13,16 +13,18 @@ dependencies:
   cupertino_icons: 1.0.2
   http: 0.13.3
   shared_preferences: 2.0.6
-  rxdart: 0.27.1
+  pull_to_refresh: ^2.0.0
   fluttertoast: 8.0.7
   location: 4.3.0
   mapbox_gl: 0.11.0
   multiselect_formfield: 0.1.6
   signalr_netcore: 0.1.7+2-nullsafety.2
-  flutter_spinkit: 5.0.0-nullsafety.0
   background_fetch: 1.0.1
   intl: 0.17.0
   flutter_launcher_icons: 0.9.1
+  flutter_screenutil: ^5.0.0+2
+  email_validator: 2.0.1
+
 
 dependency_overrides:
   mapbox_gl:
@@ -53,3 +55,8 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/home.png
+
+  fonts:
+    - family: Cups
+      fonts:
+        - asset: assets/icons/Cup.ttf

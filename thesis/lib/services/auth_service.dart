@@ -18,6 +18,7 @@ class AuthService {
 
   static SharedPreferences? _sharedPreferences;
   static var userIsAuthorized = false;
+  static var userRegistrationCompleted = false;
   static var _userIsInAdminRole = false;
   static String? accessToken = "";
   static String? refreshToken = "";
@@ -30,6 +31,7 @@ class AuthService {
 
   static AuthService getInstance() {
     userIsAuthorized = isTokenValid();
+    userRegistrationCompleted = isRegistrationCompleted();
     return _instance!;
   }
 
@@ -55,20 +57,22 @@ class AuthService {
 
   Future<http.Response> registerUser(String email, String password) async {
     var response = await http.post(_singUpUrl,
-        body:
-            jsonEncode({'email': email, 'password': password, 'role': 'user'}));
+        encoding: Encoding.getByName('utf-8'),
+        body:jsonEncode({'email': email, 'password': password, 'role': 'user'}));
 
     return response;
   }
 
   Future<http.Response> loginRequest(String email, String password) async {
+    logOut();
     var response = await http.post(_singInUrl,
+        encoding: Encoding.getByName('utf-8'),
         body: jsonEncode({
           'email': email,
           'password': password,
         }));
     if (response.statusCode == 200) {
-      var jsonResponse = json.decode(response.body);
+      var jsonResponse = json.decode(utf8.decode(response.bodyBytes));
 
       setAccessToken(jsonResponse['accessToken']);
       setRefreshToken(jsonResponse['refreshToken']);
@@ -90,7 +94,7 @@ class AuthService {
     var response = await http
         .get(_userMeUrl, headers: {'Authorization': 'Bearer $accessToken'});
     if (response.statusCode == 200) {
-      var jsonResponse = json.decode(response.body);
+      var jsonResponse = json.decode(utf8.decode(response.bodyBytes));
 
       setPseudonym(jsonResponse['pseudonym']);
       setState(jsonResponse['state']);
@@ -105,7 +109,7 @@ class AuthService {
           'refreshToken': refreshToken,
         }));
     if (response.statusCode == 200) {
-      var jsonResponse = json.decode(response.body);
+      var jsonResponse = json.decode(utf8.decode(response.bodyBytes));
       setAccessToken(jsonResponse['accessToken']);
       setRefreshToken(jsonResponse['refreshToken']);
       setRole(jsonResponse['role']);
@@ -121,6 +125,7 @@ class AuthService {
       return null;
     }
     var response = await http.post(_completeRegistrationUrl,
+        encoding: Encoding.getByName('utf-8'),
         headers: {"authorization": "Bearer $accessToken"},
         body: jsonEncode({
           'pseudonym': pseudonym,
@@ -140,6 +145,7 @@ class AuthService {
     setRole("");
     setExpires("");
     setPseudonym("");
+    userRegistrationCompleted = isRegistrationCompleted();
     userIsAuthorized = isTokenValid();
   }
 
@@ -166,6 +172,10 @@ class AuthService {
       _userIsInAdminRole = false;
     }
     return _userIsInAdminRole;
+  }
+
+  static bool isRegistrationCompleted(){
+    return pseudonym != "";
   }
 
   static bool isTokenValid() {
@@ -222,6 +232,7 @@ class AuthService {
 
   setPseudonym(String value) {
     pseudonym = value;
+    userRegistrationCompleted = isRegistrationCompleted();
     _sharedPreferences!.setString("pseudonym", value);
   }
 

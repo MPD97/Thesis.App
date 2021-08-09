@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:thesis/main.dart';
 import 'package:thesis/models/PointModel.dart';
@@ -53,112 +54,127 @@ class _RouteDetailsPageState extends State<RouteDetailsPage> {
       myLocationRenderMode: MyLocationRenderMode.NORMAL,
     );
 
-    final List<Widget> columnChildren = <Widget>[
-      Padding(
-        padding: const EdgeInsets.all(0.0),
-        child: Center(
-          child: SizedBox(
-            width: 700.0,
-            height: 200.0,
-            child: mapboxMap,
-          ),
-        ),
-      ),
-    ];
 
-    if (mapController != null) {
-      columnChildren.add(
-        Expanded(
-          child: ListView(
-            children: <Widget>[
-              const Padding(
-                  padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
-                  child: Text(
-                    "Nazwa:",
-                    style: TextStyle(fontSize: 16, color: Colors.black45),
-                  )),
+    return Scaffold(
+        appBar: AppBar(title: const Text("Szczegóły trasy")),
+        body: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              SafeArea(
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 150.0.h,
+                  child: mapboxMap,
+                ),
+              ),
               Padding(
-                  padding: const EdgeInsets.fromLTRB(15, 0, 10, 10),
-                  child: Text(
-                    _model.name,
-                    style: TextStyle(fontSize: 20),
-                  )),
-              const Padding(
-                  padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
-                  child: Text(
-                    "Opis:",
-                    style: TextStyle(fontSize: 16, color: Colors.black45),
-                  )),
-              Padding(
-                  padding: const EdgeInsets.fromLTRB(15, 0, 10, 10),
-                  child: Text(
-                    _model.description,
-                    style: TextStyle(fontSize: 20),
-                  )),
-              const Padding(
-                  padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
-                  child: Text(
-                    "Poziom trudności:",
-                    style: TextStyle(fontSize: 16, color: Colors.black45),
-                  )),
-              Padding(
-                  padding: const EdgeInsets.fromLTRB(15, 0, 10, 10),
-                  child: Text(
-                    getDifficulty(),
-                    style: TextStyle(fontSize: 20),
-                  )),
-              const Padding(
-                  padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
-                  child: Text(
-                    "Ilośc punktów:",
-                    style: TextStyle(fontSize: 16, color: Colors.black45),
-                  )),
-              Padding(
-                  padding: const EdgeInsets.fromLTRB(15, 0, 10, 10),
-                  child: Text(
-                    _model.points.length.toString(),
-                    style: TextStyle(fontSize: 20),
-                  )),
-              const Padding(
-                  padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
-                  child: Text(
-                    "Długość trasy:",
-                    style: TextStyle(fontSize: 16, color: Colors.black45),
-                  )),
-              Padding(
-                  padding: const EdgeInsets.fromLTRB(15, 0, 10, 10),
-                  child: Text(
-                    "${_model.length} m",
-                    style: TextStyle(fontSize: 20),
-                  )),
+                padding: EdgeInsets.symmetric(horizontal: 10.h, vertical: 5.h),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        "Nazwa:",
+                        style: TextStyle(fontSize: 16.sp, color: Colors.black45),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: 6.w),
+                        child: Text(
+                          _model.name,
+                          maxLines: 5,
+                          overflow: TextOverflow.ellipsis,
+                          softWrap: false,
+                          style: TextStyle(fontSize: 20.sp),
+                        ),
+                      ),
+                      Text(
+                        "Opis:",
+                        style: TextStyle(fontSize: 16.sp, color: Colors.black45),
+                      ),
+                     Padding(
+                       padding: EdgeInsets.only(left: 6.w),
+                       child: Text(_model.description,
+                         maxLines: 30,
+                         overflow: TextOverflow.ellipsis,
+                         softWrap: false,
+                         style: TextStyle(fontSize: 20.sp),
+                       ),
+                     ),
+                      Text(
+                        "Poziom trudności:",
+                        style: TextStyle(fontSize: 16.sp, color: Colors.black45),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: 6.w),
+                        child: Text(
+                          getDifficulty(),
+                          style: TextStyle(fontSize: 20.sp),
+                        ),
+                      ),
+                      Text(
+                        "Ilośc punktów:",
+                        style: TextStyle(fontSize: 16.sp, color: Colors.black45),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: 6.w),
+                        child: Text(
+                          _model.points.length.toString(),
+                          style: TextStyle(fontSize: 20.sp),
+                        ),
+                      ),
+                      Text(
+                        "Długość trasy:",
+                        style: TextStyle(fontSize: 16.sp, color: Colors.black45),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: 6.w),
+                        child: Text(
+                          "${_model.length} m",
+                          style: TextStyle(fontSize: 20.sp),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         ),
-      );
-    }
-    return Scaffold(
-        appBar: AppBar(title: const Text("Szczegóły trasy")),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: columnChildren,
-        ),
-        floatingActionButton: Stack(children: <Widget>[
-          Padding(
+        floatingActionButton: Stack(
+          children: <Widget>[
+            Align(
+              alignment: Alignment.bottomRight,
+              child: FloatingActionButton.extended(
+                heroTag: null,
+                onPressed: () {
+                  Navigator.of(context)
+                      .pushNamed("/route/comments", arguments: _model);
+                },
+                label: const Text('Komentarze'),
+                icon: const Icon(Icons.comment),
+                backgroundColor: Colors.blue,
+              ),
+            ),
+            Padding(
               padding: const EdgeInsets.only(left: 30.0),
               child: Align(
-                alignment: Alignment.bottomCenter,
-                child: FloatingActionButton.extended(
-                  onPressed: () {
-                    Navigator.of(context)
-                        .pushNamed("/route/ranking", arguments: _model);
-                  },
-                  label: const Text('Ranking'),
-                  icon: const Icon(Icons.leaderboard_outlined),
-                  backgroundColor: Colors.orange,
-                ),
-              ))
-        ]));
+                  alignment: Alignment.bottomLeft,
+                  child: FloatingActionButton.extended(
+                    heroTag: null,
+                    onPressed: () {
+                      Navigator.of(context)
+                          .pushNamed("/route/ranking", arguments: _model);
+                    },
+                    label: const Text('Ranking'),
+                    icon: const Icon(Icons.leaderboard_outlined),
+                    backgroundColor: Colors.orange,
+                  )),
+            ),
+          ],
+        ));
   }
 
   Future onMapCreated(MapboxMapController controller) async {

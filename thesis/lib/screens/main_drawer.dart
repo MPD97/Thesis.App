@@ -73,10 +73,13 @@ class _MainDrawerState extends State<MainDrawer> {
                 },
               )
             : const SizedBox.shrink(),
-        const ListTile(
+        ListTile(
           leading: Icon(Icons.leaderboard),
           title: Text('Ranking', style: TextStyle(fontSize: 18)),
-          onTap: null,
+          onTap: (){
+            Navigator.of(context).pop(context);
+            Navigator.of(context).pushNamed('/user/ranking');
+          },
         ),
         ListTile(
           leading: AuthService.userIsAuthorized

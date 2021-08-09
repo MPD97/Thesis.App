@@ -49,6 +49,7 @@ class RouteService {
     });
     print(bodyString);
     var response = await http.post(_addRouteUrl,
+        encoding: Encoding.getByName('utf-8'),
         headers: {"authorization": "Bearer $accessToken"}, body: bodyString);
     return response;
   }
@@ -105,6 +106,7 @@ class RouteService {
         '$_baseUrl/routes/$routeId/status/${status.toString().split('.').last}');
     print(_rejectRouteUrl);
     var response = await http.put(_rejectRouteUrl,
+        encoding: Encoding.getByName('utf-8'),
         headers: {"authorization": "Bearer $accessToken"}, body: "{}");
     return response;
   }

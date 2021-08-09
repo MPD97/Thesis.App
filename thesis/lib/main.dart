@@ -1,10 +1,12 @@
 import 'package:background_fetch/background_fetch.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:location/location.dart';
 import 'package:thesis/screens/page_route_generator.dart';
 import 'package:thesis/services/achievement_service.dart';
 import 'package:thesis/services/auth_service.dart';
+import 'package:thesis/services/comments_service.dart';
 import 'package:thesis/services/localisation_service.dart';
 import 'package:thesis/services/route_service.dart';
 import 'package:thesis/services/run_service.dart';
@@ -22,6 +24,7 @@ Future main() async {
   await ScoreService.create();
   await AchievementService.create();
   await UserService.create();
+  await CommentsService.create();
 
   await TryRefreshToken();
   runApp(Application());
@@ -89,31 +92,33 @@ class _ApplicationState extends State<Application> {
             requiresStorageNotLow: false,
             requiresDeviceIdle: false,
             requiredNetworkType: NetworkType.ANY), (String taskId) async {
-      print("[BackgroundFetch] Event received $taskId");
+      print("[BackgroundTokenRefresh] Event received $taskId");
 
       await TryRefreshToken();
 
       BackgroundFetch.finish(taskId);
     }, (String taskId) async {
-      print("[BackgroundFetch] TASK TIMEOUT taskId: $taskId");
+      print("[BackgroundTokenRefresh] TASK TIMEOUT taskId: $taskId");
       BackgroundFetch.finish(taskId);
     });
-    print('[BackgroundFetch] configure success: $status');
+    print('[BackgroundTokenRefresh] configure success: $status');
 
     if (!mounted) return;
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Thesis App',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        backgroundColor: Colors.white,
-        scaffoldBackgroundColor: Colors.white,
+    return ScreenUtilInit(
+      builder: () => MaterialApp(
+        title: 'Gra geolokalizacyjna',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          fontFamily: 'Montserrat'
+        ),
+        initialRoute: '/',
+        onGenerateRoute: RouteGenerator.generateRoute,
       ),
-      initialRoute: '/',
-      onGenerateRoute: RouteGenerator.generateRoute,
+      designSize: const Size(360, 640),
     );
   }
 }

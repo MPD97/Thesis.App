@@ -11,7 +11,7 @@ import 'package:signalr_netcore/signalr_client.dart';
 import 'package:thesis/helpers/helper.dart';
 import 'package:thesis/main.dart';
 import 'package:thesis/models/LocationModel.dart';
-import 'package:thesis/models/PagedResultModel.dart';
+import 'package:thesis/models/PagedRouteModel.dart';
 import 'package:thesis/models/PointModel.dart';
 import 'package:thesis/models/RouteModel.dart';
 import 'package:thesis/services/auth_service.dart';
@@ -25,7 +25,6 @@ final LatLngBounds polandBounds = LatLngBounds(
 );
 
 class MapUiPage extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     return const MapUiBody();
@@ -34,7 +33,6 @@ class MapUiPage extends StatelessWidget {
 
 class MapUiBody extends StatefulWidget {
   const MapUiBody();
-
   @override
   State<StatefulWidget> createState() => MapUiBodyState();
 }
@@ -52,6 +50,7 @@ class MapUiBodyState extends State<MapUiBody> {
   Symbol? _selectedSymbol;
   RouteModel? _selectedRoute;
 
+  bool _mapInitalized = false;
   bool _isPreparingRunGettingLocation = false;
   bool _isPreparingRun = false;
   bool _isInRun = false;
@@ -69,7 +68,7 @@ class MapUiBodyState extends State<MapUiBody> {
   final AuthService _authService = AuthService.getInstance();
   final RunService _runService = RunService.getInstance();
 
-  MapboxMapController? mapController;
+  late MapboxMapController mapController;
   bool _isMoving = false;
   final bool _compassEnabled = true;
   final CameraTargetBounds _cameraTargetBounds = CameraTargetBounds.unbounded;
@@ -138,7 +137,7 @@ class MapUiBodyState extends State<MapUiBody> {
           _json['data']['userId'] != null &&
           _json['data']['routeId'] != null) {
         onRunCompleted();
-        onRunPreparinCancelled();
+        onRunPreparingCancelled();
       }
     }
   }
@@ -188,9 +187,11 @@ class MapUiBodyState extends State<MapUiBody> {
   void _extractMapInfo() async {}
 
   void _onMapCameraIdle() async {
-    _isMoving = mapController!.isCameraMoving;
-    if (_isMoving == false) {
-      _extractVisibleRegion();
+    if (_mapInitalized) {
+      _isMoving = mapController.isCameraMoving;
+      if (_isMoving == false) {
+        _extractVisibleRegion();
+      }
     }
   }
 
@@ -198,7 +199,7 @@ class MapUiBodyState extends State<MapUiBody> {
     if (_isPreparingRun || _isPreparingRunGettingLocation) {
       return;
     }
-    final visibleRegion = await mapController!.getVisibleRegion();
+    final visibleRegion = await mapController.getVisibleRegion();
     print('Visible Region: $visibleRegion');
 
     bool update = false;
@@ -295,7 +296,7 @@ class MapUiBodyState extends State<MapUiBody> {
 
   Future drawCircleRunNext(PointModel point) async {
     var _geometry = LatLng(point.latitude, point.longitude);
-    await mapController!.addCircle(CircleOptions(
+    await mapController.addCircle(CircleOptions(
         geometry: _geometry,
         circleColor: "#0000FF",
         circleOpacity: 0.9,
@@ -304,7 +305,7 @@ class MapUiBodyState extends State<MapUiBody> {
 
   Future drawCircleRun(PointModel point) async {
     var _geometry = LatLng(point.latitude, point.longitude);
-    await mapController!.addCircle(CircleOptions(
+    await mapController.addCircle(CircleOptions(
         geometry: _geometry,
         circleColor: "#808080",
         circleOpacity: 0.9,
@@ -313,7 +314,7 @@ class MapUiBodyState extends State<MapUiBody> {
 
   Future drawCircleRunCompleted(PointModel point) async {
     var _geometry = LatLng(point.latitude, point.longitude);
-    await mapController!.addCircle(CircleOptions(
+    await mapController.addCircle(CircleOptions(
         geometry: _geometry,
         circleColor: "#00FF00",
         circleOpacity: 0.9,
@@ -342,7 +343,7 @@ class MapUiBodyState extends State<MapUiBody> {
         break;
     }
 
-    await mapController!.addLine(LineOptions(
+    await mapController.addLine(LineOptions(
         geometry: [_previousGeometry, _geometry],
         lineColor: color,
         lineJoin: "round",
@@ -352,7 +353,7 @@ class MapUiBodyState extends State<MapUiBody> {
 
   Future drawPoint(PointModel point, String difficulty) async {
     var _geometry = LatLng(point.latitude, point.longitude);
-    await mapController!.addSymbol(SymbolOptions(
+    await mapController.addSymbol(SymbolOptions(
         geometry: _geometry,
         iconImage: 'marker-${difficulty}',
         iconAnchor: "bottom",
@@ -380,7 +381,7 @@ class MapUiBodyState extends State<MapUiBody> {
         color = '#000000';
         break;
     }
-    await mapController!.addLine(LineOptions(
+    await mapController.addLine(LineOptions(
         geometry: [_previousGeometry, _geometry],
         lineColor: color,
         lineWidth: 6.0,
@@ -426,12 +427,12 @@ class MapUiBodyState extends State<MapUiBody> {
   }
 
   void _updateSelectedSymbol(SymbolOptions changes) {
-    mapController!.updateSymbol(_selectedSymbol!, changes);
+    mapController.updateSymbol(_selectedSymbol!, changes);
   }
 
   @override
   void dispose() {
-    mapController?.removeListener(_onMapChanged);
+    mapController.removeListener(_onMapChanged);
     super.dispose();
   }
 
@@ -475,7 +476,7 @@ class MapUiBodyState extends State<MapUiBody> {
               return;
             }
             addLocation(location, latLng);
-            mapController!.addLine(LineOptions(geometry: [
+            mapController.addLine(LineOptions(geometry: [
               LatLng(prevoius.Latitude, prevoius.Longitude),
               latLng
             ], lineColor: "#ff0000", lineWidth: 10.0, lineOpacity: 0.5));
@@ -497,6 +498,7 @@ class MapUiBodyState extends State<MapUiBody> {
           Align(
             alignment: Alignment.bottomRight,
             child: FloatingActionButton.extended(
+              heroTag: null,
               onPressed: () {
                 setState(() {
                   prepareRun();
@@ -512,6 +514,7 @@ class MapUiBodyState extends State<MapUiBody> {
             child: Align(
               alignment: Alignment.bottomLeft,
               child: FloatingActionButton.extended(
+                heroTag: null,
                 onPressed: () {
                   Navigator.of(context)
                       .pushNamed('/route/details', arguments: _selectedRoute);
@@ -532,6 +535,7 @@ class MapUiBodyState extends State<MapUiBody> {
           Align(
             alignment: Alignment.bottomRight,
             child: FloatingActionButton.extended(
+              heroTag: null,
               onPressed: () {
                 onRunStart();
               },
@@ -545,8 +549,9 @@ class MapUiBodyState extends State<MapUiBody> {
             child: Align(
               alignment: Alignment.bottomLeft,
               child: FloatingActionButton.extended(
+                heroTag: null,
                 onPressed: () {
-                  onRunPreparinCancelled();
+                  onRunPreparingCancelled();
                 },
                 label: const Text('Anuluj'),
                 icon: const Icon(Icons.cancel),
@@ -566,6 +571,7 @@ class MapUiBodyState extends State<MapUiBody> {
             child: Align(
               alignment: Alignment.bottomCenter,
               child: FloatingActionButton.extended(
+                heroTag: null,
                 onPressed: () {},
                 label: const Text('Trwa pobieranie aktualnej lokalizacji'),
                 icon: const Icon(Icons.gps_not_fixed),
@@ -579,6 +585,7 @@ class MapUiBodyState extends State<MapUiBody> {
 
     FloatingActionButton onRouteAddNewSection() {
       return FloatingActionButton.extended(
+        heroTag: null,
         onPressed: () => showDialog<String>(
             context: context,
             builder: (BuildContext context) => AlertDialog(
@@ -608,6 +615,7 @@ class MapUiBodyState extends State<MapUiBody> {
           Align(
             alignment: Alignment.bottomRight,
             child: FloatingActionButton.extended(
+              heroTag: null,
               onPressed: () {
                 if (_locations.length < 4) {
                   Helper.toastFail("Wymagane są co najmniej 4 punkty");
@@ -631,6 +639,7 @@ class MapUiBodyState extends State<MapUiBody> {
             child: Align(
               alignment: Alignment.bottomLeft,
               child: FloatingActionButton.extended(
+                heroTag: null,
                 onPressed: () {
                   onCreateRouteCancelled();
                 },
@@ -651,6 +660,7 @@ class MapUiBodyState extends State<MapUiBody> {
               ? Align(
             alignment: Alignment.bottomRight,
             child: FloatingActionButton.extended(
+              heroTag: null,
               onPressed: () {
                 enableMapTracking();
               },
@@ -665,6 +675,7 @@ class MapUiBodyState extends State<MapUiBody> {
             child: Align(
               alignment: Alignment.bottomLeft,
               child: FloatingActionButton.extended(
+                heroTag: null,
                 onPressed: () {
                   onRunCancelled();
                 },
@@ -680,6 +691,7 @@ class MapUiBodyState extends State<MapUiBody> {
 
     FloatingActionButton onNotLoggedIn() {
       return FloatingActionButton.extended(
+        heroTag: null,
         onPressed: () {
           if (Navigator.canPop(context)) {
             Navigator.pop(context);
@@ -775,9 +787,9 @@ class MapUiBodyState extends State<MapUiBody> {
   }
 
   enableMapTracking() {
-    mapController!.animateCamera(CameraUpdate.zoomTo(16));
+    mapController.animateCamera(CameraUpdate.zoomTo(16));
     Future.delayed(const Duration(milliseconds: 300), () {
-      mapController!
+      mapController
           .updateMyLocationTrackingMode(MyLocationTrackingMode.TrackingCompass);
     });
     setState(() {
@@ -786,9 +798,9 @@ class MapUiBodyState extends State<MapUiBody> {
   }
 
   disableMapTracking() {
-    mapController!.animateCamera(CameraUpdate.zoomTo(13));
+    mapController.animateCamera(CameraUpdate.zoomTo(13));
     Future.delayed(const Duration(milliseconds: 300), () {
-      mapController!.updateMyLocationTrackingMode(MyLocationTrackingMode.None);
+      mapController.updateMyLocationTrackingMode(MyLocationTrackingMode.None);
     });
 
     setState(() {
@@ -800,10 +812,14 @@ class MapUiBodyState extends State<MapUiBody> {
     setState(() {
       _isInRun = false;
       _selectedRoute = null;
+      _updateSelectedSymbol(
+        const SymbolOptions(iconSize: 1.4),
+      );
+      _selectedSymbol = null;
     });
     LocalisationService.setLocation(false);
     disableMapTracking();
-    Helper.toastFailShort("Ukończono wyścig");
+    Helper.toastSuccess("Ukończono wyścig");
   }
 
   onRunCancelled() {
@@ -817,7 +833,7 @@ class MapUiBodyState extends State<MapUiBody> {
 
   void addLocation(LocationModel location, LatLng current) {
     _locations.add(location);
-    mapController!.addSymbol(SymbolOptions(
+    mapController.addSymbol(SymbolOptions(
         geometry: current, iconImage: "rating-v2", iconAnchor: "bottom"));
     Helper.toastSuccessShort("Dodano punkt #${_locations.length}");
   }
@@ -844,9 +860,9 @@ class MapUiBodyState extends State<MapUiBody> {
   }
 
   Future removeSymbolsLinesCircles() async {
-    await mapController!.removeSymbols(mapController!.symbols);
-    await mapController!.removeLines(mapController!.lines);
-    await mapController!.removeCircles(mapController!.circles);
+    await mapController.removeSymbols(mapController.symbols);
+    await mapController.removeLines(mapController.lines);
+    await mapController.removeCircles(mapController.circles);
     print("Circles removed");
     _drawedRoutes.clear();
   }
@@ -861,7 +877,7 @@ class MapUiBodyState extends State<MapUiBody> {
     });
   }
 
-  Future onRunPreparinCancelled() async {
+  Future onRunPreparingCancelled() async {
     setState(() {
       _isPreparingRun = false;
     });
@@ -882,13 +898,14 @@ class MapUiBodyState extends State<MapUiBody> {
   }
 
   Future onMapCreated(MapboxMapController controller) async {
-    Future.delayed(const Duration(milliseconds: 500), () async{
+    Future.delayed(const Duration(milliseconds: 1000), () async{
       mapController = controller;
-      mapController!.addListener(_onMapChanged);
-      _extractVisibleRegion();
+      _mapInitalized = true;
+      mapController.addListener(_onMapChanged);
+      await _extractVisibleRegion();
 
       var _myLocation = await _location.getLocation();
-      mapController!.animateCamera(CameraUpdate.newLatLngZoom(
+      mapController.animateCamera(CameraUpdate.newLatLngZoom(
           LatLng(_myLocation.latitude!, _myLocation.longitude!), 13));
       controller.onSymbolTapped.add(_onSymbolTapped);
     });

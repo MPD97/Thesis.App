@@ -59,6 +59,7 @@ class LocalisationService {
 
     print("POST Lat: $latitude Lon: $longitude Acc: $accuracy");
     var response = http.post(_addLocationUrl,
+        encoding: Encoding.getByName('utf-8'),
         headers: {"authorization": "Bearer $accessToken"},
         body: jsonEncode({
           'latitude': latitude,

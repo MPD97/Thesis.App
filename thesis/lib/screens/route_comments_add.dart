@@ -1,31 +1,37 @@
 import 'dart:convert';
 
-import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:thesis/AppColors.dart';
 import 'package:thesis/helpers/helper.dart';
+import 'package:thesis/models/RouteModel.dart';
 import 'package:thesis/services/auth_service.dart';
+import 'package:thesis/services/comments_service.dart';
 
-class CompleteRegistrationProcessPage extends StatefulWidget {
+class RouteAddCommentPage extends StatefulWidget {
+  late RouteModel model;
+  RouteAddCommentPage(RouteModel this.model){}
+
   @override
-  _CompleteRegistrationProcessPageState createState() =>
-      _CompleteRegistrationProcessPageState();
+  _RouteAddCommentPageState createState() =>
+      _RouteAddCommentPageState(model);
 }
 
-class _CompleteRegistrationProcessPageState
-    extends State<CompleteRegistrationProcessPage> {
-  final AuthService _authService = AuthService.getInstance();
+class _RouteAddCommentPageState
+    extends State<RouteAddCommentPage> {
+  late RouteModel model;
+  _RouteAddCommentPageState( RouteModel this.model){}
   bool _isLoading = false;
+  final _commentService = CommentsService.getInstance();
 
-  final TextEditingController pseudonymController = new TextEditingController();
-  final String? Function(String?)? pseudonymValidator = (value) {
+  final TextEditingController textResorceController = new TextEditingController();
+  final String? Function(String?)? textResorceValidator = (value) {
     if (value!.isEmpty)
-      return "Pseudonim nie może być pusty";
-    else if (value.length < 5)
-      return "Pseudonim jest za krótki";
-    else if (value.length > 15)
-      return "Pseudonim jest za długi";
+      return "Komentarz nie może być pusty";
+    else if (value.length < 3)
+      return "Komentarz jest za krótki";
+    else if (value.length > 400)
+      return "Komentarz jest za długi";
     return null;
   };
 
@@ -92,7 +98,7 @@ class _CompleteRegistrationProcessPageState
                         height: 44.h,
                       ),
                       Text(
-                        "Dokończ rejestrację konta",
+                        "Dodaj komentarz",
                         style: TextStyle(
                           fontSize: 36.sp,
                           fontWeight: FontWeight.bold,
@@ -100,7 +106,7 @@ class _CompleteRegistrationProcessPageState
                         ),
                       ),
                       Text(
-                          "Wybierz swój pseudonim który będzie wyświetlany w aplikacji",
+                          "Komentarze mogą być cennym źródłem opinni o danej trasie",
                           style: TextStyle(
                             fontSize: 12.sp,
                             letterSpacing: 1.15,
@@ -111,7 +117,7 @@ class _CompleteRegistrationProcessPageState
                         height: 24.h,
                       ),
                       Text(
-                        "Pseudonim",
+                        "Treść komentarza",
                         style: TextStyle(
                           fontSize: 12.sp,
                           fontWeight: FontWeight.bold,
@@ -122,9 +128,9 @@ class _CompleteRegistrationProcessPageState
                         height: 8.h,
                       ),
                       getTextField(
-                          controller: pseudonymController,
-                          hint: "Wprowadź pseudonim",
-                          validator: pseudonymValidator),
+                          controller: textResorceController,
+                          hint: "Wprowadź wiadomość",
+                          validator: textResorceValidator),
                       SizedBox(
                         height: 20.h,
                       ),
@@ -133,7 +139,7 @@ class _CompleteRegistrationProcessPageState
                         child: TextButton(
                           onPressed: () {
                             if (_key.currentState!.validate()) {
-                              _completeRegistration(pseudonymController.text);
+                              _addComment(textResorceController.text);
                             }
                           },
                           style: ButtonStyle(
@@ -152,7 +158,7 @@ class _CompleteRegistrationProcessPageState
                                 fontSize: 14.sp,
                                 fontWeight: FontWeight.w700,
                               ))),
-                          child: Text("Zapisz pseudonim"),
+                          child: Text("Dodaj"),
                         ),
                       ),
                       SizedBox(
@@ -167,11 +173,11 @@ class _CompleteRegistrationProcessPageState
         ));
   }
 
-  void _completeRegistration(String pseudonym) async {
+  Future _addComment(String text) async {
     setState(() {
       _isLoading = true;
     });
-    var response = await _authService.completeRegistration(pseudonym);
+    var response = await _commentService.addCommentRequest(model.id, text);
     setState(() {
       _isLoading = false;
     });
@@ -180,49 +186,16 @@ class _CompleteRegistrationProcessPageState
       Helper.toastFail("Coś poszło nie tak");
       return;
     }
-
     if (response.statusCode == 201) {
-      Helper.toastSuccess("Pseudonim zapisany");
-      Navigator.of(context).pushNamed('/');
+      Helper.toastSuccess("Komentarz został dodany");
+      Navigator.of(context).pop();
     } else if (response.statusCode == 400) {
-      var jsonResponse = json.decode(utf8.decode(response.bodyBytes));
-      switch (jsonResponse['code']) {
-        case 'user_already_registered':
-          Helper.toastFail('Pseudonim jest zajęty');
-          break;
-        case 'invalid_user_pseudonym_length':
-          Helper.toastFail('Pseudonim jest za krótki, lub za długi');
-          break;
-        default:
-          Helper.toastFail('Wystąpił nieznany błąd');
-          break;
-      }
+      Helper.toastFail('Wprowadzono błedny komentarz');
+
     }else if (response.statusCode == 404) {
       Helper.toastFail('Serwer nie odpowiada');
     }else {
       Helper.toastFail('Wystąpił nieznany błąd');
     }
   }
-
-  Container buttonSection() {
-    return Container(
-      width: MediaQuery.of(context).size.width,
-      height: 40.0,
-      padding: const EdgeInsets.symmetric(horizontal: 15.0),
-      margin: const EdgeInsets.only(top: 15.0),
-      child: ElevatedButton(
-        onPressed: pseudonymController.text == ""
-            ? null
-            : () {
-                _completeRegistration(pseudonymController.text);
-              },
-        child: Text("Zapisz", style: const TextStyle(color: Colors.white70)),
-        style: ElevatedButton.styleFrom(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
-        ),
-      ),
-    );
-  }
-
 }

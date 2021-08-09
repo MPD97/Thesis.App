@@ -23,8 +23,8 @@ class _UserMePageState extends State<UserMePage> {
   final _scoreService = ScoreService.getInstance();
   final _achievementService = AchievementService.getInstance();
 
-  UserScoreModel? _userScoreModel;
-  AchievementModel? _achievementModel = null;
+  UserScoreModel _userScoreModel = UserScoreModel(id: '', score: 0, scoreEvents: []);
+  AchievementModel _achievementModel = AchievementModel("", []);
   Color _bestAchievementColor = Color(0xFFFFFF);
 
   double _nextAchievementProgress = 0;
@@ -65,8 +65,10 @@ class _UserMePageState extends State<UserMePage> {
         matchScoreEvents();
     } else if (_response.statusCode == 400) {
       Helper.toastFailShort("Nie znaleziono użytkownika");
+    } else if (_response.statusCode == 404) {
+      Helper.toastFail('Serwer nie odpowiada');
     } else {
-      Helper.toastFail("Nieznany błąd: ${json.decode(_response.body)['code']}");
+      Helper.toastFail('Wystąpił nieznany błąd');
     }
   }
 
@@ -77,20 +79,21 @@ class _UserMePageState extends State<UserMePage> {
         _achievementModel =
             AchievementModel.fromJson(json.decode(_response.body));
     } else if (_response.statusCode == 404) {
+
     } else {
-      Helper.toastFail("Nieznany błąd: ${json.decode(_response.body)['code']}");
+      Helper.toastFail("Wystąpił nieznany błąd");
     }
   }
 
   void getBestAchievementColor() {
-    if (_achievementModel!.achievements.any((se) => se.type == 'master')) {
+    if (_achievementModel.achievements.any((se) => se.type == 'master')) {
       _bestAchievementColor = const Color(0XFF6E86FF);
-    } else if (_achievementModel!.achievements.any((se) => se.type == 'gold')) {
+    } else if (_achievementModel.achievements.any((se) => se.type == 'gold')) {
       _bestAchievementColor = const Color(0XFFFFD700);
-    } else if (_achievementModel!.achievements
+    } else if (_achievementModel.achievements
         .any((se) => se.type == 'silver')) {
       _bestAchievementColor = const Color(0XFFC0C0C0);
-    } else if (_achievementModel!.achievements
+    } else if (_achievementModel.achievements
         .any((se) => se.type == 'bronze')) {
       _bestAchievementColor = const Color(0xFFCD7F32);
     }
@@ -98,18 +101,14 @@ class _UserMePageState extends State<UserMePage> {
 
   void getAchievementProgress() {
     setState(() {
-      if (_userScoreModel == null) {
-        print("UserScore == null");
-        return;
-      }
-      if (_userScoreModel!.score < 30) {
-        _nextAchievementProgress = _userScoreModel!.score / 30;
-      } else if (_userScoreModel!.score < 100) {
-        _nextAchievementProgress = _userScoreModel!.score / 100;
-      } else if (_userScoreModel!.score < 300) {
-        _nextAchievementProgress = _userScoreModel!.score / 300;
-      } else if (_userScoreModel!.score < 1000) {
-        _nextAchievementProgress = _userScoreModel!.score / 1000;
+      if (_userScoreModel.score < 30) {
+        _nextAchievementProgress = _userScoreModel.score / 30;
+      } else if (_userScoreModel.score < 100) {
+        _nextAchievementProgress = _userScoreModel.score / 100;
+      } else if (_userScoreModel.score < 300) {
+        _nextAchievementProgress = _userScoreModel.score / 300;
+      } else if (_userScoreModel.score < 1000) {
+        _nextAchievementProgress = _userScoreModel.score / 1000;
       } else {
         _nextAchievementProgress = 0.0;
       }
@@ -119,7 +118,7 @@ class _UserMePageState extends State<UserMePage> {
 
   void matchScoreEvents() {
     setState(() {
-      for (var se in _userScoreModel!.scoreEvents) {
+      for (var se in _userScoreModel.scoreEvents) {
         if (se.type == "routeAdded") {
           _routeAddedAmount += 1;
         } else if (se.type == "routeCompleted") {
@@ -218,8 +217,6 @@ class _UserMePageState extends State<UserMePage> {
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-
     return Scaffold(
         appBar: AppBar(title: const Text("Mój profil")),
         body: _isLoading
@@ -290,7 +287,7 @@ class _UserMePageState extends State<UserMePage> {
                                                         children: <Widget>[
                                                           ProfileInfoCard(
                                                               firstText:
-                                                                  _userScoreModel!
+                                                                  _userScoreModel
                                                                       .score
                                                                       .toString(),
                                                               secondText:
@@ -331,7 +328,7 @@ class _UserMePageState extends State<UserMePage> {
                                 padding: const EdgeInsets.only(top: 10),
                                 color: Colors.white,
                                 child: Table(
-                                    children: _achievementModel!.achievements
+                                    children: _achievementModel.achievements
                                         .map((ac) => TableRow(
                                               children: [
                                                 ProfileAchievementBigCard(

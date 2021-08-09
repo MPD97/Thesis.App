@@ -3,7 +3,7 @@ import 'PointModel.dart';
 class RouteModel {
   late String id;
   late String userId;
-  late String acceptedBy;
+  late String? acceptedBy;
   late String name;
   late String description;
   late String difficulty;
@@ -14,15 +14,15 @@ class RouteModel {
 
   RouteModel(
       this.id,
-      this.userId,
-      this.acceptedBy,
-      this.name,
-      this.description,
-      this.difficulty,
-      this.length,
-      this.status,
-      this.activityKind,
-      this.points);
+        this.userId,
+        this.acceptedBy,
+        this.name,
+        this.description,
+        this.difficulty,
+        this.length,
+        this.status,
+        this.activityKind,
+        this.points);
 
   RouteModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -33,7 +33,7 @@ class RouteModel {
     difficulty = json['difficulty'];
     length = json['length'];
     status = json['status'];
-    activityKind = json['activityKind'].toString();
+    activityKind = json['activityKind'];
     if (json['points'] != null) {
       points = <PointModel>[];
       json['points'].forEach((v) {
@@ -53,7 +53,9 @@ class RouteModel {
     data['length'] = this.length;
     data['status'] = this.status;
     data['activityKind'] = this.activityKind;
-    data['points'] = this.points.map((v) => v.toJson()).toList();
+    if (this.points != null) {
+      data['points'] = this.points.map((v) => v.toJson()).toList();
+    }
     return data;
   }
 }

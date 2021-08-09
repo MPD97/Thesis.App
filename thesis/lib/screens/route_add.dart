@@ -123,7 +123,7 @@ class _RouteAddPageState extends State<RouteAddPage> {
         Navigator.of(context).pushNamed('/map');
       });
     } else if (response.statusCode == 400) {
-      var jsonResponse = json.decode(response.body);
+      var jsonResponse = json.decode(utf8.decode(response.bodyBytes));
       print(jsonResponse);
 
       if (jsonResponse['code'] == 'route_already_exists') {
@@ -135,7 +135,7 @@ class _RouteAddPageState extends State<RouteAddPage> {
       }
     } else {
       Helper.toastFail("Wystąpił nieznany błąd");
-      var jsonResponse = json.decode(response.body);
+      var jsonResponse = json.decode(utf8.decode(response.bodyBytes));
       print(jsonResponse);
     }
   }

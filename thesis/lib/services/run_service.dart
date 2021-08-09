@@ -40,6 +40,7 @@ class RunService {
     String accessToken = AuthService.accessToken!;
 
     var response = await http.post(_addRunUrl,
+        encoding: Encoding.getByName('utf-8'),
         headers: {"authorization": "Bearer $accessToken"},
         body: jsonEncode({
           'routeId': routeId,

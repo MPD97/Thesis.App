@@ -1,13 +1,12 @@
 import 'dart:convert';
+import 'dart:ui';
 
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:thesis/AppColors.dart';
 import 'package:thesis/helpers/helper.dart';
 import 'package:thesis/services/auth_service.dart';
-
-import 'main_drawer.dart';
 
 class LogInPage extends StatefulWidget {
   @override
@@ -18,33 +17,214 @@ class _LoginPageState extends State<LogInPage> {
   final AuthService _authService = AuthService.getInstance();
   bool _isLoading = false;
 
-  @override
-  Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light
-        .copyWith(statusBarColor: Colors.transparent));
-    return Scaffold(
-      drawer: MainDrawer(),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-              colors: [Color(0xFF629DDC), Color(0xFF4876B4), Color(0xFF6097BB)],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter),
-        ),
-        child: _isLoading
-            ? Center(child: CircularProgressIndicator())
-            : ListView(
-                children: <Widget>[
-                  headerSection(),
-                  textSection(),
-                  buttonSection(),
-                ],
-              ),
-      ),
+  final TextEditingController emailController = new TextEditingController();
+  final TextEditingController passwordController = new TextEditingController();
+  final String? Function(String?)? emailValidator = (value) {
+    if (value!.isEmpty)
+      return "Email nie może być pusty";
+    else if (value.length < 8)
+      return "Email jest za krótki";
+    else if (value.length > 50)
+      return "Email jest za długi";
+    else if (EmailValidator.validate(value) == false)
+      return "Email jest niepoprawny";
+    return null;
+  };
+  final String? Function(String?)? passwordValidator = (value) {
+    if (value!.isEmpty)
+      return "Hasło nie może być puste";
+    else if (value.length < 6) return "Hasło jest za krótkie";
+    else if (value.length > 20) return "Hasło jest za długie";
+    return null;
+  };
+
+  void _onRedirectToRegister() {
+    Navigator.of(context).pop();
+    Navigator.of(context).pushNamed("/register");
+  }
+
+  Widget getTextField(
+      {required String hint,
+      required TextEditingController controller,
+      required String? Function(String?)? validator,
+      bool obscureText = false}) {
+
+    return TextFormField(
+      validator: validator,
+      controller: controller,
+      obscureText: obscureText,
+      decoration: InputDecoration(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8.r),
+            borderSide: BorderSide(color: Colors.transparent, width: 0),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8.r),
+            borderSide: BorderSide(color: Colors.transparent, width: 0),
+          ),
+          contentPadding:
+              EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+          filled: true,
+          fillColor: AppColors.FILL_COLOR,
+          hintText: hint,
+          hintStyle: TextStyle(
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w400,
+          )),
     );
   }
 
-  Future<void> signIn(String email, password) async {
+  @override
+  Widget build(BuildContext context) {
+    final _key = GlobalKey<FormState>();
+
+    return Scaffold(
+            floatingActionButtonLocation: FloatingActionButtonLocation.startTop,
+            floatingActionButton: FloatingActionButton(
+              child: const Icon(
+                Icons.arrow_back_ios,
+              ),
+              backgroundColor: Colors.grey,
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            body: Scaffold(
+              backgroundColor: Colors.white,
+              body: _isLoading ? const Center(child: CircularProgressIndicator(),) :
+              SafeArea(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 22.h),
+                  child: Form(
+                    key: _key,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            height: 44.h,
+                          ),
+                          Text(
+                            "Logowanie",
+                            style: TextStyle(
+                              fontSize: 36.sp,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                          Text(
+                              "Zaloguj się aby zbierać punkty i rywalizwoać z innymi",
+                              style: TextStyle(
+                                fontSize: 12.sp,
+                                fontWeight: FontWeight.normal,
+                                color: Colors.black,
+                              )),
+                          SizedBox(
+                            height: 24.h,
+                          ),
+                          Text(
+                            "Email",
+                            style: TextStyle(
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                          SizedBox(
+                            height: 8.h,
+                          ),
+                          getTextField(
+                              controller: emailController,
+                              hint: "Wprowadź adres email",
+                              validator: emailValidator),
+                          SizedBox(
+                            height: 16.h,
+                          ),
+                          Text(
+                            "Hasło",
+                            style: TextStyle(
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                          SizedBox(
+                            height: 8.h,
+                          ),
+                          getTextField(
+                              controller: passwordController,
+                              hint: "Wprowadź hasło",
+                              validator: passwordValidator,
+                              obscureText: true),
+                          SizedBox(
+                            height: 20.h,
+                          ),
+                          SizedBox(
+                            width: double.infinity,
+                            child: TextButton(
+                              onPressed: () {
+                                if (_key.currentState!.validate()) {
+                                  _login(emailController.text,
+                                      passwordController.text);
+                                }
+                              },
+                              style: ButtonStyle(
+                                  shape: MaterialStateProperty.all<
+                                          RoundedRectangleBorder>(
+                                      RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8.r),
+                                  )),
+                                  backgroundColor: MaterialStateProperty.all(
+                                      AppColors.PRIMARY),
+                                  foregroundColor:
+                                      MaterialStateProperty.all(Colors.white),
+                                  padding: MaterialStateProperty.all(
+                                      EdgeInsets.symmetric(vertical: 14.h)),
+                                  textStyle: MaterialStateProperty.all(TextStyle(
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.w700,
+                                  ))),
+                              child: Text("Zaloguj"),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 20.h,
+                          ),
+                          Center(
+                            child: Wrap(
+                              children: [
+                                Text(
+                                  "Nie masz konta? ",
+                                  style: TextStyle(
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: _onRedirectToRegister,
+                                  child: Text(
+                                    "Zarejestruj się",
+                                    style: TextStyle(
+                                      fontSize: 14.sp,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.LIGHT,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ));
+  }
+
+  Future<void> _login(String email, String password) async {
     setState(() {
       _isLoading = true;
     });
@@ -54,21 +234,21 @@ class _LoginPageState extends State<LogInPage> {
     });
 
     if (response.statusCode == 200) {
-      var jsonResponse = json.decode(response.body);
+      var jsonResponse = json.decode(utf8.decode(response.bodyBytes));
       if (jsonResponse != null) {
         Helper.toastSuccess("Zalogowano");
-        await GetMeAsUser();
+        await _getMeAsUser();
       }
     } else if (response.statusCode == 400) {
       Helper.toastFail("Niepoprawne dane logowania");
-    } else {
-      var jsonResponse = json.decode(response.body);
-      Helper.toastFail(jsonResponse['message']);
-      print(jsonResponse);
+    }else if (response.statusCode == 404) {
+      Helper.toastFail('Serwer nie odpowiada');
+    }else {
+      Helper.toastFail('Wystąpił nieznany błąd');
     }
   }
 
-  Future<void> GetMeAsUser() async {
+  Future<void> _getMeAsUser() async {
     setState(() {
       _isLoading = true;
     });
@@ -83,7 +263,7 @@ class _LoginPageState extends State<LogInPage> {
     }
 
     if (response.statusCode == 200) {
-      var jsonResponse = json.decode(response.body);
+      var jsonResponse = json.decode(utf8.decode(response.bodyBytes));
       var state = jsonResponse['state'];
       if (state == 'valid') {
         print("User state is valid");
@@ -102,116 +282,10 @@ class _LoginPageState extends State<LogInPage> {
       } else {
         Helper.toastFail("Konto posiada nieznany status");
       }
-    } else {
-      print(response.body);
-      var jsonResponse = json.decode(response.body);
-      Helper.toastFail(jsonResponse['message']);
-    }
-  }
-
-  Container buttonSection() {
-    return Container(
-      width: MediaQuery.of(context).size.width,
-      height: 40.0,
-      padding: EdgeInsets.symmetric(horizontal: 15.0),
-      margin: EdgeInsets.only(top: 15.0),
-      child: ElevatedButton(
-        onPressed: emailController.text == ""
-            ? null
-            : () {
-                signIn(emailController.text, passwordController.text);
-              },
-        child: Text("Zaloguj się", style: TextStyle(color: Colors.white70)),
-        style: ElevatedButton.styleFrom(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
-        ),
-      ),
-    );
-  }
-
-  final TextEditingController emailController = new TextEditingController();
-  final TextEditingController passwordController = new TextEditingController();
-
-  Container textSection() {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 20.0),
-      child: Column(
-        children: <Widget>[
-          TextFormField(
-            controller: emailController,
-            cursorColor: Colors.white,
-            style: TextStyle(color: Colors.white70),
-            decoration: InputDecoration(
-              icon: Icon(Icons.email, color: Colors.white70),
-              hintText: "Email",
-              border: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white70)),
-              hintStyle: TextStyle(color: Colors.white70),
-            ),
-          ),
-          SizedBox(height: 30.0),
-          TextFormField(
-            controller: passwordController,
-            cursorColor: Colors.white,
-            obscureText: true,
-            style: TextStyle(color: Colors.white70),
-            decoration: InputDecoration(
-              icon: Icon(Icons.lock, color: Colors.white70),
-              hintText: "Hasło",
-              border: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white70)),
-              hintStyle: TextStyle(color: Colors.white70),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Container headerSection() {
-    return Container(
-      margin: EdgeInsets.only(top: 50.0),
-      padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
-      child: Text("Logowanie",
-          style: TextStyle(
-              color: Colors.white70,
-              fontSize: 40.0,
-              fontWeight: FontWeight.bold)),
-    );
-  }
-
-  Future<http.Response> checkResponseAuthorization(
-      http.Response response) async {
-    var sharedPreferences = await SharedPreferences.getInstance();
-
-    if (response.statusCode == 401) {
-      await ensureAuthorized();
-    }
-    return response;
-  }
-
-  Future<void> ensureAuthorized() async {
-    if (await AuthService.isTokenAvailableToRefresh()) {
-      if (await AuthService.isTokenValid() == false) {
-        await _authService.refreshTokenRequest();
-        if (await AuthService.isTokenValid() == false) {
-          if (Navigator.canPop(context)) {
-            Navigator.pop(context);
-          }
-          Navigator.of(context).pushNamed('/login');
-        }
-      } else {
-        if (Navigator.canPop(context)) {
-          Navigator.pop(context);
-        }
-        Navigator.of(context).pushNamed('/login');
-      }
-    } else {
-      if (Navigator.canPop(context)) {
-        Navigator.pop(context);
-      }
-      Navigator.of(context).pushNamed('/login');
+    }else if (response.statusCode == 404) {
+      Helper.toastFail('Serwer nie odpowiada');
+    }else {
+      Helper.toastFail('Wystąpił nieznany błąd');
     }
   }
 }

@@ -1,11 +1,11 @@
 import 'dart:convert';
 
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:thesis/AppColors.dart';
 import 'package:thesis/helpers/helper.dart';
 import 'package:thesis/services/auth_service.dart';
-
-import 'main_drawer.dart';
 
 class RegisterPage extends StatefulWidget {
   @override
@@ -18,31 +18,242 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light
-        .copyWith(statusBarColor: Colors.transparent));
+    final _key = GlobalKey<FormState>();
+
+    final TextEditingController emailController = new TextEditingController();
+    final TextEditingController passwordController = new TextEditingController();
+    final TextEditingController repeatPasswordController = new TextEditingController();
+
+    final String? Function(String?)? emailValidator = (value) {
+      if (value!.isEmpty)
+        return "Email nie może być pusty";
+      else if (value.length < 8)
+        return "Email jest za krótki";
+      else if (value.length > 50)
+        return "Email jest za długi";
+      else if (EmailValidator.validate(value) == false)
+        return "Email jest niepoprawny";
+      return null;
+    };
+
+    final String? Function(String?)? passwordValidator = (value) {
+      if (value!.isEmpty)
+        return "Hasło nie może być puste";
+      else if (value.length < 6) return "Hasło jest za krótkie";
+      else if (value.length > 20) return "Hasło jest za długie";
+      return null;
+    };
+
+    final String? Function(String?)? repeatPasswordValidator = (value) {
+      if (value!.isEmpty)
+        return "Hasła nie są identyczne";
+      if (value != passwordController.text)
+        return "Hasła nie są identyczne";
+      return null;
+    };
+
+    void _onRedirectToLogin() {
+      Navigator.of(context).pop();
+      Navigator.of(context).pushNamed("/login");
+    }
+
+    Widget getTextField(
+        {required String hint,
+          required TextEditingController controller,
+          required String? Function(String?)? validator,
+          bool obscureText = false}) {
+
+      return TextFormField(
+        validator: validator,
+        controller: controller,
+        obscureText: obscureText,
+        decoration: InputDecoration(
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.r),
+              borderSide: BorderSide(color: Colors.transparent, width: 0),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.r),
+              borderSide: BorderSide(color: Colors.transparent, width: 0),
+            ),
+            contentPadding:
+            EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+            filled: true,
+            fillColor: AppColors.FILL_COLOR,
+            hintText: hint,
+            hintStyle: TextStyle(
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w400,
+            )),
+      );
+    }
+
+
     return Scaffold(
-      drawer: MainDrawer(),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-              colors: [Color(0xFF5D92CB), Color(0xFF3F71B4), Color(0xFF8096BF)],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter),
+        floatingActionButtonLocation: FloatingActionButtonLocation.startTop,
+        floatingActionButton: FloatingActionButton(
+          child: const Icon(
+            Icons.arrow_back_ios,
+          ),
+          backgroundColor: Colors.grey,
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
         ),
-        child: _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : ListView(
-                children: <Widget>[
-                  headerSection(),
-                  textSection(),
-                  buttonSection(),
-                ],
+        body: Scaffold(
+          backgroundColor: Colors.white,
+          body: _isLoading ? const Center(child: CircularProgressIndicator(),) :
+          SafeArea(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 22.h),
+              child: Form(
+                key: _key,
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        height: 44.h,
+                      ),
+                      Text(
+                        "Rejestracja",
+                        style: TextStyle(
+                          fontSize: 36.sp,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      Text(
+                          "Utwórz nowe konto i korzystaj z serwisu za darmo",
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.normal,
+                            color: Colors.black,
+                          )),
+                      SizedBox(
+                        height: 24.h,
+                      ),
+                      Text(
+                        "Email",
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 8.h,
+                      ),
+                      getTextField(
+                          controller: emailController,
+                          hint: "Wprowadź adres email",
+                          validator: emailValidator),
+                      SizedBox(
+                        height: 16.h,
+                      ),
+                      Text(
+                        "Hasło",
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 8.h,
+                      ),
+                      getTextField(
+                          controller: passwordController,
+                          hint: "Wprowadź hasło",
+                          validator: passwordValidator,
+                          obscureText: true),
+                      SizedBox(
+                        height: 16.h,
+                      ),
+                      Text(
+                        "Powtórz hasło",
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 8.h,
+                      ),
+                      getTextField(
+                          controller: repeatPasswordController,
+                          hint: "Wprowadź ponownie hasło",
+                          validator: repeatPasswordValidator,
+                          obscureText: true),
+                      SizedBox(
+                        height: 20.h,
+                      ),
+                      SizedBox(
+                        width: double.infinity,
+                        child: TextButton(
+                          onPressed: () {
+                            if (_key.currentState!.validate()) {
+                              register(emailController.text, repeatPasswordController.text);
+                            }
+                          },
+                          style: ButtonStyle(
+                              shape: MaterialStateProperty.all<
+                                  RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8.r),
+                                  )),
+                              backgroundColor: MaterialStateProperty.all(
+                                  AppColors.PRIMARY),
+                              foregroundColor:
+                              MaterialStateProperty.all(Colors.white),
+                              padding: MaterialStateProperty.all(
+                                  EdgeInsets.symmetric(vertical: 14.h)),
+                              textStyle: MaterialStateProperty.all(TextStyle(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w700,
+                              ))),
+                          child: Text("Zarejestruj"),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 20.h,
+                      ),
+                      Center(
+                        child: Wrap(
+                          children: [
+                            Text(
+                              "Posiadasz konto? ",
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: _onRedirectToLogin,
+                              child: Text(
+                                "Zaloguj się",
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.LIGHT,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-      ),
-    );
+            ),
+          ),
+        ));
   }
 
-  signUp(String email, password) async {
+  void register(String email, password) async {
     setState(() {
       _isLoading = true;
     });
@@ -58,7 +269,7 @@ class _RegisterPageState extends State<RegisterPage> {
       }
       Navigator.of(context).pushNamed('/login');
     } else if (response.statusCode == 400) {
-      var jsonResponse = json.decode(response.body);
+      var jsonResponse = json.decode(utf8.decode(response.bodyBytes));
       switch (jsonResponse['code']) {
         case 'email_in_use':
           Helper.toastFail('Adres email jest zajęty');
@@ -68,83 +279,11 @@ class _RegisterPageState extends State<RegisterPage> {
           print(jsonResponse);
           break;
       }
-    } else {
-      var jsonResponse = json.decode(response.body);
-      Helper.toastFail(jsonResponse['message']);
-      print(jsonResponse);
+    } else if (response.statusCode == 404) {
+      Helper.toastFail('Serwer nie odpowiada');
     }
-  }
-
-  Container buttonSection() {
-    return Container(
-      width: MediaQuery.of(context).size.width,
-      height: 40.0,
-      padding: const EdgeInsets.symmetric(horizontal: 15.0),
-      margin: const EdgeInsets.only(top: 15.0),
-      child: ElevatedButton(
-        onPressed: emailController.text == ""
-            ? null
-            : () {
-                signUp(emailController.text, passwordController.text);
-              },
-        child: const Text("Zarejestruj się",
-            style: TextStyle(color: Colors.white70)),
-        style: ElevatedButton.styleFrom(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
-        ),
-      ),
-    );
-  }
-
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-
-  Container textSection() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 20.0),
-      child: Column(
-        children: <Widget>[
-          TextFormField(
-            controller: emailController,
-            cursorColor: Colors.white,
-            style: const TextStyle(color: Colors.white70),
-            decoration: const InputDecoration(
-              icon: Icon(Icons.email, color: Colors.white70),
-              hintText: "Email",
-              border: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white70)),
-              hintStyle: TextStyle(color: Colors.white70),
-            ),
-          ),
-          const SizedBox(height: 30.0),
-          TextFormField(
-            controller: passwordController,
-            cursorColor: Colors.white,
-            obscureText: true,
-            style: const TextStyle(color: Colors.white70),
-            decoration: const InputDecoration(
-              icon: Icon(Icons.lock, color: Colors.white70),
-              hintText: "Hasło",
-              border: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white70)),
-              hintStyle: TextStyle(color: Colors.white70),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Container headerSection() {
-    return Container(
-      margin: const EdgeInsets.only(top: 50.0),
-      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
-      child: const Text("Rejestracja",
-          style: TextStyle(
-              color: Colors.white70,
-              fontSize: 40.0,
-              fontWeight: FontWeight.bold)),
-    );
+    else{
+      Helper.toastFail('Wystąpił nieznany błąd');
+    }
   }
 }
