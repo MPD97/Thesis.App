@@ -35,4 +35,10 @@ class ScoreService {
     var response = await http.get(_searchRunsUrl);
     return response;
   }
+
+  Future<http.Response?> getUserPlaceInRankingRequest(String userId) async {
+    final Uri _getScore = Uri.parse('$_baseUrl/scores/ranking/$userId');
+    var response = await http.get(_getScore);
+    return response;
+  }
 }

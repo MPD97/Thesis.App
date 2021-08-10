@@ -17,13 +17,14 @@ dependencies:
   fluttertoast: 8.0.7
   location: 4.3.0
   mapbox_gl: 0.11.0
-  multiselect_formfield: 0.1.6
+  multi_select_flutter: ^4.0.0
   signalr_netcore: 0.1.7+2-nullsafety.2
   background_fetch: 1.0.1
   intl: 0.17.0
   flutter_launcher_icons: 0.9.1
   flutter_screenutil: ^5.0.0+2
   email_validator: 2.0.1
+  google_fonts: 2.1.0
 
 
 dependency_overrides:
@@ -60,3 +61,24 @@ flutter:
     - family: Cups
       fonts:
         - asset: assets/icons/Cup.ttf
+
+    - family: Montserrat
+      fonts:
+        - asset: assets/fonts/Montserrat-Thin.ttf
+          weight: 100
+        - asset: assets/fonts/Montserrat-ExtraLight.ttf
+          weight: 200
+        - asset: assets/fonts/Montserrat-Light.ttf
+          weight: 300
+        - asset: assets/fonts/Montserrat-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Montserrat-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Montserrat-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Montserrat-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Montserrat-ExtraBold.ttf
+          weight: 800
+        - asset: assets/fonts/Montserrat-Black.ttf
+          weight: 900

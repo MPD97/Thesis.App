@@ -3,8 +3,7 @@ class UserScoreModel {
   late int score;
   late List<ScoreEventModel> scoreEvents;
 
-  UserScoreModel(
-      {required this.id, required this.score, required this.scoreEvents});
+  UserScoreModel(this.id, this.score, this.scoreEvents);
 
   UserScoreModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];

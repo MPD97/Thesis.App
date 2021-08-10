@@ -85,6 +85,9 @@ class _RouteAcceptDetailsPageState extends State<RouteAcceptDetailsPage> {
                         "Nazwa:",
                         style: TextStyle(fontSize: 16.sp, color: Colors.black45),
                       ),
+                      SizedBox(
+                        height: 4.h,
+                      ),
                       Padding(
                         padding: EdgeInsets.only(left: 6.w),
                         child: Text(
@@ -95,9 +98,15 @@ class _RouteAcceptDetailsPageState extends State<RouteAcceptDetailsPage> {
                           style: TextStyle(fontSize: 20.sp),
                         ),
                       ),
+                      SizedBox(
+                        height: 16.h,
+                      ),
                       Text(
                         "Opis:",
                         style: TextStyle(fontSize: 16.sp, color: Colors.black45),
+                      ),
+                      SizedBox(
+                        height: 4.h,
                       ),
                       Padding(
                         padding: EdgeInsets.only(left: 6.w),
@@ -108,9 +117,15 @@ class _RouteAcceptDetailsPageState extends State<RouteAcceptDetailsPage> {
                           style: TextStyle(fontSize: 20.sp),
                         ),
                       ),
+                      SizedBox(
+                        height: 16.h,
+                      ),
                       Text(
                         "Poziom trudności:",
                         style: TextStyle(fontSize: 16.sp, color: Colors.black45),
+                      ),
+                      SizedBox(
+                        height: 4.h,
                       ),
                       Padding(
                         padding: EdgeInsets.only(left: 6.w),
@@ -119,9 +134,15 @@ class _RouteAcceptDetailsPageState extends State<RouteAcceptDetailsPage> {
                           style: TextStyle(fontSize: 20.sp),
                         ),
                       ),
+                      SizedBox(
+                        height: 16.h,
+                      ),
                       Text(
                         "Ilośc punktów:",
                         style: TextStyle(fontSize: 16.sp, color: Colors.black45),
+                      ),
+                      SizedBox(
+                        height: 4.h,
                       ),
                       Padding(
                         padding: EdgeInsets.only(left: 6.w),
@@ -130,9 +151,15 @@ class _RouteAcceptDetailsPageState extends State<RouteAcceptDetailsPage> {
                           style: TextStyle(fontSize: 20.sp),
                         ),
                       ),
+                      SizedBox(
+                        height: 16.h,
+                      ),
                       Text(
                         "Długość trasy:",
                         style: TextStyle(fontSize: 16.sp, color: Colors.black45),
+                      ),
+                      SizedBox(
+                        height: 4.h,
                       ),
                       Padding(
                         padding: EdgeInsets.only(left: 6.w),
@@ -140,6 +167,9 @@ class _RouteAcceptDetailsPageState extends State<RouteAcceptDetailsPage> {
                           "${_model.length} m",
                           style: TextStyle(fontSize: 20.sp),
                         ),
+                      ),
+                      SizedBox(
+                        height: 16.h,
                       ),
                     ],
                   ),

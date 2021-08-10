@@ -2,9 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:thesis/helpers/helper.dart';
 import 'package:thesis/models/AchievementModel.dart';
+import 'package:thesis/models/UserRankingPlaceModel.dart';
 import 'package:thesis/models/UserScoreModel.dart';
 import 'package:thesis/services/achievement_service.dart';
 import 'package:thesis/services/auth_service.dart';
@@ -23,7 +25,8 @@ class _UserMePageState extends State<UserMePage> {
   final _scoreService = ScoreService.getInstance();
   final _achievementService = AchievementService.getInstance();
 
-  UserScoreModel _userScoreModel = UserScoreModel(id: '', score: 0, scoreEvents: []);
+  UserRankingPlaceModel _userRankingPlaceModel = UserRankingPlaceModel('', 0);
+  UserScoreModel _userScoreModel = UserScoreModel('', 0, []);
   AchievementModel _achievementModel = AchievementModel("", []);
   Color _bestAchievementColor = Color(0xFFFFFF);
 
@@ -49,6 +52,7 @@ class _UserMePageState extends State<UserMePage> {
   Future _fetchData() async {
     await _getUserAchievements();
     await _getUserScore();
+    await _getUserPlaceInRanking();
     getBestAchievementColor();
 
     setState(() {
@@ -82,6 +86,20 @@ class _UserMePageState extends State<UserMePage> {
 
     } else {
       Helper.toastFail("Wystąpił nieznany błąd");
+    }
+  }
+
+  Future _getUserPlaceInRanking() async {
+    final _response =
+    await _scoreService.getUserPlaceInRankingRequest(AuthService.meId!);
+    if (_response!.statusCode == 200) {
+      _userRankingPlaceModel = UserRankingPlaceModel.fromJson(json.decode(_response.body));
+    } else if (_response.statusCode == 400) {
+      Helper.toastFailShort("Nie znaleziono użytkownika");
+    } else if (_response.statusCode == 404) {
+      Helper.toastFail('Serwer nie odpowiada');
+    } else {
+      Helper.toastFail('Wystąpił nieznany błąd');
     }
   }
 
@@ -148,18 +166,18 @@ class _UserMePageState extends State<UserMePage> {
           ProfileInfoBigCard(
             firstText: _routeAddedAmount.toString(),
             secondText: "Dodanych tras",
-            icon: const Icon(
+            icon: Icon(
               Icons.add,
-              size: 32,
+              size: 32.sp,
               color: Colors.blue,
             ),
           ),
           ProfileInfoBigCard(
             firstText: _routeCompletedAmount.toString(),
             secondText: "Ukończonych tras",
-            icon: const Icon(
+            icon: Icon(
               Icons.check,
-              size: 32,
+              size: 32.sp,
               color: Colors.blue,
             ),
           ),
@@ -170,18 +188,18 @@ class _UserMePageState extends State<UserMePage> {
           ProfileInfoBigCard(
             firstText: _routeFirstAmount.toString(),
             secondText: "Top 1 tras",
-            icon: const Icon(
+            icon: Icon(
               Icons.leaderboard_outlined,
-              size: 32,
+              size: 32.sp,
               color: Colors.blue,
             ),
           ),
           ProfileInfoBigCard(
             firstText: _routeSecondAmount.toString(),
             secondText: "Top 2 tras",
-            icon: const Icon(
+            icon: Icon(
               Icons.leaderboard_outlined,
-              size: 32,
+              size: 32.sp,
               color: Colors.blue,
             ),
           ),
@@ -192,9 +210,9 @@ class _UserMePageState extends State<UserMePage> {
           ProfileInfoBigCard(
             firstText: _routeThirdAmount.toString(),
             secondText: "Top 3 tras",
-            icon: const Icon(
+            icon: Icon(
               Icons.leaderboard_outlined,
-              size: 32,
+              size: 32.sp,
               color: Colors.blue,
             ),
           ),
@@ -203,9 +221,9 @@ class _UserMePageState extends State<UserMePage> {
             child: ProfileInfoBigCard(
               firstText: _routeTopTenAmount.toString(),
               secondText: "Top 10 tras",
-              icon: const Icon(
+              icon: Icon(
                 Icons.leaderboard_outlined,
-                size: 32,
+                size: 32.sp,
                 color: Colors.blue,
               ),
             ),
@@ -239,11 +257,11 @@ class _UserMePageState extends State<UserMePage> {
                                       child: Column(
                                         children: [
                                           Container(
-                                            width: 100,
+                                            width: 80.w,
                                             alignment: Alignment.center,
-                                            height: 100,
-                                            margin: const EdgeInsets.only(
-                                                top: 15, bottom: 15),
+                                            height: 80.h,
+                                            margin: EdgeInsets.only(
+                                                top: 4.h, bottom: 4.h),
                                             decoration: BoxDecoration(
                                               shape: BoxShape.circle,
                                               border: Border.all(),
@@ -255,8 +273,8 @@ class _UserMePageState extends State<UserMePage> {
                                                 BoxShadow(
                                                   color: _bestAchievementColor
                                                       .withOpacity(1.0),
-                                                  spreadRadius: 5,
-                                                  blurRadius: 14,
+                                                  spreadRadius: 5.sp,
+                                                  blurRadius: 14.sp,
                                                   offset: Offset(0,
                                                       0), // changes position of shadow
                                                 ),
@@ -269,15 +287,14 @@ class _UserMePageState extends State<UserMePage> {
                                                 width: MediaQuery.of(context)
                                                     .size
                                                     .width,
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 8,
-                                                        vertical: 4),
+                                                padding: EdgeInsets.symmetric(
+                                                    horizontal: 8.w,
+                                                    vertical: 4.h),
                                                 color: Colors.white,
                                                 child: Column(
                                                   children: [
                                                     Container(
-                                                      height: 60,
+                                                      height: 50.h,
                                                       child: Row(
                                                         mainAxisAlignment:
                                                             MainAxisAlignment
@@ -292,19 +309,19 @@ class _UserMePageState extends State<UserMePage> {
                                                                       .toString(),
                                                               secondText:
                                                                   "punktów energii"),
-                                                          const SizedBox(
-                                                            width: 10,
+                                                          SizedBox(
+                                                            width: 10.w,
                                                           ),
                                                           ProfileInfoCard(
                                                               firstText:
                                                                   "${_nextAchievementProgress.toInt()}%",
                                                               secondText:
                                                                   "do osiągnięcia"),
-                                                          const SizedBox(
-                                                            width: 10,
+                                                          SizedBox(
+                                                            width: 10.w,
                                                           ),
                                                           ProfileInfoCard(
-                                                              firstText: "-",
+                                                              firstText: '${_userRankingPlaceModel.place} miejsce',
                                                               secondText:
                                                                   "Top graczy"),
                                                         ],
@@ -325,7 +342,7 @@ class _UserMePageState extends State<UserMePage> {
                             children: [
                               Container(
                                 width: MediaQuery.of(context).size.width,
-                                padding: const EdgeInsets.only(top: 10),
+                                padding: EdgeInsets.only(top: 8.h),
                                 color: Colors.white,
                                 child: Table(
                                     children: _achievementModel.achievements
@@ -356,7 +373,7 @@ class _UserMePageState extends State<UserMePage> {
                           Row(children: [
                             Container(
                               width: MediaQuery.of(context).size.width,
-                              padding: const EdgeInsets.only(top: 10),
+                              padding: EdgeInsets.only(top: 8.h),
                               color: Colors.white,
                               child: Table(children: buildRows()),
                             )
@@ -382,7 +399,7 @@ class MyInfo extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SizedBox(height: 10),
+                SizedBox(height: 10.w),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
@@ -390,7 +407,7 @@ class MyInfo extends StatelessWidget {
                         AuthService.pseudonym! == ""
                             ? "<brak_psudonimu>"
                             : AuthService.pseudonym!,
-                        style: TextStyle(fontSize: 24)),
+                        style: TextStyle(fontSize: 24.sp)),
                   ],
                 ),
               ],
@@ -412,17 +429,17 @@ class ProfileInfoBigCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      margin: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
       elevation: 5,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
       child: Padding(
-        padding: const EdgeInsets.only(
-          left: 16.0,
-          top: 16,
-          bottom: 24,
-          right: 16,
+        padding: EdgeInsets.only(
+          left: 12.w,
+          top: 12.h,
+          bottom: 16.h,
+          right: 12.w,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -433,9 +450,12 @@ class ProfileInfoBigCard extends StatelessWidget {
             ),
             Text(
               firstText,
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12.sp),
             ),
-            Text(secondText),
+            Text(
+              secondText,
+              style: TextStyle(fontSize: 12.sp),
+            ),
           ],
         ),
       ),
@@ -466,7 +486,7 @@ class ProfileAchievementBigCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      margin: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
       elevation: 5,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
@@ -477,25 +497,26 @@ class ProfileAchievementBigCard extends StatelessWidget {
               "gold": Color(0XFFFFD700),
               "master": Color(0XFF6E86FF),
             }),
-            width: 4.0),
+            width: 4.0.w),
       ),
       child: Padding(
-        padding: const EdgeInsets.only(
-          left: 16.0,
-          top: 16,
-          bottom: 24,
-          right: 16,
+        padding: EdgeInsets.only(
+          left: 12.w,
+          top: 12.h,
+          bottom: 16.h,
+          right: 12.w,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Text(
               firstText,
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12.sp),
             ),
             Text(
               secondText,
               textAlign: TextAlign.right,
+              style: TextStyle(fontSize: 12.sp),
             ),
           ],
         ),
@@ -521,8 +542,8 @@ class ProfileInfoCard extends StatelessWidget {
                 child: Image.asset(
                   imagePath,
                   color: Colors.white,
-                  width: 25,
-                  height: 25,
+                  width: 25.w,
+                  height: 25.h,
                 ),
               )
             : TwoLineItem(
@@ -546,10 +567,11 @@ class TwoLineItem extends StatelessWidget {
       children: <Widget>[
         Text(
           firstText,
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12.sp),
         ),
         Text(
           secondText,
+          style: TextStyle(fontSize: 11.sp),
         ),
       ],
     );

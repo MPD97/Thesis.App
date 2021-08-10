@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:location/location.dart';
+import 'package:thesis/AppColors.dart';
 import 'package:thesis/screens/page_route_generator.dart';
 import 'package:thesis/services/achievement_service.dart';
 import 'package:thesis/services/auth_service.dart';
@@ -12,6 +13,7 @@ import 'package:thesis/services/route_service.dart';
 import 'package:thesis/services/run_service.dart';
 import 'package:thesis/services/score_service.dart';
 import 'package:thesis/services/user_service.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -112,7 +114,7 @@ class _ApplicationState extends State<Application> {
       builder: () => MaterialApp(
         title: 'Gra geolokalizacyjna',
         theme: ThemeData(
-          primarySwatch: Colors.blue,
+          primaryColor: AppColors.LIGHT,
           fontFamily: 'Montserrat'
         ),
         initialRoute: '/',

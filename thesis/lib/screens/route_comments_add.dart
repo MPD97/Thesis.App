@@ -40,12 +40,13 @@ class _RouteAddCommentPageState
       {required String hint,
         required TextEditingController controller,
         required String? Function(String?)? validator,
-        bool obscureText = false}) {
+        bool obscureText = false, int maxLines = 1}) {
 
     return TextFormField(
       validator: validator,
       controller: controller,
       obscureText: obscureText,
+      maxLines: maxLines,
       decoration: InputDecoration(
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8.r),
@@ -130,7 +131,8 @@ class _RouteAddCommentPageState
                       getTextField(
                           controller: textResorceController,
                           hint: "Wprowadź wiadomość",
-                          validator: textResorceValidator),
+                          validator: textResorceValidator,
+                          maxLines: 4),
                       SizedBox(
                         height: 20.h,
                       ),

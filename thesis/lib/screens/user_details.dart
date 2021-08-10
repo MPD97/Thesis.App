@@ -6,10 +6,12 @@ import 'package:intl/intl.dart';
 import 'package:thesis/helpers/helper.dart';
 import 'package:thesis/models/AchievementModel.dart';
 import 'package:thesis/models/UserDetailsModel.dart';
+import 'package:thesis/models/UserRankingPlaceModel.dart';
 import 'package:thesis/models/UserScoreModel.dart';
 import 'package:thesis/services/achievement_service.dart';
 import 'package:thesis/services/score_service.dart';
 import 'package:thesis/services/user_service.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class UserDetailsPage extends StatefulWidget {
   late String userId;
@@ -29,8 +31,9 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
   final _achievementService = AchievementService.getInstance();
   final _userService = UserService.getInstance();
 
-  UserScoreModel? _userScoreModel;
-  AchievementModel? _achievementModel;
+  UserRankingPlaceModel _userRankingPlaceModel = UserRankingPlaceModel('', 0);
+  UserScoreModel _userScoreModel = UserScoreModel('', 0, []);
+  AchievementModel _achievementModel = AchievementModel('', []);
   UserDetails? _userDetails;
 
   Color _bestAchievementColor = Color(0xFFFFFF);
@@ -58,6 +61,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
     await _getUserAchievements();
     await _getUserScore();
     await _getUserDetails();
+    await _getUserPlaceInRanking();
     getBestAchievementColor();
 
     setState(() {
@@ -102,15 +106,29 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
     }
   }
 
+  Future _getUserPlaceInRanking() async {
+    final _response =
+    await _scoreService.getUserPlaceInRankingRequest(_userId);
+    if (_response!.statusCode == 200) {
+      _userRankingPlaceModel = UserRankingPlaceModel.fromJson(json.decode(_response.body));
+    } else if (_response.statusCode == 400) {
+      Helper.toastFailShort("Nie znaleziono użytkownika");
+    } else if (_response.statusCode == 404) {
+      Helper.toastFail('Serwer nie odpowiada');
+    } else {
+      Helper.toastFail('Wystąpił nieznany błąd');
+    }
+  }
+
   void getBestAchievementColor() {
-    if (_achievementModel!.achievements.any((se) => se.type == 'master')) {
+    if (_achievementModel.achievements.any((se) => se.type == 'master')) {
       _bestAchievementColor = const Color(0XFF6E86FF);
-    } else if (_achievementModel!.achievements.any((se) => se.type == 'gold')) {
+    } else if (_achievementModel.achievements.any((se) => se.type == 'gold')) {
       _bestAchievementColor = const Color(0XFFFFD700);
-    } else if (_achievementModel!.achievements
+    } else if (_achievementModel.achievements
         .any((se) => se.type == 'silver')) {
       _bestAchievementColor = const Color(0XFFC0C0C0);
-    } else if (_achievementModel!.achievements
+    } else if (_achievementModel.achievements
         .any((se) => se.type == 'bronze')) {
       _bestAchievementColor = const Color(0xFFCD7F32);
     }
@@ -122,14 +140,14 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
         print("UserScore == null");
         return;
       }
-      if (_userScoreModel!.score < 30) {
-        _nextAchievementProgress = _userScoreModel!.score / 30;
-      } else if (_userScoreModel!.score < 100) {
-        _nextAchievementProgress = _userScoreModel!.score / 100;
-      } else if (_userScoreModel!.score < 300) {
-        _nextAchievementProgress = _userScoreModel!.score / 300;
-      } else if (_userScoreModel!.score < 1000) {
-        _nextAchievementProgress = _userScoreModel!.score / 1000;
+      if (_userScoreModel.score < 30) {
+        _nextAchievementProgress = _userScoreModel.score / 30;
+      } else if (_userScoreModel.score < 100) {
+        _nextAchievementProgress = _userScoreModel.score / 100;
+      } else if (_userScoreModel.score < 300) {
+        _nextAchievementProgress = _userScoreModel.score / 300;
+      } else if (_userScoreModel.score < 1000) {
+        _nextAchievementProgress = _userScoreModel.score / 1000;
       } else {
         _nextAchievementProgress = 0.0;
       }
@@ -139,7 +157,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
 
   void matchScoreEvents() {
     setState(() {
-      for (var se in _userScoreModel!.scoreEvents) {
+      for (var se in _userScoreModel.scoreEvents) {
         if (se.type == "routeAdded") {
           _routeAddedAmount += 1;
         } else if (se.type == "routeCompleted") {
@@ -169,18 +187,18 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
           ProfileInfoBigCard(
             firstText: _routeAddedAmount.toString(),
             secondText: "Dodanych tras",
-            icon: const Icon(
+            icon: Icon(
               Icons.add,
-              size: 32,
+              size: 32.sp,
               color: Colors.blue,
             ),
           ),
           ProfileInfoBigCard(
             firstText: _routeCompletedAmount.toString(),
             secondText: "Ukończonych tras",
-            icon: const Icon(
+            icon: Icon(
               Icons.check,
-              size: 32,
+              size: 32.sp,
               color: Colors.blue,
             ),
           ),
@@ -191,18 +209,18 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
           ProfileInfoBigCard(
             firstText: _routeFirstAmount.toString(),
             secondText: "Top 1 tras",
-            icon: const Icon(
+            icon: Icon(
               Icons.leaderboard_outlined,
-              size: 32,
+              size: 32.sp,
               color: Colors.blue,
             ),
           ),
           ProfileInfoBigCard(
             firstText: _routeSecondAmount.toString(),
             secondText: "Top 2 tras",
-            icon: const Icon(
+            icon: Icon(
               Icons.leaderboard_outlined,
-              size: 32,
+              size: 32.sp,
               color: Colors.blue,
             ),
           ),
@@ -213,9 +231,9 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
           ProfileInfoBigCard(
             firstText: _routeThirdAmount.toString(),
             secondText: "Top 3 tras",
-            icon: const Icon(
+            icon: Icon(
               Icons.leaderboard_outlined,
-              size: 32,
+              size: 32.sp,
               color: Colors.blue,
             ),
           ),
@@ -224,9 +242,9 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
             child: ProfileInfoBigCard(
               firstText: _routeTopTenAmount.toString(),
               secondText: "Top 10 tras",
-              icon: const Icon(
+              icon: Icon(
                 Icons.leaderboard_outlined,
-                size: 32,
+                size: 32.sp,
                 color: Colors.blue,
               ),
             ),
@@ -263,11 +281,11 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                       child: Column(
                                         children: [
                                           Container(
-                                            width: 100,
+                                            width: 80.w,
                                             alignment: Alignment.center,
-                                            height: 100,
-                                            margin: const EdgeInsets.only(
-                                                top: 15, bottom: 15),
+                                            height: 80.h,
+                                            margin: EdgeInsets.only(
+                                                top: 4.h, bottom: 4.h),
                                             decoration: BoxDecoration(
                                               shape: BoxShape.circle,
                                               border: Border.all(),
@@ -279,8 +297,8 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                                 BoxShadow(
                                                   color: _bestAchievementColor
                                                       .withOpacity(1.0),
-                                                  spreadRadius: 5,
-                                                  blurRadius: 14,
+                                                  spreadRadius: 5.sp,
+                                                  blurRadius: 14.sp,
                                                   offset: Offset(0,
                                                       0), // changes position of shadow
                                                 ),
@@ -293,44 +311,43 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                                 width: MediaQuery.of(context)
                                                     .size
                                                     .width,
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 8,
-                                                        vertical: 4),
+                                                padding: EdgeInsets.symmetric(
+                                                    horizontal: 8.w,
+                                                    vertical: 4.h),
                                                 color: Colors.white,
                                                 child: Column(
                                                   children: [
                                                     Container(
-                                                      height: 60,
+                                                      height: 50.h,
                                                       child: Row(
                                                         mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceBetween,
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
                                                         mainAxisSize:
-                                                            MainAxisSize.max,
+                                                        MainAxisSize.max,
                                                         children: <Widget>[
                                                           ProfileInfoCard(
                                                               firstText:
-                                                                  _userScoreModel!
-                                                                      .score
-                                                                      .toString(),
+                                                              _userScoreModel
+                                                                  .score
+                                                                  .toString(),
                                                               secondText:
-                                                                  "punktów energii"),
-                                                          const SizedBox(
-                                                            width: 10,
+                                                              "punktów energii"),
+                                                          SizedBox(
+                                                            width: 10.w,
                                                           ),
                                                           ProfileInfoCard(
                                                               firstText:
-                                                                  "${_nextAchievementProgress.toInt()}%",
+                                                              "${_nextAchievementProgress.toInt()}%",
                                                               secondText:
-                                                                  "do osiągnięcia"),
-                                                          const SizedBox(
-                                                            width: 10,
+                                                              "do osiągnięcia"),
+                                                          SizedBox(
+                                                            width: 10.w,
                                                           ),
                                                           ProfileInfoCard(
-                                                              firstText: "-",
+                                                              firstText: '${_userRankingPlaceModel.place} miejsce',
                                                               secondText:
-                                                                  "Top graczy"),
+                                                              "Top graczy"),
                                                         ],
                                                       ),
                                                     ),
@@ -349,30 +366,30 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                             children: [
                               Container(
                                 width: MediaQuery.of(context).size.width,
-                                padding: const EdgeInsets.only(top: 10),
+                                padding: EdgeInsets.only(top: 8.h),
                                 color: Colors.white,
                                 child: Table(
-                                    children: _achievementModel!.achievements
+                                    children: _achievementModel.achievements
                                         .map((ac) => TableRow(
-                                              children: [
-                                                ProfileAchievementBigCard(
-                                                  firstText: case2(ac.type, {
-                                                    "bronze":
-                                                        "Brązowy medal energii",
-                                                    "silver":
-                                                        "Srebrny medal energii",
-                                                    "gold":
-                                                        "Złoty medal enrgii",
-                                                    "master": "Mistrz energii",
-                                                  }),
-                                                  secondText: _formatter.format(
-                                                      DateTime.parse(
-                                                              ac.createdAt)
-                                                          .toLocal()),
-                                                  achievementType: ac.type,
-                                                ),
-                                              ],
-                                            ))
+                                      children: [
+                                        ProfileAchievementBigCard(
+                                          firstText: case2(ac.type, {
+                                            "bronze":
+                                            "Brązowy medal energii",
+                                            "silver":
+                                            "Srebrny medal energii",
+                                            "gold":
+                                            "Złoty medal enrgii",
+                                            "master": "Mistrz energii",
+                                          }),
+                                          secondText: _formatter.format(
+                                              DateTime.parse(
+                                                  ac.createdAt)
+                                                  .toLocal()),
+                                          achievementType: ac.type,
+                                        ),
+                                      ],
+                                    ))
                                         .toList()),
                               )
                             ],
@@ -380,7 +397,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                           Row(children: [
                             Container(
                               width: MediaQuery.of(context).size.width,
-                              padding: const EdgeInsets.only(top: 10),
+                              padding: EdgeInsets.only(top: 8.h),
                               color: Colors.white,
                               child: Table(children: buildRows()),
                             )
@@ -410,11 +427,12 @@ class MyInfo extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SizedBox(height: 10),
+                SizedBox(height: 10.w),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    Text(pseudonym, style: TextStyle(fontSize: 24)),
+                    Text(pseudonym,
+                        style: TextStyle(fontSize: 24.sp)),
                   ],
                 ),
               ],
@@ -436,17 +454,17 @@ class ProfileInfoBigCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      margin: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
       elevation: 5,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
       child: Padding(
-        padding: const EdgeInsets.only(
-          left: 16.0,
-          top: 16,
-          bottom: 24,
-          right: 16,
+        padding: EdgeInsets.only(
+          left: 12.w,
+          top: 12.h,
+          bottom: 16.h,
+          right: 12.w,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -457,9 +475,12 @@ class ProfileInfoBigCard extends StatelessWidget {
             ),
             Text(
               firstText,
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12.sp),
             ),
-            Text(secondText),
+            Text(
+              secondText,
+              style: TextStyle(fontSize: 12.sp),
+            ),
           ],
         ),
       ),
@@ -490,7 +511,7 @@ class ProfileAchievementBigCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      margin: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
       elevation: 5,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
@@ -501,25 +522,26 @@ class ProfileAchievementBigCard extends StatelessWidget {
               "gold": Color(0XFFFFD700),
               "master": Color(0XFF6E86FF),
             }),
-            width: 4.0),
+            width: 4.0.w),
       ),
       child: Padding(
-        padding: const EdgeInsets.only(
-          left: 16.0,
-          top: 16,
-          bottom: 24,
-          right: 16,
+        padding: EdgeInsets.only(
+          left: 12.w,
+          top: 12.h,
+          bottom: 16.h,
+          right: 12.w,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Text(
               firstText,
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12.sp),
             ),
             Text(
               secondText,
               textAlign: TextAlign.right,
+              style: TextStyle(fontSize: 12.sp),
             ),
           ],
         ),
@@ -542,17 +564,17 @@ class ProfileInfoCard extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: hasImage
             ? Center(
-                child: Image.asset(
-                  imagePath,
-                  color: Colors.white,
-                  width: 25,
-                  height: 25,
-                ),
-              )
+          child: Image.asset(
+            imagePath,
+            color: Colors.white,
+            width: 25.w,
+            height: 25.h,
+          ),
+        )
             : TwoLineItem(
-                firstText: firstText,
-                secondText: secondText,
-              ),
+          firstText: firstText,
+          secondText: secondText,
+        ),
       ),
     );
   }
@@ -570,10 +592,11 @@ class TwoLineItem extends StatelessWidget {
       children: <Widget>[
         Text(
           firstText,
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12.sp),
         ),
         Text(
           secondText,
+          style: TextStyle(fontSize: 11.sp),
         ),
       ],
     );

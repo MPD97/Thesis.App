@@ -519,7 +519,7 @@ class MapUiBodyState extends State<MapUiBody> {
                   Navigator.of(context)
                       .pushNamed('/route/details', arguments: _selectedRoute);
                 },
-                label: const Text('Szczególy trasy'),
+                label: const Text('Szczególy'),
                 icon: const Icon(Icons.details),
                 backgroundColor: Colors.orange,
               ),
@@ -553,9 +553,9 @@ class MapUiBodyState extends State<MapUiBody> {
                 onPressed: () {
                   onRunPreparingCancelled();
                 },
-                label: const Text('Anuluj'),
-                icon: const Icon(Icons.cancel),
-                backgroundColor: Colors.red,
+                label: const Text('Powrtót'),
+                icon: const Icon(Icons.arrow_back),
+                backgroundColor: Colors.orange,
               ),
             ),
           ),

@@ -157,6 +157,7 @@ class _RouteCommentsPageState extends State<RouteCommentsPage> {
           itemBuilder: (context, index) {
             final comment = _comments[index];
             return ListTile(
+              onTap: () =>{Navigator.of(context).pushNamed('/user', arguments: comment.userId) },
               leading: const Icon(
                 Icons.perm_identity,
                 size: 50,
