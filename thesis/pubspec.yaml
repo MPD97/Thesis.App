@@ -26,7 +26,6 @@ dependencies:
   email_validator: 2.0.1
   google_fonts: 2.1.0
 
-
 dependency_overrides:
   mapbox_gl:
     git:

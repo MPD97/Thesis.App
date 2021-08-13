@@ -6,19 +6,41 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:thesis/AppColors.dart';
 import 'package:thesis/helpers/helper.dart';
+import 'package:thesis/models/UserLogInModel.dart';
+import 'package:thesis/models/UserMeModel.dart';
 import 'package:thesis/services/auth_service.dart';
 
 class LogInPage extends StatefulWidget {
+  late String email;
+  late String password;
+  LogInPage(this.email, this.password){}
+
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _LoginPageState createState() => _LoginPageState(email, password);
 }
 
 class _LoginPageState extends State<LogInPage> {
+
+  TextEditingController emailController = new TextEditingController();
+  TextEditingController passwordController = new TextEditingController();
+  bool _autoLogIn = false;
+
+  _LoginPageState(String email, String password){
+    if(email != "")
+      emailController = new TextEditingController(text: email);
+
+    if(password != "")
+      passwordController = new TextEditingController(text: password);
+
+    if(email != "" && password != ""){
+      _autoLogIn = true;
+    }
+  }
+
   final AuthService _authService = AuthService.getInstance();
   bool _isLoading = false;
 
-  final TextEditingController emailController = new TextEditingController();
-  final TextEditingController passwordController = new TextEditingController();
+
   final String? Function(String?)? emailValidator = (value) {
     if (value!.isEmpty)
       return "Email nie może być pusty";
@@ -77,17 +99,25 @@ class _LoginPageState extends State<LogInPage> {
   @override
   Widget build(BuildContext context) {
     final _key = GlobalKey<FormState>();
-
+    if(_autoLogIn){
+      if (_key.currentState!.validate()) {
+        _login(emailController.text,
+            passwordController.text);
+      }
+    }
     return Scaffold(
             floatingActionButtonLocation: FloatingActionButtonLocation.startTop,
-            floatingActionButton: FloatingActionButton(
-              child: const Icon(
-                Icons.arrow_back_ios,
+            floatingActionButton: Padding(
+              padding: EdgeInsets.symmetric(vertical: 8.h),
+              child: FloatingActionButton(
+                child: const Icon(
+                  Icons.arrow_back_ios,
+                ),
+                backgroundColor: Colors.grey,
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
               ),
-              backgroundColor: Colors.grey,
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
             ),
             body: Scaffold(
               backgroundColor: Colors.white,
@@ -102,7 +132,7 @@ class _LoginPageState extends State<LogInPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           SizedBox(
-                            height: 44.h,
+                            height: 52.h,
                           ),
                           Text(
                             "Logowanie",
@@ -237,11 +267,14 @@ class _LoginPageState extends State<LogInPage> {
     });
 
     if (response.statusCode == 200) {
-      var jsonResponse = json.decode(utf8.decode(response.bodyBytes));
-      if (jsonResponse != null) {
-        Helper.toastSuccess("Zalogowano");
-        await _getMeAsUser();
+      final UserLogInModel model = UserLogInModel.fromJson(json.decode(utf8.decode(response.bodyBytes)));
+      if(model.role == 'admin'){
+        Helper.toastSuccess("Zalogowano jako administrator");
+        Navigator.of(context).pop();
+        return;
       }
+      await _getMeAsUser();
+
     } else if (response.statusCode == 400) {
       Helper.toastFail("Niepoprawne dane logowania");
     }else if (response.statusCode == 404) {
@@ -266,8 +299,8 @@ class _LoginPageState extends State<LogInPage> {
     }
 
     if (response.statusCode == 200) {
-      var jsonResponse = json.decode(utf8.decode(response.bodyBytes));
-      var state = jsonResponse['state'];
+      UserMeModel model = UserMeModel.fromJson(json.decode(utf8.decode(response.bodyBytes)));
+      var state = model.state;
       if (state == 'valid') {
         print("User state is valid");
         if (Navigator.canPop(context)) {
@@ -282,8 +315,10 @@ class _LoginPageState extends State<LogInPage> {
         print("User state is incomplete");
       } else if (state == 'locked') {
         Helper.toastFail("Konto zostało zablokowane");
+        _authService.logOut();
       } else {
         Helper.toastFail("Konto posiada nieznany status");
+        _authService.logOut();
       }
     }else if (response.statusCode == 404) {
       Helper.toastFail('Serwer nie odpowiada');

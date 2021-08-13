@@ -111,7 +111,7 @@ class _RouteAddPageState extends State<RouteAddPage> {
         Helper.toastFail("Trasa z tą nazwą już istnieje");
       } else if (jsonResponse['code'] == 'route_name_too_short') {
         Helper.toastFail("Nazwa trasy jest za krótka.");
-      } else {
+      }  else {
         Helper.toastFail("Wystąpił błąd: ${jsonResponse['code']}");
       }
     } else {
@@ -159,14 +159,17 @@ class _RouteAddPageState extends State<RouteAddPage> {
 
     return Scaffold(
         floatingActionButtonLocation: FloatingActionButtonLocation.startTop,
-        floatingActionButton: FloatingActionButton(
-          child: const Icon(
-            Icons.arrow_back_ios,
+        floatingActionButton: Padding(
+          padding: EdgeInsets.symmetric(vertical: 8.h),
+          child: FloatingActionButton(
+            child: const Icon(
+              Icons.arrow_back_ios,
+            ),
+            backgroundColor: Colors.grey,
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
           ),
-          backgroundColor: Colors.grey,
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
         ),
         body: Scaffold(
           backgroundColor: Colors.white,
@@ -184,7 +187,7 @@ class _RouteAddPageState extends State<RouteAddPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             SizedBox(
-                              height: 44.h,
+                              height: 52.h,
                             ),
                             Text(
                               "Dodawanie trasy",

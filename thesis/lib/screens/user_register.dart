@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:thesis/AppColors.dart';
 import 'package:thesis/helpers/helper.dart';
+import 'package:thesis/models/LogInModel.dart';
 import 'package:thesis/services/auth_service.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -91,14 +92,17 @@ class _RegisterPageState extends State<RegisterPage> {
 
     return Scaffold(
         floatingActionButtonLocation: FloatingActionButtonLocation.startTop,
-        floatingActionButton: FloatingActionButton(
-          child: const Icon(
-            Icons.arrow_back_ios,
+        floatingActionButton: Padding(
+          padding: EdgeInsets.symmetric(vertical: 8.h),
+          child: FloatingActionButton(
+            child: const Icon(
+              Icons.arrow_back_ios,
+            ),
+            backgroundColor: Colors.grey,
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
           ),
-          backgroundColor: Colors.grey,
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
         ),
         body: Scaffold(
           backgroundColor: Colors.white,
@@ -113,7 +117,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(
-                        height: 44.h,
+                        height: 52.h,
                       ),
                       Text(
                         "Rejestracja",
@@ -256,7 +260,7 @@ class _RegisterPageState extends State<RegisterPage> {
         ));
   }
 
-  void register(String email, password) async {
+  void register(String email, String password) async {
     setState(() {
       _isLoading = true;
     });
@@ -270,7 +274,7 @@ class _RegisterPageState extends State<RegisterPage> {
       if (Navigator.canPop(context)) {
         Navigator.pop(context);
       }
-      Navigator.of(context).pushNamed('/login');
+      Navigator.of(context).pushNamed('/login', arguments: LogInModel(email, password));
     } else if (response.statusCode == 400) {
       var jsonResponse = json.decode(utf8.decode(response.bodyBytes));
       switch (jsonResponse['code']) {

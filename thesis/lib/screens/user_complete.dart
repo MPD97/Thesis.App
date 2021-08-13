@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:thesis/AppColors.dart';
@@ -26,6 +25,9 @@ class _CompleteRegistrationProcessPageState
       return "Pseudonim jest za krótki";
     else if (value.length > 15)
       return "Pseudonim jest za długi";
+    else if(RegExp(r"^[a-zA-Z]\w*$").hasMatch(value) == false){
+      return "Pseudonim zawiera niedozwolone znaki";
+    }
     return null;
   };
 
@@ -67,14 +69,17 @@ class _CompleteRegistrationProcessPageState
 
     return Scaffold(
         floatingActionButtonLocation: FloatingActionButtonLocation.startTop,
-        floatingActionButton: FloatingActionButton(
-          child: const Icon(
-            Icons.arrow_back_ios,
+        floatingActionButton: Padding(
+          padding: EdgeInsets.symmetric(vertical: 8.h),
+          child: FloatingActionButton(
+            child: const Icon(
+              Icons.arrow_back_ios,
+            ),
+            backgroundColor: Colors.grey,
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
           ),
-          backgroundColor: Colors.grey,
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
         ),
         body: Scaffold(
           backgroundColor: Colors.white,
@@ -89,7 +94,7 @@ class _CompleteRegistrationProcessPageState
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(
-                        height: 44.h,
+                        height: 52.h,
                       ),
                       Text(
                         "Dokończ rejestrację konta",
@@ -193,7 +198,11 @@ class _CompleteRegistrationProcessPageState
         case 'invalid_user_pseudonym_length':
           Helper.toastFail('Pseudonim jest za krótki, lub za długi');
           break;
+        case 'invalid_user_pseudonym':
+          Helper.toastFail('Pseudonim jest nieprawidłowy');
+          break;
         default:
+          print(jsonResponse['code']);
           Helper.toastFail('Wystąpił nieznany błąd');
           break;
       }

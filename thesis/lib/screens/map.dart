@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart';
 import 'package:location/location.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
@@ -75,6 +76,7 @@ class MapUiBodyState extends State<MapUiBody> {
   final MinMaxZoomPreference _minMaxZoomPreference =
       MinMaxZoomPreference.unbounded;
 
+  bool _isGrpcConnected = false;
   bool _isInCreatorMode = false;
   bool _isRouteSelected = false;
   final List<LocationModel> _locations = <LocationModel>[];
@@ -125,7 +127,7 @@ class MapUiBodyState extends State<MapUiBody> {
         final _pointId = _json['data']['pointId'];
         for (int i = 0; i < _selectedRoute!.points.length; i++) {
           if (_selectedRoute!.points[i].id == _pointId) {
-            drawCircleRunCompleted(_selectedRoute!.points[i]);
+            drawCirclePointCompleted(_selectedRoute!.points[i]);
             if (i + 1 < _selectedRoute!.points.length) {
               drawCircleRunNext(_selectedRoute!.points[i + 1]);
             }
@@ -147,6 +149,9 @@ class MapUiBodyState extends State<MapUiBody> {
       Helper.toastFail("Coś poszło nie tak");
       return;
     }
+    setState(() {
+      _isGrpcConnected = true;
+    });
     Helper.toastSuccessShort("Nawiązano połączenie");
   }
 
@@ -239,8 +244,8 @@ class MapUiBodyState extends State<MapUiBody> {
         var _response = await getRoutes(visibleRegion, _currentPage++);
         print("Current page: $_currentPage Total pages: $_totalPages");
         if (_response.statusCode == 200) {
-          PagedRouteModel _pagedResult =
-          PagedRouteModel.fromJson(json.decode(_response.body));
+          PagedRouteModel _pagedResult = PagedRouteModel.fromJson(
+              json.decode(utf8.decode(_response.bodyBytes)));
           if (_pagedResult.isNotEmpty) {
             for (var route in _pagedResult.items) {
               addRoute(route);
@@ -312,7 +317,7 @@ class MapUiBodyState extends State<MapUiBody> {
         circleRadius: 6));
   }
 
-  Future drawCircleRunCompleted(PointModel point) async {
+  Future drawCirclePointCompleted(PointModel point) async {
     var _geometry = LatLng(point.latitude, point.longitude);
     await mapController.addCircle(CircleOptions(
         geometry: _geometry,
@@ -461,9 +466,9 @@ class MapUiBodyState extends State<MapUiBody> {
           var location = LocationModel(
               latLng.latitude, latLng.longitude, 15, locationCount);
           if (_locations.isNotEmpty) {
-            var prevoius = _locations[locationCount - 1];
-            var distance = calculateDistance(prevoius.Latitude,
-                prevoius.Longitude, latLng.latitude, latLng.longitude)
+            var previous = _locations[locationCount - 1];
+            var distance = calculateDistance(previous.Latitude,
+                    previous.Longitude, latLng.latitude, latLng.longitude)
                 .toInt();
             print("Distance: $distance");
             if (distance > 500) {
@@ -477,7 +482,7 @@ class MapUiBodyState extends State<MapUiBody> {
             }
             addLocation(location, latLng);
             mapController.addLine(LineOptions(geometry: [
-              LatLng(prevoius.Latitude, prevoius.Longitude),
+              LatLng(previous.Latitude, previous.Longitude),
               latLng
             ], lineColor: "#ff0000", lineWidth: 10.0, lineOpacity: 0.5));
           } else {
@@ -495,26 +500,31 @@ class MapUiBodyState extends State<MapUiBody> {
     Stack onRouteMarkerClickSection() {
       return Stack(
         children: <Widget>[
-          Align(
-            alignment: Alignment.bottomRight,
-            child: FloatingActionButton.extended(
-              heroTag: null,
-              onPressed: () {
-                setState(() {
-                  prepareRun();
-                });
-              },
-              label: const Text('Rozpocznij'),
-              icon: const Icon(Icons.arrow_forward),
-              backgroundColor: Colors.green,
-            ),
-          ),
+          AuthService.isUserAdmin() == true ||
+                  AuthService.userRegistrationCompleted == false
+              ? SizedBox.shrink()
+              : Align(
+                  alignment: Alignment.bottomRight,
+                  child: FloatingActionButton.extended(
+                    heroTag: null,
+                    elevation: 10.sp,
+                    onPressed: () {
+                      setState(() {
+                        prepareRun();
+                      });
+                    },
+                    label: const Text('Rozpocznij'),
+                    icon: const Icon(Icons.arrow_forward),
+                    backgroundColor: Colors.green,
+                  ),
+                ),
           Padding(
             padding: const EdgeInsets.only(left: 30.0),
             child: Align(
               alignment: Alignment.bottomLeft,
               child: FloatingActionButton.extended(
                 heroTag: null,
+                elevation: 10.sp,
                 onPressed: () {
                   Navigator.of(context)
                       .pushNamed('/route/details', arguments: _selectedRoute);
@@ -536,6 +546,7 @@ class MapUiBodyState extends State<MapUiBody> {
             alignment: Alignment.bottomRight,
             child: FloatingActionButton.extended(
               heroTag: null,
+              elevation: 10.sp,
               onPressed: () {
                 onRunStart();
               },
@@ -550,11 +561,33 @@ class MapUiBodyState extends State<MapUiBody> {
               alignment: Alignment.bottomLeft,
               child: FloatingActionButton.extended(
                 heroTag: null,
+                elevation: 10.sp,
                 onPressed: () {
                   onRunPreparingCancelled();
                 },
                 label: const Text('Powrtót'),
                 icon: const Icon(Icons.arrow_back),
+                backgroundColor: Colors.orange,
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    Stack onRouteRunGrpcConnectingSection() {
+      return Stack(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.only(left: 30.0),
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: FloatingActionButton.extended(
+                heroTag: null,
+                elevation: 10.sp,
+                onPressed: () {},
+                label: const Text('Trwa nawiązywanie połączenia'),
+                icon: const Icon(Icons.signal_cellular_alt),
                 backgroundColor: Colors.orange,
               ),
             ),
@@ -572,6 +605,7 @@ class MapUiBodyState extends State<MapUiBody> {
               alignment: Alignment.bottomCenter,
               child: FloatingActionButton.extended(
                 heroTag: null,
+                elevation: 10.sp,
                 onPressed: () {},
                 label: const Text('Trwa pobieranie aktualnej lokalizacji'),
                 icon: const Icon(Icons.gps_not_fixed),
@@ -586,25 +620,40 @@ class MapUiBodyState extends State<MapUiBody> {
     FloatingActionButton onRouteAddNewSection() {
       return FloatingActionButton.extended(
         heroTag: null,
+        elevation: 10.sp,
         onPressed: () => showDialog<String>(
             context: context,
             builder: (BuildContext context) => AlertDialog(
-              title: const Text('Dodawanie nowej trasy'),
-              content: const Text(
-                  'Wybierz kolejno kilka punktów na mapie przytrzymując dłużej palec, a następnie naciśnij zapisz'),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () => Navigator.pop(context, 'anuluj'),
-                  child: const Text('anuluj'),
-                ),
-                TextButton(
-                  onPressed: () => {onCreateRoute()},
-                  child: const Text('OK'),
-                ),
-              ],
-            )),
+                  title: const Text('Dodawanie nowej trasy'),
+                  content: const Text(
+                      'Wybierz kolejno kilka punktów na mapie przytrzymując dłużej palec, a następnie naciśnij zapisz'),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, 'anuluj'),
+                      child: const Text('anuluj'),
+                    ),
+                    TextButton(
+                      onPressed: () => {onCreateRoute()},
+                      child: const Text('OK'),
+                    ),
+                  ],
+                )),
         label: const Text('Dodaj'),
         icon: const Icon(Icons.add),
+        backgroundColor: Colors.green,
+      );
+    }
+
+    FloatingActionButton onNeedToCompleteRegistrationSection() {
+      return FloatingActionButton.extended(
+        heroTag: null,
+        elevation: 10.sp,
+        onPressed: () {
+          Navigator.of(context).pop();
+          Navigator.of(context).pushNamed("/complete-registration-process");
+        },
+        label: const Text('Dokończ rejestrację'),
+        icon: const Icon(Icons.person),
         backgroundColor: Colors.green,
       );
     }
@@ -612,10 +661,30 @@ class MapUiBodyState extends State<MapUiBody> {
     Stack onRouteAddNewSaveSection() {
       return Stack(
         children: <Widget>[
+          _locations.length > 0
+              ? Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 25.h, vertical: 110.w),
+                  child: Align(
+                    alignment: Alignment.topLeft,
+                    child: FloatingActionButton.extended(
+                      heroTag: null,
+                      elevation: 10.sp,
+                      onPressed: () {
+                        onPointCancel();
+                      },
+                      label: const Text('Cofnij'),
+                      icon: const Icon(Icons.arrow_back),
+                      backgroundColor: Colors.orange,
+                    ),
+                  ),
+                )
+              : SizedBox.shrink(),
           Align(
             alignment: Alignment.bottomRight,
             child: FloatingActionButton.extended(
               heroTag: null,
+              elevation: 10.sp,
               onPressed: () {
                 if (_locations.length < 4) {
                   Helper.toastFail("Wymagane są co najmniej 4 punkty");
@@ -640,6 +709,7 @@ class MapUiBodyState extends State<MapUiBody> {
               alignment: Alignment.bottomLeft,
               child: FloatingActionButton.extended(
                 heroTag: null,
+                elevation: 10.sp,
                 onPressed: () {
                   onCreateRouteCancelled();
                 },
@@ -658,17 +728,18 @@ class MapUiBodyState extends State<MapUiBody> {
         children: <Widget>[
           _cameraTracking == false
               ? Align(
-            alignment: Alignment.bottomRight,
-            child: FloatingActionButton.extended(
-              heroTag: null,
-              onPressed: () {
-                enableMapTracking();
-              },
-              label: const Text('Wznów'),
-              icon: const Icon(Icons.assistant_navigation),
-              backgroundColor: Colors.blue,
-            ),
-          )
+                  alignment: Alignment.bottomRight,
+                  child: FloatingActionButton.extended(
+                    heroTag: null,
+                    elevation: 10.sp,
+                    onPressed: () {
+                      enableMapTracking();
+                    },
+                    label: const Text('Wznów'),
+                    icon: const Icon(Icons.assistant_navigation),
+                    backgroundColor: Colors.blue,
+                  ),
+                )
               : const SizedBox.shrink(),
           Padding(
             padding: const EdgeInsets.only(left: 30.0),
@@ -676,6 +747,7 @@ class MapUiBodyState extends State<MapUiBody> {
               alignment: Alignment.bottomLeft,
               child: FloatingActionButton.extended(
                 heroTag: null,
+                elevation: 10.sp,
                 onPressed: () {
                   onRunCancelled();
                 },
@@ -710,17 +782,22 @@ class MapUiBodyState extends State<MapUiBody> {
         ),
         body: mapboxMap,
         floatingActionButton: AuthService.userIsAuthorized == true
-            ? _isInCreatorMode == true
-            ? onRouteAddNewSaveSection()
-            : _isRouteSelected == true
-            ? _isPreparingRunGettingLocation == true
-            ? onRouteRunPreparingGettingLocationSection()
-            : _isPreparingRun == true
-            ? _isInRun == true
-            ? onInRun()
-            : onRouteRunPreparingSection()
-            : onRouteMarkerClickSection()
-            : onRouteAddNewSection()
+            ? AuthService.isUserAdmin() == false &&
+                    AuthService.userRegistrationCompleted == false
+                ? onNeedToCompleteRegistrationSection()
+                : _isInCreatorMode == true
+                    ? onRouteAddNewSaveSection()
+                    : _isRouteSelected == true
+                        ? _isPreparingRunGettingLocation == true
+                            ? onRouteRunPreparingGettingLocationSection()
+                            : _isPreparingRun == true
+                                ? _isInRun == true
+                                    ? onInRun()
+                                    : _isGrpcConnected == false
+                                        ? onRouteRunGrpcConnectingSection()
+                                        : onRouteRunPreparingSection()
+                                : onRouteMarkerClickSection()
+                        : onRouteAddNewSection()
             : onNotLoggedIn());
   }
   Future<bool> validateUserDistance() async {
@@ -772,7 +849,6 @@ class MapUiBodyState extends State<MapUiBody> {
     final _response =
     await _runService.addRunRequest(_currentLocation!, _selectedRoute!.id);
     if (_response == null) {
-      print("_response: NULL");
       return;
     }
 
@@ -783,6 +859,9 @@ class MapUiBodyState extends State<MapUiBody> {
       });
       LocalisationService.setLocation(true);
       Helper.toastSuccess("Rozpoczęto wyścig!");
+    }
+    else{
+      Helper.toastFail("Nie udało sie rozpocząć wiścigu");
     }
   }
 
@@ -811,11 +890,9 @@ class MapUiBodyState extends State<MapUiBody> {
   onRunCompleted() {
     setState(() {
       _isInRun = false;
-      _selectedRoute = null;
       _updateSelectedSymbol(
         const SymbolOptions(iconSize: 1.4),
       );
-      _selectedSymbol = null;
     });
     LocalisationService.setLocation(false);
     disableMapTracking();
@@ -832,7 +909,9 @@ class MapUiBodyState extends State<MapUiBody> {
   }
 
   void addLocation(LocationModel location, LatLng current) {
-    _locations.add(location);
+    setState(() {
+      _locations.add(location);
+    });
     mapController.addSymbol(SymbolOptions(
         geometry: current, iconImage: "rating-v2", iconAnchor: "bottom"));
     Helper.toastSuccessShort("Dodano punkt #${_locations.length}");
@@ -863,7 +942,6 @@ class MapUiBodyState extends State<MapUiBody> {
     await mapController.removeSymbols(mapController.symbols);
     await mapController.removeLines(mapController.lines);
     await mapController.removeCircles(mapController.circles);
-    print("Circles removed");
     _drawedRoutes.clear();
   }
 
@@ -883,6 +961,18 @@ class MapUiBodyState extends State<MapUiBody> {
     });
     await removeSymbolsLinesCircles();
     await drawRoutes();
+  }
+
+  Future onPointCancel() async {
+    if (mapController.symbols.length > 0) {
+      await mapController.removeSymbol(mapController.symbols.last);
+    }
+    if (mapController.lines.length > 0) {
+      await mapController.removeLine(mapController.lines.last);
+    }
+    setState(() {
+      _locations.removeLast();
+    });
   }
 
   Future onCreateRouteCancelled() async {

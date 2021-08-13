@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:background_fetch/background_fetch.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:location/location.dart';
 import 'package:thesis/AppColors.dart';
+import 'package:thesis/models/UserMeModel.dart';
 import 'package:thesis/screens/page_route_generator.dart';
 import 'package:thesis/services/achievement_service.dart';
 import 'package:thesis/services/auth_service.dart';
@@ -13,7 +16,6 @@ import 'package:thesis/services/route_service.dart';
 import 'package:thesis/services/run_service.dart';
 import 'package:thesis/services/score_service.dart';
 import 'package:thesis/services/user_service.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -55,7 +57,8 @@ Future<bool> TryRefreshToken() async {
     var statusCode = refreshResponse.statusCode;
     if (statusCode == 200) {
       print("Token has been refreshed.");
-      return true;
+
+      return await _getMeAsUser();
     } else {
       AuthService.refreshToken = "";
       print("Token was not refreshed. Status code: $statusCode ");
@@ -64,6 +67,36 @@ Future<bool> TryRefreshToken() async {
   }
   print("Token is not need to be refreshed.");
   return true;
+}
+
+Future<bool> _getMeAsUser() async {
+  final _authService = AuthService.getInstance();
+  var response = await _authService.userMeRequest();
+  if (response == null) {
+    return false;
+  }
+
+  if (response.statusCode == 200) {
+    UserMeModel model = UserMeModel.fromJson(json.decode(utf8.decode(response.bodyBytes)));
+    var state = model.state;
+    if (state == 'valid') {
+      return true;
+    } else if (state == 'incomplete') {
+      return true;
+    } else if (state == 'locked') {
+      _authService.logOut();
+      return false;
+    } else {
+      _authService.logOut();
+      return false;
+    }
+  }else if (response.statusCode == 404) {
+    _authService.logOut();
+    return false;
+  }else {
+    _authService.logOut();
+    return false;
+  }
 }
 
 class Application extends StatefulWidget {
@@ -119,6 +152,7 @@ class _ApplicationState extends State<Application> {
         ),
         initialRoute: '/',
         onGenerateRoute: RouteGenerator.generateRoute,
+        debugShowCheckedModeBanner: false,
       ),
       designSize: const Size(360, 640),
     );

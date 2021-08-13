@@ -2,13 +2,14 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:thesis/models/PagedCommentModel.dart';
 import 'package:thesis/models/RouteModel.dart';
 import 'package:thesis/models/UserDetailsModel.dart';
+import 'package:thesis/services/auth_service.dart';
 import 'package:thesis/services/comments_service.dart';
 import 'package:thesis/services/user_service.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class RouteCommentsPage extends StatefulWidget {
   late final RouteModel _model;
@@ -157,7 +158,16 @@ class _RouteCommentsPageState extends State<RouteCommentsPage> {
           itemBuilder: (context, index) {
             final comment = _comments[index];
             return ListTile(
-              onTap: () =>{Navigator.of(context).pushNamed('/user', arguments: comment.userId) },
+              onTap: () => {
+                Navigator.of(context)
+                    .pushNamed('/user', arguments: comment.userId)
+              },
+              onLongPress: () {
+                if (AuthService.isUserAdmin()) {
+                  Navigator.of(context)
+                      .pushNamed('/user/lock', arguments: comment.userId);
+                }
+              },
               leading: const Icon(
                 Icons.perm_identity,
                 size: 50,
@@ -176,15 +186,17 @@ class _RouteCommentsPageState extends State<RouteCommentsPage> {
           itemCount: _comments.length,
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.of(context)
-              .pushNamed("/route/comments/add", arguments: _model);
-        },
-        label: const Text('Dodaj komentarz'),
-        icon: const Icon(Icons.add),
-        backgroundColor: Colors.blue,
-      ),
+      floatingActionButton: AuthService.isUserAdmin() || AuthService.userRegistrationCompleted == false
+          ? SizedBox.shrink()
+          : FloatingActionButton.extended(
+              onPressed: () {
+                Navigator.of(context)
+                    .pushNamed("/route/comments/add", arguments: _model);
+              },
+              label: const Text('Dodaj komentarz'),
+              icon: const Icon(Icons.add),
+              backgroundColor: Colors.blue,
+            ),
     );
   }
 }

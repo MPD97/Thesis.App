@@ -9,7 +9,7 @@ class RouteModel {
   late String difficulty;
   late int length;
   late String status;
-  late String activityKind;
+  late int activityKind;
   late List<PointModel> points;
 
   RouteModel(

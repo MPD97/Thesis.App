@@ -11,6 +11,7 @@ import 'package:thesis/Icons/CupIcon.dart';
 import 'package:thesis/models/PagedRouteRankingModel.dart';
 import 'package:thesis/models/RouteModel.dart';
 import 'package:thesis/models/UserDetailsModel.dart';
+import 'package:thesis/services/auth_service.dart';
 import 'package:thesis/services/run_service.dart';
 import 'package:thesis/services/user_service.dart';
 
@@ -299,6 +300,12 @@ class _RouteRankingPageState extends State<RouteRankingPage> {
                     final ranking = _rankingModel[index];
                     return ListTile(
                       onTap: () =>{Navigator.of(context).pushNamed('/user', arguments: ranking.userId) },
+                      onLongPress: () {
+                        if (AuthService.isUserAdmin()) {
+                          Navigator.of(context)
+                              .pushNamed('/user/lock', arguments: ranking.userId);
+                        }
+                      },
                       leading: index < 3
                           ? Icon(
                               CupIcons.CUP,

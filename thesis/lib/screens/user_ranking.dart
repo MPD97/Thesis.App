@@ -9,6 +9,7 @@ import 'package:thesis/AppColors.dart';
 import 'package:thesis/Icons/CupIcon.dart';
 import 'package:thesis/models/PagedUserRankingModel.dart';
 import 'package:thesis/models/UserDetailsModel.dart';
+import 'package:thesis/services/auth_service.dart';
 import 'package:thesis/services/score_service.dart';
 import 'package:thesis/services/user_service.dart';
 
@@ -148,18 +149,26 @@ class _UserRankingPageState extends State<UserRankingPage> {
           itemBuilder: (context, index) {
             final score = _scoreModel[index];
             return ListTile(
-              onTap: () =>{Navigator.of(context).pushNamed('/user', arguments: score.id) },
+              onTap: () => {
+                Navigator.of(context).pushNamed('/user', arguments: score.id)
+              },
+              onLongPress: () {
+                if (AuthService.isUserAdmin()) {
+                  Navigator.of(context)
+                      .pushNamed('/user/lock', arguments: score.id);
+                }
+              },
               leading: index < 3
                   ? Icon(
-                CupIcons.CUP,
-                size: 50,
-                color: index == 0
-                    ? AppColors.GOLD
-                    : index == 1
-                    ? AppColors.SILVER
-                    : index == 2
-                    ? AppColors.BRONZE
-                    : Colors.blue,
+                      CupIcons.CUP,
+                      size: 50,
+                      color: index == 0
+                          ? AppColors.GOLD
+                          : index == 1
+                              ? AppColors.SILVER
+                              : index == 2
+                                  ? AppColors.BRONZE
+                                  : Colors.blue,
               )
                   : Text(
                 "#${index + 1}",

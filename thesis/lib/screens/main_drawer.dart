@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:thesis/services/auth_service.dart';
 
 class MainDrawer extends StatefulWidget {
@@ -16,15 +17,15 @@ class _MainDrawerState extends State<MainDrawer> {
       children: <Widget>[
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(20),
+          padding: EdgeInsets.all(14.r),
           color: Theme.of(context).primaryColor,
           child: Center(
             child: Column(
               children: [
                 Container(
-                  width: 100,
-                  height: 100,
-                  margin: const EdgeInsets.only(top: 30),
+                  width: 80.w,
+                  height: 80.h,
+                  margin: EdgeInsets.only(top: 24.w),
                   decoration: const BoxDecoration(
                       shape: BoxShape.circle,
                       image: DecorationImage(
@@ -38,21 +39,22 @@ class _MainDrawerState extends State<MainDrawer> {
                             ? "brak pseudonimu"
                             : AuthService.pseudonym!
                         : "użytkownik niezalogowany",
-                    style: const TextStyle(fontSize: 20, color: Colors.white)),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 20.sp, color: Colors.white)),
                 Text(
                     AuthService.userIsAuthorized == true
                         ? AuthService.email == ""
                             ? "brak email"
                             : AuthService.email!
                         : "",
-                    style: const TextStyle(color: Colors.white))
+                    style: TextStyle(color: Colors.white, fontSize: 12.sp))
               ],
             ),
           ),
         ),
         ListTile(
           leading: const Icon(Icons.map),
-          title: const Text('Mapa', style: TextStyle(fontSize: 18)),
+          title: Text('Mapa', style: TextStyle(fontSize: 18.sp)),
           onTap: () {
             if (Navigator.canPop(context)) {
               Navigator.pop(context);
@@ -62,9 +64,9 @@ class _MainDrawerState extends State<MainDrawer> {
         ),
         AuthService.userIsAuthorized && AuthService.isUserAdmin()
             ? ListTile(
-                leading: const Icon(Icons.admin_panel_settings),
-                title: const Text('Zarządzaj nowymi trasami',
-                    style: TextStyle(fontSize: 18)),
+          leading: const Icon(Icons.admin_panel_settings),
+                title: Text('Zarządzaj nowymi trasami',
+                    style: TextStyle(fontSize: 18.sp)),
                 onTap: () {
                   if (Navigator.canPop(context)) {
                     Navigator.pop(context);
@@ -75,18 +77,21 @@ class _MainDrawerState extends State<MainDrawer> {
             : const SizedBox.shrink(),
         ListTile(
           leading: Icon(Icons.leaderboard),
-          title: Text('Ranking', style: TextStyle(fontSize: 18)),
-          onTap: (){
+          title: Text('Ranking', style: TextStyle(fontSize: 18.sp)),
+          onTap: () {
             Navigator.of(context).pop(context);
             Navigator.of(context).pushNamed('/user/ranking');
           },
         ),
-        ListTile(
+        AuthService.isUserAdmin() == false ? ListTile(
           leading: AuthService.userIsAuthorized
               ? const Icon(Icons.perm_identity)
               : const Icon(Icons.login),
-          title: Text(AuthService.userIsAuthorized ? "Moje konto" : "Logowanie",
-              style: const TextStyle(fontSize: 18)),
+          title: Text(
+              AuthService.userIsAuthorized
+                  ? "Moje konto"
+                  : "Logowanie",
+              style: TextStyle(fontSize: 18.sp)),
           onTap: () {
             if (Navigator.canPop(context)) {
               Navigator.pop(context);
@@ -97,13 +102,13 @@ class _MainDrawerState extends State<MainDrawer> {
               Navigator.of(context).pushNamed('/login');
             }
           },
-        ),
+        ) : SizedBox.shrink(),
         ListTile(
           leading: AuthService.userIsAuthorized
               ? const Icon(Icons.logout)
               : const Icon(Icons.add),
           title: Text(AuthService.userIsAuthorized ? "Wyloguj" : "Rejestracja",
-              style: const TextStyle(fontSize: 18)),
+              style: TextStyle(fontSize: 18.sp)),
           onTap: () {
             if (AuthService.userIsAuthorized) {
               _authService.logOut();

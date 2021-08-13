@@ -166,7 +166,7 @@ class AuthService {
   }
 
   static bool isUserAdmin() {
-    if (role == 'admin') {
+    if (userIsAuthorized && role == 'admin') {
       _userIsInAdminRole = true;
     } else {
       _userIsInAdminRole = false;
