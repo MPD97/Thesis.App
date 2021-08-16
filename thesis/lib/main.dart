@@ -8,27 +8,14 @@ import 'package:location/location.dart';
 import 'package:thesis/AppColors.dart';
 import 'package:thesis/models/UserMeModel.dart';
 import 'package:thesis/screens/page_route_generator.dart';
-import 'package:thesis/services/achievement_service.dart';
 import 'package:thesis/services/auth_service.dart';
-import 'package:thesis/services/comments_service.dart';
-import 'package:thesis/services/localisation_service.dart';
-import 'package:thesis/services/route_service.dart';
-import 'package:thesis/services/run_service.dart';
-import 'package:thesis/services/score_service.dart';
-import 'package:thesis/services/user_service.dart';
+
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
   checkPermissions();
 
   await AuthService.create();
-  await LocalisationService.create();
-  await RouteService.create();
-  await RunService.create();
-  await ScoreService.create();
-  await AchievementService.create();
-  await UserService.create();
-  await CommentsService.create();
 
   await TryRefreshToken();
   runApp(Application());

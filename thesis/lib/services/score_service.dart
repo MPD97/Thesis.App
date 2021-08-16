@@ -8,13 +8,13 @@ class ScoreService {
   static ScoreService? _instance;
 
   static ScoreService getInstance() {
+    if(_instance == null){
+      return _createInstance();
+    }
     return _instance!;
   }
 
-  static Future<ScoreService> create() async {
-    if (_instance != null) {
-      return _instance!;
-    }
+  static ScoreService _createInstance() {
     print("SCORE SERVICE: CREATING INSTANCE");
     _instance = ScoreService._create();
     return _instance!;
@@ -31,7 +31,7 @@ class ScoreService {
     final _pagination = '&page=${page.toString()}';
     final Uri _searchRunsUrl =
     Uri.parse('$_baseUrl/scores$_orderSort$_pagination');
-
+    print(_searchRunsUrl);
     var response = await http.get(_searchRunsUrl);
     return response;
   }

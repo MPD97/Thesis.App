@@ -44,12 +44,6 @@ class _RouteRankingPageState extends State<RouteRankingPage> {
   DateTime _selectedDate = DateTime.now().toUtc();
   final DateFormat _formatterDate = DateFormat('yyyy MMMM');
 
-  @override
-  void initState() {
-    super.initState();
-    _fetchData();
-  }
-
   Future<void> _onRefresh() async {
     _currentPage = 0;
     _rankingModel.clear();

@@ -99,12 +99,6 @@ class _LoginPageState extends State<LogInPage> {
   @override
   Widget build(BuildContext context) {
     final _key = GlobalKey<FormState>();
-    if(_autoLogIn){
-      if (_key.currentState!.validate()) {
-        _login(emailController.text,
-            passwordController.text);
-      }
-    }
     return Scaffold(
             floatingActionButtonLocation: FloatingActionButtonLocation.startTop,
             floatingActionButton: Padding(

@@ -13,13 +13,13 @@ class CommentsService {
   static CommentsService? _instance;
 
   static CommentsService getInstance() {
+    if(_instance == null){
+      return _createInstance();
+    }
     return _instance!;
   }
 
-  static Future<CommentsService> create() async {
-    if (_instance != null) {
-      return _instance!;
-    }
+  static CommentsService _createInstance() {
     print("COMMENTS SERVICE: CREATING INSTANCE");
     _instance = CommentsService._create();
     return _instance!;

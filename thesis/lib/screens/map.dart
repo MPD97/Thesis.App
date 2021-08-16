@@ -120,26 +120,30 @@ class MapUiBodyState extends State<MapUiBody> {
       Helper.toastFail("Coś poszło nie tak");
       return;
     }
-    print("HandleResponse: $parameters");
-    var _json = json.decode(json.encode(parameters[0]));
-    if (_json['name'] == 'POST /locations') {
-      if (_json['data']['pointId'] != null) {
-        final _pointId = _json['data']['pointId'];
-        for (int i = 0; i < _selectedRoute!.points.length; i++) {
-          if (_selectedRoute!.points[i].id == _pointId) {
-            drawCirclePointCompleted(_selectedRoute!.points[i]);
-            if (i + 1 < _selectedRoute!.points.length) {
-              drawCircleRunNext(_selectedRoute!.points[i + 1]);
+
+    for (int e = 0; e < parameters.length; e++) {
+      print("HandleResponse: $parameters");
+      var _json = json.decode(json.encode(parameters[e]));
+
+      if (_json['name'] == 'POST /locations') {
+        if (_json['data']['pointId'] != null) {
+          final _pointId = _json['data']['pointId'];
+          for (int i = 0; i < _selectedRoute!.points.length; i++) {
+            if (_selectedRoute!.points[i].id == _pointId) {
+              drawCirclePointCompleted(_selectedRoute!.points[i]);
+              if (i + 1 < _selectedRoute!.points.length) {
+                drawCircleRunNext(_selectedRoute!.points[i + 1]);
+              }
+              Helper.toastSuccess("Zaliczono punkt");
+              return;
             }
-            Helper.toastSuccess("Zaliczono punkt");
-            return;
           }
+        } else if (_json['data']['runId'] != null &&
+            _json['data']['userId'] != null &&
+            _json['data']['routeId'] != null) {
+          onRunCompleted();
+          onRunPreparingCancelled();
         }
-      } else if (_json['data']['runId'] != null &&
-          _json['data']['userId'] != null &&
-          _json['data']['routeId'] != null) {
-        onRunCompleted();
-        onRunPreparingCancelled();
       }
     }
   }
@@ -988,7 +992,7 @@ class MapUiBodyState extends State<MapUiBody> {
   }
 
   Future onMapCreated(MapboxMapController controller) async {
-    Future.delayed(const Duration(milliseconds: 1000), () async{
+    Future.delayed(const Duration(milliseconds: 100), () async{
       mapController = controller;
       _mapInitalized = true;
       mapController.addListener(_onMapChanged);

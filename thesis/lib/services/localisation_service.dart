@@ -17,13 +17,13 @@ class LocalisationService {
   static int _lastLocationSendDate = 0;
 
   static LocalisationService getInstance() {
+    if(_instance == null){
+      return _createInstance();
+    }
     return _instance!;
   }
 
-  static Future<LocalisationService> create() async {
-    if (_instance != null) {
-      return _instance!;
-    }
+  static LocalisationService _createInstance() {
     print("LOCALISATION SERVICE: CREATING INSTANCE");
     _instance = LocalisationService._create();
     return _instance!;

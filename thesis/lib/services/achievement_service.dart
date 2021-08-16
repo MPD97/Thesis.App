@@ -8,13 +8,13 @@ class AchievementService {
   static AchievementService? _instance;
 
   static AchievementService getInstance() {
+    if(_instance == null){
+      return _createInstance();
+    }
     return _instance!;
   }
 
-  static Future<AchievementService> create() async {
-    if (_instance != null) {
-      return _instance!;
-    }
+  static AchievementService _createInstance() {
     print("ACHIEVEMENT SERVICE: CREATING INSTANCE");
     _instance = AchievementService._create();
     return _instance!;

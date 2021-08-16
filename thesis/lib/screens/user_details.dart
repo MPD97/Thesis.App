@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:thesis/helpers/helper.dart';
 import 'package:thesis/models/AchievementModel.dart';
@@ -9,9 +10,9 @@ import 'package:thesis/models/UserDetailsModel.dart';
 import 'package:thesis/models/UserRankingPlaceModel.dart';
 import 'package:thesis/models/UserScoreModel.dart';
 import 'package:thesis/services/achievement_service.dart';
+import 'package:thesis/services/auth_service.dart';
 import 'package:thesis/services/score_service.dart';
 import 'package:thesis/services/user_service.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class UserDetailsPage extends StatefulWidget {
   late String userId;
@@ -261,6 +262,20 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
             title: _isLoading
                 ? Text("Wczytywanie")
                 : Text("Użytkownik: ${_userDetails!.pseudonym}")),
+        floatingActionButton: AuthService.isUserAdmin() == true
+            ? Align(
+                alignment: Alignment.bottomRight,
+                child: FloatingActionButton.extended(
+                  onPressed: () {
+                    Navigator.of(context)
+                        .pushNamed('/user/lock', arguments: _userId);
+                  },
+                  label: const Text('Zablokuj użytkownika'),
+                  icon: const Icon(Icons.block),
+                  backgroundColor: Colors.red,
+                ),
+              )
+            : SizedBox.shrink(),
         body: _isLoading
             ? Center(child: CircularProgressIndicator())
             : SingleChildScrollView(
@@ -426,17 +441,17 @@ class MyInfo extends StatelessWidget {
             color: Colors.white,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(height: 10.w),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text(pseudonym,
-                        style: TextStyle(fontSize: 24.sp)),
-                  ],
-                ),
-              ],
-            ))
+            children: [
+              SizedBox(height: 10.w),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Text(pseudonym, style: TextStyle(fontSize: 24.sp)),
+                ],
+              ),
+            ],
+          ),
+        )
       ],
     );
   }

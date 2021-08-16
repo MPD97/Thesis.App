@@ -16,13 +16,13 @@ class RouteService {
   static RouteService? _instance;
 
   static RouteService getInstance() {
+    if(_instance == null){
+      return _createInstance();
+    }
     return _instance!;
   }
 
-  static Future<RouteService> create() async {
-    if (_instance != null) {
-      return _instance!;
-    }
+  static RouteService _createInstance() {
     print("ROUTE SERVICE: CREATING INSTANCE");
     _instance = RouteService._create();
     return _instance!;

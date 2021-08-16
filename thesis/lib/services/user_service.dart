@@ -12,13 +12,13 @@ class UserService {
   static UserService? _instance;
 
   static UserService getInstance() {
+    if(_instance == null){
+      return _createInstance();
+    }
     return _instance!;
   }
 
-  static Future<UserService> create() async {
-    if (_instance != null) {
-      return _instance!;
-    }
+  static UserService _createInstance() {
     print("USER SERVICE: CREATING INSTANCE");
     _instance = UserService._create();
     return _instance!;

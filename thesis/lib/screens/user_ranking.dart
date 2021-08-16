@@ -31,16 +31,12 @@ class _UserRankingPageState extends State<UserRankingPage> {
   UserService _userService = UserService.getInstance();
 
   List<ScoreOverallModel> _scoreModel = [];
+  var _currentPage = 0;
   var _totalPages = 1;
-  var _currentPage = 1;
 
   final _userDetails = <UserDetails>[];
 
-  @override
-  void initState() {
-    super.initState();
-    _fetchData();
-  }
+
 
   Future<void> _onRefresh() async {
     _currentPage = 0;

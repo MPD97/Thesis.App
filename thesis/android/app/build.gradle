@@ -54,8 +54,8 @@ android {
         applicationId "com.ddns.thesisapi.thesis"
         minSdkVersion 20
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 16
-        versionName "1.0.16"
+        versionCode 17
+        versionName "1.0.17"
     }
 
     signingConfigs {

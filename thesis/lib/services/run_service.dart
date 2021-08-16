@@ -14,13 +14,13 @@ class RunService {
   static RunService? _instance;
 
   static RunService getInstance() {
+    if(_instance == null){
+      return _createInstance();
+    }
     return _instance!;
   }
 
-  static Future<RunService> create() async {
-    if (_instance != null) {
-      return _instance!;
-    }
+  static RunService _createInstance() {
     print("RUN SERVICE: CREATING INSTANCE");
     _instance = RunService._create();
     return _instance!;

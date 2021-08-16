@@ -114,7 +114,7 @@ class RouteGenerator {
       case '/user/lock':
         if(AuthService.userIsAuthorized == false)
           return MaterialPageRoute(builder: (_) => LogInPage("",""));
-        if(AuthService.isUserAdmin() == true)
+        if(AuthService.isUserAdmin() == false)
           return _errorInvalidCredentialsRoute("Tylko administrator może zablokowac innego użytkownika");
         if(args is String)
           return MaterialPageRoute(builder: (_) => LockUserPage(args));

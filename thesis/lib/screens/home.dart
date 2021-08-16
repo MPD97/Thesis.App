@@ -99,36 +99,38 @@ class HomePage extends StatelessWidget {
                     SizedBox(
                       height: 20.h,
                     ),
-                    AuthService.isUserAdmin() == false &&
+                        AuthService.isTokenValid() &&
+                            AuthService.isUserAdmin() == false &&
                             AuthService.userRegistrationCompleted == false
                         ? SizedBox(
                             width: double.infinity,
                             child: TextButton(
                               onPressed: () {
-                               Navigator.of(context).pushNamed('/complete-registration-process');
+                                Navigator.of(context).pushNamed(
+                                    '/complete-registration-process');
                               },
                               style: ButtonStyle(
                                   shape: MaterialStateProperty.all<
                                           RoundedRectangleBorder>(
                                       RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8.r),
-                                  )),
-                                  elevation: MaterialStateProperty.all(12),
-                                  backgroundColor: MaterialStateProperty.all(
-                                      AppColors.PRIMARY),
-                                  foregroundColor:
-                                      MaterialStateProperty.all(Colors.white),
-                                  padding: MaterialStateProperty.all(
-                                      EdgeInsets.symmetric(
-                                          horizontal: 50.h, vertical: 10.w)),
-                                  textStyle: MaterialStateProperty.all(
-                                      TextStyle(
-                                          fontSize: 14.sp,
-                                          fontWeight: FontWeight.bold))),
-                              child: Text("Dokończ rejestrację"),
-                            ),
-                          )
-                        : SizedBox.shrink(),
+                                    )),
+                                elevation: MaterialStateProperty.all(12),
+                                backgroundColor: MaterialStateProperty.all(
+                                    AppColors.PRIMARY),
+                                foregroundColor:
+                                MaterialStateProperty.all(Colors.white),
+                                padding: MaterialStateProperty.all(
+                                    EdgeInsets.symmetric(
+                                        horizontal: 50.h, vertical: 10.w)),
+                                textStyle: MaterialStateProperty.all(
+                                    TextStyle(
+                                        fontSize: 14.sp,
+                                        fontWeight: FontWeight.bold))),
+                            child: Text("Dokończ rejestrację"),
+                          ),
+                        )
+                            : SizedBox.shrink(),
                   ],
                     ),
                   ),
