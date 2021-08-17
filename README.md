@@ -1,4 +1,4 @@
-# Flutter geolocation game
+# Geolocation game - Android apk
 
 ## Download
 [Download from GitHub](https://github.com/MPD97/Thesis.App/releases/)
